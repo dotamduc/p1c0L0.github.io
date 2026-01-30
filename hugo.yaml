@@ -1,0 +1,37 @@
+baseURL: "https://dotamduc.github.io/"
+title: "Your Name"
+theme: "PaperMod"
+
+params:
+  # Cấu hình chế độ Profile cho trang chủ
+  profileMode:
+    enabled: true
+    title: "Xin chào, tôi là [Tên Bạn]" # Tên hiển thị to
+    subtitle: "Cybersecurity Student | CTF Player | Developer" # Giới thiệu ngắn gọn
+    imageUrl: "https://link-anh-avatar-cua-ban.jpg" # Link ảnh Avatar
+    imageTitle: "My Avatar"
+    imageWidth: 120
+    imageHeight: 120
+    buttons:
+      - name: Github
+        url: "https://github.com/dotamduc"
+      - name: HackMD
+        url: "https://hackmd.io/@username"
+      - name: Email
+        url: "mailto:email@example.com"
+
+  # Cấu hình Menu điều hướng (Navigation Bar)
+menu:
+  main:
+    - identifier: ctf
+      name: "CTF"
+      url: "/ctf/"
+      weight: 10
+    - identifier: achievements
+      name: "Achievements"
+      url: "/achievements/"
+      weight: 20
+    - identifier: contact
+      name: "Contact"
+      url: "/contact/"
+      weight: 30
