@@ -3,6 +3,8 @@ title: "p1c0L0"
 theme: "PaperMod"
 
 params:
+  defaultTheme: dark       # <--- Luôn luôn là Dark Mode
+  disableThemeToggle: true
   # Cấu hình chế độ Profile cho trang chủ
   profileMode:
     enabled: true

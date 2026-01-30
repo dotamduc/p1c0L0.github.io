@@ -1,0 +1,65 @@
+/* --- HACKER THEME OVERRIDE --- */
+
+:root {
+    /* Bảng màu Hacker: Đen - Trắng - Xanh lá Neon */
+    --theme: #000000 !important;        /* Nền đen tuyệt đối */
+    --entry: #0a0a0a !important;        /* Nền các thẻ bài viết (hơi xám nhẹ để tách biệt) */
+    --primary: #00ff41 !important;      /* Màu xanh Matrix (Neon Green) */
+    --secondary: #dddddd !important;    /* Màu chữ phụ (Trắng xám) */
+    --tertiary: #1a1a1a !important;     /* Màu nền phụ */
+    --content: #ffffff !important;      /* Màu chữ nội dung (Trắng tinh) */
+    --hljs-bg: #111111 !important;      /* Nền khung code */
+    --code-bg: #111111 !important;
+    --border: #00ff41 !important;       /* Viền màu xanh lá */
+}
+
+/* 1. Phông chữ chuẩn Terminal (Monospace) */
+body, h1, h2, h3, h4, h5, h6, p, a {
+    font-family: 'Courier New', 'Courier', 'Lucida Sans Typewriter', 'Lucida Console', monospace !important;
+}
+
+/* 2. Hiệu ứng phát sáng (Neon Glow) cho các tiêu đề và Link */
+a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+a:hover {
+    color: #ffffff;
+    text-shadow: 0 0 8px var(--primary); /* Phát sáng khi di chuột */
+}
+
+/* Tiêu đề chính to nhất */
+h1 {
+    color: #ffffff;
+    text-shadow: 2px 2px 0px #333; /* Bóng cứng tạo khối */
+}
+
+/* 3. Tùy biến các nút bấm (Social Buttons) trên trang chủ */
+.buttons .button {
+    background: transparent !important;
+    border: 1px solid var(--primary) !important; /* Viền xanh mảnh */
+    color: var(--primary) !important;
+    font-weight: bold;
+    border-radius: 0 !important; /* Vuông vức, không bo tròn */
+}
+
+.buttons .button:hover {
+    background: var(--primary) !important;
+    color: #000000 !important; /* Di chuột vào thì nền xanh chữ đen */
+    box-shadow: 0 0 15px var(--primary); /* Phát sáng rực rỡ */
+}
+
+/* 4. Tùy biến thanh Menu trên cùng */
+.nav {
+    background: #000000 !important;
+    border-bottom: 1px solid var(--primary); /* Kẻ vạch xanh ngăn cách */
+}
+
+/* 5. Tùy biến Avatar (Ảnh đại diện) */
+.profile .avatar img {
+    border: 2px solid var(--primary); /* Viền ảnh xanh */
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.5); /* Ảnh phát sáng mờ ảo */
+    border-radius: 50%; /* Giữ tròn (hoặc xóa dòng này nếu muốn ảnh vuông) */
+}
