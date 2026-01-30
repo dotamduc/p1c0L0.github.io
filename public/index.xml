@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Your Name</title>
-    <link>http://localhost:1313/</link>
-    <description>Recent content on Your Name</description>
+    <title>p1c0L0</title>
+    <link>http://localhost:1313/p1c0L0.github.io/</link>
+    <description>Recent content on p1c0L0</description>
     <generator>Hugo -- 0.151.0</generator>
     <language>en</language>
     <lastBuildDate>Fri, 30 Jan 2026 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:1313/p1c0L0.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Giải bài SQL Injection cơ bản</title>
-      <link>http://localhost:1313/ctf/writeups/bai-mau-sql-injection/</link>
+      <link>http://localhost:1313/p1c0L0.github.io/ctf/writeups/bai-mau-sql-injection/</link>
       <pubDate>Fri, 30 Jan 2026 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/ctf/writeups/bai-mau-sql-injection/</guid>
+      <guid>http://localhost:1313/p1c0L0.github.io/ctf/writeups/bai-mau-sql-injection/</guid>
       <description>&lt;p&gt;Đây là bài writeup về cách khai thác lỗi SQL Injection.&lt;/p&gt;
 &lt;h2 id=&#34;phân-tích&#34;&gt;Phân tích&lt;/h2&gt;
 &lt;p&gt;Đoạn code backend đang nối chuỗi trực tiếp:&lt;/p&gt;
@@ -22,22 +22,22 @@
     </item>
     <item>
       <title>Achievements</title>
-      <link>http://localhost:1313/achievements/</link>
+      <link>http://localhost:1313/p1c0L0.github.io/achievements/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/achievements/</guid>
+      <guid>http://localhost:1313/p1c0L0.github.io/achievements/</guid>
       <description>timeline</description>
     </item>
     <item>
       <title>Contact</title>
-      <link>http://localhost:1313/contact/</link>
+      <link>http://localhost:1313/p1c0L0.github.io/contact/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/contact/</guid>
+      <guid>http://localhost:1313/p1c0L0.github.io/contact/</guid>
       <description>&lt;h3 id=&#34;-kết-nối-với-tôi&#34;&gt;📬 Kết nối với tôi&lt;/h3&gt;
 &lt;p&gt;Tôi luôn sẵn sàng trao đổi về An ninh mạng, Lập trình hoặc các dự án thú vị.&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Email:&lt;/strong&gt; [Email của bạn]&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Github:&lt;/strong&gt; [Link Github của bạn]&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;HackMD:&lt;/strong&gt; [Link HackMD của bạn]&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Email:&lt;/strong&gt; &lt;a href=&#34;mailto:doductamhp@gmail.com&#34;&gt;doductamhp@gmail.com&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Github:&lt;/strong&gt; [https://github.com/dotamduc]&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;HackMD:&lt;/strong&gt; [https://hackmd.io/@_w5Xcz0HTuKuAJahDMj8Xw]&lt;/li&gt;
 &lt;/ul&gt;</description>
     </item>
   </channel>

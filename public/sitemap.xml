@@ -2,36 +2,36 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:1313/tags/ctf/</loc>
+    <loc>http://localhost:1313/p1c0L0.github.io/tags/ctf/</loc>
     <lastmod>2026-01-30T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/ctf/</loc>
+    <loc>http://localhost:1313/p1c0L0.github.io/ctf/</loc>
     <lastmod>2026-01-30T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/ctf/writeups/</loc>
+    <loc>http://localhost:1313/p1c0L0.github.io/ctf/writeups/</loc>
     <lastmod>2026-01-30T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/ctf/writeups/bai-mau-sql-injection/</loc>
+    <loc>http://localhost:1313/p1c0L0.github.io/ctf/writeups/bai-mau-sql-injection/</loc>
     <lastmod>2026-01-30T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/sqli/</loc>
+    <loc>http://localhost:1313/p1c0L0.github.io/</loc>
     <lastmod>2026-01-30T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/</loc>
+    <loc>http://localhost:1313/p1c0L0.github.io/tags/sqli/</loc>
     <lastmod>2026-01-30T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/web/</loc>
+    <loc>http://localhost:1313/p1c0L0.github.io/tags/</loc>
     <lastmod>2026-01-30T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/</loc>
+    <loc>http://localhost:1313/p1c0L0.github.io/tags/web/</loc>
     <lastmod>2026-01-30T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/achievements/</loc>
+    <loc>http://localhost:1313/p1c0L0.github.io/achievements/</loc>
   </url><url>
-    <loc>http://localhost:1313/categories/</loc>
+    <loc>http://localhost:1313/p1c0L0.github.io/categories/</loc>
   </url><url>
-    <loc>http://localhost:1313/contact/</loc>
+    <loc>http://localhost:1313/p1c0L0.github.io/contact/</loc>
   </url><url>
-    <loc>http://localhost:1313/ctf/web-security/</loc>
+    <loc>http://localhost:1313/p1c0L0.github.io/ctf/web-security/</loc>
   </url>
 </urlset>
