@@ -1,14 +1,14 @@
 baseURL: "https://dotamduc.github.io/"
-title: "Your Name"
+title: "p1c0L0"
 theme: "PaperMod"
 
 params:
   # Cấu hình chế độ Profile cho trang chủ
   profileMode:
     enabled: true
-    title: "Xin chào, tôi là [Tên Bạn]" # Tên hiển thị to
-    subtitle: "Cybersecurity Student | CTF Player | Developer" # Giới thiệu ngắn gọn
-    imageUrl: "https://link-anh-avatar-cua-ban.jpg" # Link ảnh Avatar
+    title: "Xin chào, tôi là Đỗ Đức Tâm" # Tên hiển thị to
+    subtitle: "Cybersecurity Student | Web Player 🌐" # Giới thiệu ngắn gọn
+    imageUrl: "https://hackmd.io/@_w5Xcz0HTuKuAJahDMj8Xw/HJFkb8QWZe" # Link ảnh Avatar
     imageTitle: "My Avatar"
     imageWidth: 120
     imageHeight: 120
@@ -16,9 +16,9 @@ params:
       - name: Github
         url: "https://github.com/dotamduc"
       - name: HackMD
-        url: "https://hackmd.io/@username"
+        url: "https://hackmd.io/@_w5Xcz0HTuKuAJahDMj8Xw"
       - name: Email
-        url: "mailto:email@example.com"
+        url: "doductamhp@gmail.com"
 
   # Cấu hình Menu điều hướng (Navigation Bar)
 menu:
