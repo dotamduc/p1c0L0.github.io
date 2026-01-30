@@ -21,7 +21,11 @@ params:
         url: "https://hackmd.io/@_w5Xcz0HTuKuAJahDMj8Xw"
       - name: Email
         url: "doductamhp@gmail.com"
-
+    assets:
+    favicon: "images/favicon.png"
+    favicon16x16: "images/favicon.png"
+    favicon32x32: "images/favicon.png"
+    apple_touch_icon: "images/favicon.png"
   # Cấu hình Menu điều hướng (Navigation Bar)
 menu:
   main:

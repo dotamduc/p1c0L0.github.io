@@ -21,6 +21,23 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
     </item>
     <item>
+      <title>About Me</title>
+      <link>http://localhost:1313/p1c0L0.github.io/about/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/p1c0L0.github.io/about/</guid>
+      <description>&lt;h2 id=&#34;-who-am-i&#34;&gt;👨‍💻 Who am I?&lt;/h2&gt;
+&lt;p&gt;Tôi là &lt;strong&gt;Đỗ Đức Tâm&lt;/strong&gt;, một sinh viên đam mê &lt;strong&gt;An ninh mạng (Cybersecurity)&lt;/strong&gt; và &lt;strong&gt;Lập trình&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Tôi thích tìm hiểu về cách các hệ thống hoạt động và cách&amp;hellip; bẻ khóa chúng (trong môi trường hợp pháp!).&lt;/p&gt;
+&lt;h3 id=&#34;-kỹ-năng-chính&#34;&gt;🛠 Kỹ năng chính&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Web Security:&lt;/strong&gt; Pentest, tìm lỗ hổng XSS, SQLi&amp;hellip;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;CTF Player:&lt;/strong&gt; Chuyên mảng Web &amp;amp; Forensics.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Programming:&lt;/strong&gt; Python, Go, JavaScript.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&amp;ldquo;Hacking is not about breaking things, it&amp;rsquo;s about understanding them.&amp;rdquo;&lt;/p&gt;</description>
+    </item>
+    <item>
       <title>Achievements</title>
       <link>http://localhost:1313/p1c0L0.github.io/achievements/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -35,9 +52,15 @@
       <description>&lt;h3 id=&#34;-kết-nối-với-tôi&#34;&gt;📬 Kết nối với tôi&lt;/h3&gt;
 &lt;p&gt;Tôi luôn sẵn sàng trao đổi về An ninh mạng, Lập trình hoặc các dự án thú vị.&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;Email:&lt;/strong&gt; &lt;a href=&#34;mailto:doductamhp@gmail.com&#34;&gt;doductamhp@gmail.com&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Github:&lt;/strong&gt; [https://github.com/dotamduc]&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;HackMD:&lt;/strong&gt; [https://hackmd.io/@_w5Xcz0HTuKuAJahDMj8Xw]&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Email:&lt;/strong&gt; &lt;a href=&#34;mailto:doductamhp@gmail.com&#34;&gt;doductamhp@gmail.com&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Github:&lt;/strong&gt; &lt;a href=&#34;https://github.com/dotamduc&#34;&gt;dotamduc&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;HackMD:&lt;/strong&gt; &lt;a href=&#34;https://hackmd.io/@_w5Xcz0HTuKuAJahDMj8Xw&#34;&gt;p1c0L0&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
 &lt;/ul&gt;</description>
     </item>
   </channel>
