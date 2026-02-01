@@ -10,7 +10,7 @@
 <meta name="description" content="Chia sẻ kiến thức về bảo mật Web (XSS, SQLi, RCE...).">
 <meta name="author" content="">
 <link rel="canonical" href="http://localhost:1313/p1c0L0.github.io/ctf/web-security/">
-<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.d1cc943bd26ea5a0c95df99ee0a6ec7429382e31fddd3daa0b92d86d69b10cfb.css" integrity="sha256-0cyUO9JupaDJXfme4KbsdCk4LjH93T2qC5LYbWmxDPs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.76a739ec9e19c0128deb6be5591d168c8e3b9a8640e14dc34a2f248f674ef884.css" integrity="sha256-dqc57J4ZwBKN62vlWR0WjI47moZA4U3DSi8kj2dO&#43;IQ=" rel="preload stylesheet" as="style">
 <link rel="icon" href="http://localhost:1313/p1c0L0.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/p1c0L0.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/p1c0L0.github.io/favicon-32x32.png">
@@ -32,6 +32,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
 <link rel="shortcut icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
 <link rel="apple-touch-icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body class="list" id="top">
     <header class="header">
@@ -74,6 +75,47 @@
     Chia sẻ kiến thức về bảo mật Web (XSS, SQLi, RCE&hellip;).
   </div>
 </header>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">CSP (Content Security Policy)
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>Giới thiệu về CSP (Content Security Policy) 1. CSP là gì? CSP (Content Security Policy) là một cơ chế bảo mật phía client giúp ngăn chặn các tấn công dạng XSS, data injection,..v.v.. bằng cách kiểm soát source mà browser được phép tải và thực thi tài nguyên (scripts, styles, images, frames, fonts, ..v.v..)
+Nói dễ hiểu ra thì là: CSP = Whitelist các nguồn an toàn mà browser được phép dùng
+...</p>
+  </div>
+  <footer class="entry-footer"></footer>
+  <a class="entry-link" aria-label="post link to CSP (Content Security Policy)" href="http://localhost:1313/p1c0L0.github.io/ctf/web-security/csp-content-security-policy/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Dangling Markup Attack
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> title: Dangling Markup Attack tag: Dangling Markup Attack Introduction Là một kỹ thuật khai thác lỗ hổng injection vào web, thường được sử dụng khi các phương pháp XSS truyền thống bị chặn bởi các cơ chế bảo mật như CSP hoặc bộ lọc đầu vào Tại sao browser lại nuốt dữ liệu? Web browser được thiết kế với tiêu chí khoan dung (error-tolerant). Khi gặp mã HTML bị lỗi (VD: thiếu dấu đóng ngoặc kép) thay vì báo lỗi và dừng hiển thị (như XML) trình duyệt sẽ cố gắng sửa lỗi để hiển thị nội dung tốt nhất có thể cho người dùng Cơ chế này hoạt động dựa trên state machine của trình phân tích cú pháp (HTML Parser). Khi trình duyệt gặp một thuộc tính mở (VD: &lt;img src=&#34;), nó chuyển sang trạng thái Attribute Value Double Quoted State Trình duyệt sẽ tiếp tục đọc mọi ký tự tiếp theo dưới dạng giá trị của thuộc tính cho đến khi nó tìm thấy dấu ngoặc kép đóng (&#34;) tương ứng Nó bỏ qua các dấu xuống dòng, các thẻ HTML khác, và cả các dữ liệu nhạy cảm nằm giữa thẻ mở của attacker và dấu ngoặc kép tiếp theo trong trang web =&gt; Dangling Markup Dangling Markup với CSP Trong XSS thông thường thì attacker thực thi mã JS (VD: &lt;script&gt;alert(1)&lt;/script&gt;). Nhưng nếu CSP chặn việc thực thi script hoặc chặn tải tài nguyên từ tên miền bên ngoài, XSS truyền thống sẽ vô hiệu Dangling Markup giải quyết vấn đề này bằng cách inject một tag HTML không đóng -&gt; unclosed tag Dangling Markup không thực thi mã. Nó biến cấu trúc DOM của trang web (bao gồm CSRF token, thông tin cá nhân) thành dữ liệu (VD: một phần của URL ảnh hoặc tên window). Vì đây là hành vi phân tích cú pháp HTML hợp lệ, CSP (vốn chỉ quản lý việc tải tài nguyên) thường không chặn được quá trình nuốt dữ liệu này. Việc không đóng tag khiến browser nuốt toàn bộ nội dung HTML phía sau điểm injection (cho đến khi gặp ký tự kết thúc phù hợp) và coi đấy là một phần của thuộc tính trong tag độc hại Case study (Được thực hiện trên Firefox) Reflected XSS protected by very strict CSP, with dangling markup attack Lấy CSRF Token để đổi email người dùng
+...</p>
+  </div>
+  <footer class="entry-footer"></footer>
+  <a class="entry-link" aria-label="post link to Dangling Markup Attack" href="http://localhost:1313/p1c0L0.github.io/ctf/web-security/dangling-markup-attack/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">SQL Injection - Format Strings
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> title: SQL Injection - Format Strings Tổng quan Lỗ hổng này xảy ra khi dev cố gắng bảo vệ ứng dụng khỏi SQLi bằng cách làm sạch (sanitize) dữ liệu đầu vào (VD: dùng addslashes hoặc thay thế ký tự &#34;), nhưng sau đó lại đưa dữ liệu đã làm sạch đó vào một hàm định dạng chuỗi (như printf, sprintf) trước khi gửi xuống Database
+Attacker có thể tiêm các Format Specifiers (ký tự đặc tả định dạng như %s, %c, %d) vào câu truy vấn để thao túng cấu trúc SQL cuối cùng
+...</p>
+  </div>
+  <footer class="entry-footer"></footer>
+  <a class="entry-link" aria-label="post link to SQL Injection - Format Strings" href="http://localhost:1313/p1c0L0.github.io/ctf/web-security/sql-injection---format-strings/"></a>
+</article>
     </main>
     
 <footer class="footer">
@@ -92,69 +134,108 @@
 </a><canvas id="matrix-bg"></canvas>
 
 <style>
+     
     #matrix-bg {
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        z-index: -1;  
-        opacity: 0.2;  
-        pointer-events: none;  
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        z-index: -9999;  
+        pointer-events: none;
+    }
+
+     
+    .emoji-reset {
+         
+        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Android Emoji", sans-serif !important;
+        
+         
+        color: initial !important; 
+        
+         
+        background: none !important; 
+        -webkit-text-fill-color: initial !important; 
+        -webkit-background-clip: border-box !important;
+
+         
+        text-shadow: none !important; 
+        
+         
+        font-style: normal !important;
+        display: inline-block !important;
+        font-weight: normal !important;
     }
 </style>
 
 <script>
+    
     const canvas = document.getElementById('matrix-bg');
     const ctx = canvas.getContext('2d');
 
-    
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    
-    const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
-    const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const nums = '0123456789';
-    const alphabet = katakana + latin + nums;
-
-    const fontSize = 16;
-    const columns = canvas.width / fontSize;
-
-    const rainDrops = [];
-
-    
-    for (let x = 0; x < columns; x++) {
-        rainDrops[x] = 1;
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
     }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
-    const draw = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
+    const fontSize = 14;
+    const columns = Math.ceil(window.innerWidth / fontSize);
+    const drops = Array(columns).fill(1);
+
+    function draw() {
         
         ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.fillStyle = '#00ff41'; 
+        
+        ctx.fillStyle = 'rgba(0, 255, 65, 0.15)'; 
         ctx.font = fontSize + 'px monospace';
 
-        for (let i = 0; i < rainDrops.length; i++) {
-            const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-            ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+        for (let i = 0; i < drops.length; i++) {
+            const text = chars.charAt(Math.floor(Math.random() * chars.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
-            
-            if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                rainDrops[i] = 0;
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
             }
-            rainDrops[i]++;
+            drops[i]++;
         }
-    };
+    }
+    
+    
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    setInterval(draw, 35);
+
 
     
-    setInterval(draw, 30);
-
-    
-    window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        function rescueEmojis(node) {
+            
+            if (node.nodeType === 3) { 
+                const text = node.nodeValue;
+                
+                const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
+                
+                if (text.match(emojiRegex)) {
+                    const span = document.createElement('span');
+                    
+                    span.innerHTML = text.replace(emojiRegex, '<span class="emoji-reset">$&</span>');
+                    node.parentNode.replaceChild(span, node);
+                }
+            } 
+            
+            else if (node.nodeType === 1 && 
+                     !['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'].includes(node.tagName) && 
+                     !node.classList.contains('emoji-reset')) {
+                Array.from(node.childNodes).forEach(child => rescueEmojis(child));
+            }
+        }
+        
+        
+        rescueEmojis(document.body);
     });
 </script>
 

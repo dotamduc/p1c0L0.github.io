@@ -225,3 +225,191 @@ body.dark .buttons .button:hover i {
     text-shadow: none;
     transform: rotate(-10deg) scale(1.1); /* Lắc nhẹ và phóng to icon một chút */
 }
+
+/* --- CYBERPUNK BUTTON ANIMATIONS --- */
+
+/* 1. Tạo chuyển động rung lắc (Glitch Keyframes) */
+@keyframes button-glitch {
+    0% { transform: skew(0deg); }
+    20% { transform: skew(-10deg); }
+    40% { transform: skew(10deg); }
+    60% { transform: skew(-5deg); }
+    80% { transform: skew(5deg); }
+    100% { transform: skew(0deg); }
+}
+
+/* 2. Cấu hình cơ bản cho nút */
+.buttons .button {
+    position: relative;
+    overflow: hidden; /* Để chứa luồng sáng quét qua */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    z-index: 1; /* Đảm bảo nút nằm trên các lớp trang trí */
+}
+
+/* 3. Hiệu ứng khi di chuột vào (HOVER STATE) */
+.buttons .button:hover {
+    /* Đảo màu: Nền xanh, Chữ đen */
+    background: #0ed640c6 !important;
+    color: #000000 !important;
+    
+    /* Hiệu ứng Neon Glow nhiều lớp */
+    box-shadow: 
+        0 0 10px #00ff41, 
+        0 0 20px #00ff41, 
+        0 0 40px rgba(0, 255, 64, 0.356); 
+
+    /* Kích hoạt rung lắc Glitch */
+    animation: button-glitch 0.4s ease both;
+    
+    /* Phóng to nhẹ để tạo cảm giác nút nổi lên */
+    transform: translateY(-3px) scale(1.05);
+    border-color: #00ff40be !important;
+}
+
+/* 4. Hiệu ứng xoay icon */
+.buttons .button i {
+    transition: transform 0.5s ease;
+}
+.buttons .button:hover i {
+    transform: rotate(360deg); /* Icon xoay 1 vòng */
+}
+
+/* 5. Hiệu ứng Quét sáng (Light Sweep) */
+/* Tạo một vệt sáng chạy vút qua nút */
+.buttons .button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -120%; /* Bắt đầu từ bên ngoài bên trái */
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.8), 
+        transparent
+    );
+    transform: skewX(-20deg); /* Nghiêng vệt sáng cho ngầu */
+    transition: none; /* Không transition lúc quay về vị trí cũ */
+    z-index: -1;
+}
+
+.buttons .button:hover::before {
+    left: 120%; /* Chạy sang bên phải */
+    transition: left 0.5s ease; /* Thời gian chạy là 0.5s */
+}
+
+/* --- HEADER GLOW & BOLD EFFECT --- */
+
+/* 1. Logo trang web (p1c0L0) */
+.logo a, .site-title {
+    font-weight: 900 !important; /* In đậm cực đại */
+    letter-spacing: 2px; /* Giãn chữ ra một chút cho thoáng */
+    text-shadow: 
+        0 0 5px #00ff41, 
+        0 0 15px rgba(0, 255, 65, 0.7) !important; /* Hiệu ứng phát sáng 2 lớp */
+}
+
+/* 2. Các mục Menu (About, CTF, Achievements...) */
+.menu li a {
+    font-weight: bold !important;
+    font-size: 1.1em !important; /* To hơn một chút */
+    color: #00ff41 !important;
+    
+    /* Hiệu ứng phát sáng nhẹ mặc định */
+    text-shadow: 0 0 3px rgba(0, 255, 65, 0.5) !important;
+    
+    transition: all 0.3s ease;
+}
+
+/* 3. Hiệu ứng khi di chuột vào Menu (Hover) */
+.menu li a:hover {
+    color: #ffffff !important; /* Chuyển sang màu trắng */
+    
+    /* Phát sáng rực rỡ khi chạm vào */
+    text-shadow: 
+        0 0 10px #00ff41, 
+        0 0 20px #00ff41, 
+        0 0 40px #00ff41 !important;
+        
+    transform: scale(1.1); /* Phóng to nhẹ */
+}
+
+/* 4. Đường kẻ dưới chân Header (Làm nó sáng lên luôn) */
+.nav {
+    border-bottom: 2px solid #00ff41 !important;
+    box-shadow: 0 2px 10px rgba(0, 255, 65, 0.2); /* Đổ bóng xanh xuống dưới */
+}
+
+/* --- HEADER MENU: STABLE LAYOUT (NO JUMPING) --- */
+
+/* 1. Cấu hình mặc định (Luôn giữ chỗ cho mọi thành phần) */
+#menu li a {
+    display: inline-block !important;
+    padding: 8px 10px !important;
+    margin: 0 5px !important;      /* Tăng khoảng cách các mục lên chút cho thoáng */
+    border-radius: 10px !important;
+    line-height: 1.4 !important;
+    
+    color: #00ff41 !important;
+    background: transparent !important;
+    font-weight: 900 !important; 
+    font-family: 'Courier New', monospace !important;
+    
+    /* MẸO 1: Luôn có viền (nhưng trong suốt) để khi hover thêm viền màu không bị dày lên */
+    border: 1px solid transparent !important;
+    
+    transition: all 0.2s ease !important;
+    
+    /* Đảm bảo tính toán kích thước bao gồm cả viền */
+    box-sizing: border-box !important;
+}
+
+/* 2. Xử lý dấu ">" (Giữ chỗ trước để không bị đẩy) */
+#menu li a::before {
+    content: ">" !important;  /* Dấu này LUÔN TỒN TẠI */
+    margin-right: 6px !important;
+    display: inline-block !important;
+    font-weight: 900 !important;
+    
+    /* MẸO 2: Ẩn đi bằng độ trong suốt (vẫn chiếm diện tích) thay vì xóa bỏ */
+    opacity: 0 !important; 
+    width: 12px; /* Cố định chiều rộng cho dấu nhắc lệnh */
+    
+    transition: opacity 0.2s ease !important;
+}
+
+/* 3. Trạng thái HOVER (Di chuột vào) */
+#menu li a:hover {
+    background-color: rgba(0, 255, 65, 0.15) !important;
+    
+    /* Chỉ đổi màu viền, không đổi độ dày */
+    border-color: #00ff41 !important;
+    
+    color: #ffffff !important; 
+    box-shadow: 0 0 8px rgba(0, 255, 65, 0.3) !important;
+    transform: none !important;
+}
+
+/* 4. Trạng thái ACTIVE (Đang chọn) */
+#menu li.active a {
+    background-color: rgba(0, 255, 65, 0.05) !important;
+    border-color: #00ff41 !important;
+    color: #00ff41 !important;
+    text-shadow: 0 0 1px #00ff41 !important;
+}
+
+/* 5. Hiển thị dấu ">" khi Hover hoặc Active */
+#menu li a:hover::before,
+#menu li.active a::before {
+    opacity: 1 !important; /* Hiện hình */
+    color: #00ff41 !important;
+    
+    /* Chỉ nhấp nháy độ sáng, không làm thay đổi kích thước */
+    animation: cursor-blink 1s step-end infinite;
+}
+
+@keyframes cursor-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}

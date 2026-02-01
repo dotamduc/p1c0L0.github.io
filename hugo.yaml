@@ -15,7 +15,6 @@ params:
     imageWidth: 120
     imageHeight: 120
     buttons:
-      buttons:
       - name: "<i class='fab fa-github'></i> Github"
         url: "https://github.com/dotamduc"
         

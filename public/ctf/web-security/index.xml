@@ -7,5 +7,68 @@
     <generator>Hugo -- 0.151.0</generator>
     <language>en</language>
     <atom:link href="http://localhost:1313/p1c0L0.github.io/ctf/web-security/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>CSP (Content Security Policy)</title>
+      <link>http://localhost:1313/p1c0L0.github.io/ctf/web-security/csp-content-security-policy/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/p1c0L0.github.io/ctf/web-security/csp-content-security-policy/</guid>
+      <description>&lt;h3 id=&#34;giới-thiệu-về-csp-content-security-policy&#34;&gt;Giới thiệu về CSP (Content Security Policy)&lt;/h3&gt;
+&lt;h4 id=&#34;1-csp-là-gì&#34;&gt;1. CSP là gì?&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;CSP (Content Security Policy) là một cơ chế bảo mật phía client giúp ngăn chặn các tấn công dạng XSS, data injection,..v.v..  bằng cách kiểm soát source mà browser được phép tải và thực thi tài nguyên (scripts, styles, images, frames, fonts, ..v.v..)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Nói dễ hiểu ra thì là: CSP = Whitelist các nguồn an toàn mà browser được phép dùng&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Dangling Markup Attack</title>
+      <link>http://localhost:1313/p1c0L0.github.io/ctf/web-security/dangling-markup-attack/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/p1c0L0.github.io/ctf/web-security/dangling-markup-attack/</guid>
+      <description>&lt;hr&gt;
+&lt;h2 id=&#34;tag-dangling-markup-attack&#34;&gt;title: Dangling Markup Attack
+tag: Dangling Markup Attack&lt;/h2&gt;
+&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;Là một kỹ thuật khai thác lỗ hổng injection vào web, thường được sử dụng khi các phương pháp XSS truyền thống bị chặn bởi các cơ chế bảo mật như CSP hoặc bộ lọc đầu vào&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;tại-sao-browser-lại-nuốt-dữ-liệu&#34;&gt;Tại sao browser lại nuốt dữ liệu?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Web browser được thiết kế với tiêu chí khoan dung (error-tolerant). Khi gặp mã HTML bị lỗi (VD: thiếu dấu đóng ngoặc kép) thay vì báo lỗi và dừng hiển thị (như XML) trình duyệt sẽ cố gắng sửa lỗi để hiển thị nội dung tốt nhất có thể cho người dùng&lt;/li&gt;
+&lt;li&gt;Cơ chế này hoạt động dựa trên state machine của trình phân tích cú pháp (HTML Parser). Khi trình duyệt gặp một thuộc tính mở (VD: &lt;code&gt;&amp;lt;img src=&amp;quot;&lt;/code&gt;), nó chuyển sang trạng thái &lt;code&gt;Attribute Value Double Quoted State&lt;/code&gt;
+&lt;ul&gt;
+&lt;li&gt;Trình duyệt sẽ tiếp tục đọc mọi ký tự tiếp theo dưới dạng giá trị của thuộc tính cho đến khi nó tìm thấy dấu ngoặc kép đóng (&lt;code&gt;&amp;quot;&lt;/code&gt;) tương ứng&lt;/li&gt;
+&lt;li&gt;Nó bỏ qua các dấu xuống dòng, các thẻ HTML khác, và cả các dữ liệu nhạy cảm nằm giữa thẻ mở của attacker và dấu ngoặc kép tiếp theo trong trang web =&amp;gt; &lt;strong&gt;Dangling Markup&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;dangling-markup-với-csp&#34;&gt;Dangling Markup với CSP&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Trong XSS thông thường thì attacker thực thi mã JS (VD: &lt;code&gt;&amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt;&lt;/code&gt;). Nhưng nếu CSP chặn việc thực thi script hoặc chặn tải tài nguyên từ tên miền bên ngoài, XSS truyền thống sẽ vô hiệu&lt;/li&gt;
+&lt;li&gt;Dangling Markup giải quyết vấn đề này bằng cách inject một tag HTML không đóng -&amp;gt; unclosed tag&lt;/li&gt;
+&lt;li&gt;Dangling Markup không thực thi mã. Nó biến cấu trúc DOM của trang web (bao gồm &lt;code&gt;CSRF token&lt;/code&gt;, thông tin cá nhân) thành dữ liệu (VD: một phần của URL ảnh hoặc tên window).&lt;/li&gt;
+&lt;li&gt;Vì đây là hành vi phân tích cú pháp HTML hợp lệ, CSP (vốn chỉ quản lý việc tải tài nguyên) thường không chặn được quá trình nuốt dữ liệu này.&lt;/li&gt;
+&lt;li&gt;Việc không đóng tag khiến browser nuốt toàn bộ nội dung HTML phía sau điểm injection (cho đến khi gặp ký tự kết thúc phù hợp) và coi đấy là một phần của thuộc tính trong tag độc hại&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;case-study-được-thực-hiện-trên-firefox&#34;&gt;Case study (Được thực hiện trên Firefox)&lt;/h1&gt;
+&lt;p&gt;&lt;a href=&#34;https://portswigger.net/web-security/cross-site-scripting/content-security-policy/lab-very-strict-csp-with-dangling-markup-attack&#34;&gt;Reflected XSS protected by very strict CSP, with dangling markup attack&lt;/a&gt;
+&lt;strong&gt;Lấy CSRF Token để đổi email người dùng&lt;/strong&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>SQL Injection - Format Strings</title>
+      <link>http://localhost:1313/p1c0L0.github.io/ctf/web-security/sql-injection---format-strings/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/p1c0L0.github.io/ctf/web-security/sql-injection---format-strings/</guid>
+      <description>&lt;hr&gt;
+&lt;h2 id=&#34;title-sql-injection---format-strings&#34;&gt;title: SQL Injection - Format Strings&lt;/h2&gt;
+&lt;h1 id=&#34;tổng-quan&#34;&gt;Tổng quan&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Lỗ hổng này xảy ra khi dev cố gắng bảo vệ ứng dụng khỏi SQLi bằng cách làm sạch (sanitize) dữ liệu đầu vào (VD: dùng &lt;code&gt;addslashes&lt;/code&gt; hoặc thay thế ký tự &lt;code&gt;&amp;quot;&lt;/code&gt;), nhưng sau đó lại đưa dữ liệu đã làm sạch đó vào một hàm định dạng chuỗi (như &lt;code&gt;printf&lt;/code&gt;, &lt;code&gt;sprintf&lt;/code&gt;) trước khi gửi xuống &lt;code&gt;Database&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Attacker có thể tiêm các Format Specifiers (ký tự đặc tả định dạng như &lt;code&gt;%s, %c, %d&lt;/code&gt;) vào câu truy vấn để thao túng cấu trúc SQL cuối cùng&lt;/p&gt;</description>
+    </item>
   </channel>
 </rss>

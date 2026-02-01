@@ -1,0 +1,37 @@
+{{- with .Site.Params.profileMode }}
+<div class="profile">
+    <div class="profile_inner">
+        {{- if .imageUrl -}}
+        {{- $img := "" }}
+        {{- if not (urls.Parse .imageUrl).IsAbs }}
+            {{- $img = resources.Get .imageUrl }}
+        {{- end }}
+        {{- if $img }}
+            {{- $img = $img.Resize (printf "%dx%d" (.imageWidth | default 150) (.imageHeight | default 150)) }}
+            <img draggable="false" src="{{ $img.Permalink }}" alt="{{ .imageTitle | default "profile image" }}" title="{{ .imageTitle }}"
+                height="{{ .imageHeight | default 150 }}" width="{{ .imageWidth | default 150 }}" />
+        {{- else }}
+            <img draggable="false" src="{{ .imageUrl | absURL }}" alt="{{ .imageTitle | default "profile image" }}" title="{{ .imageTitle }}"
+                height="{{ .imageHeight | default 150 }}" width="{{ .imageWidth | default 150 }}" />
+        {{- end }}
+        {{- end }}
+
+        <h1>{{ .title | default $.Site.Title | markdownify }}</h1>
+        <span>{{ .subtitle | markdownify }}</span>
+        
+        {{- partial "social_icons.html" .socialIcons -}}
+
+        {{- with .buttons }}
+        <div class="buttons">
+            {{- range . }}
+            <a class="button" href="{{ .url }}" rel="noopener" title="{{ .name }}">
+                <span class="button-inner">
+                    {{ .name | safeHTML }}
+                </span>
+            </a>
+            {{- end }}
+        </div>
+        {{- end }}
+    </div>
+</div>
+{{- end }}

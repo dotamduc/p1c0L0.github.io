@@ -10,7 +10,7 @@
 <meta name="description" content="timeline">
 <meta name="author" content="">
 <link rel="canonical" href="http://localhost:1313/p1c0L0.github.io/achievements/">
-<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.d1cc943bd26ea5a0c95df99ee0a6ec7429382e31fddd3daa0b92d86d69b10cfb.css" integrity="sha256-0cyUO9JupaDJXfme4KbsdCk4LjH93T2qC5LYbWmxDPs=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.14662ad151fc882875200e8daf18961cab87aba90a2f7a1d6d7e11d00f5fa877.css" integrity="sha256-FGYq0VH8iCh1IA6NrxiWHKuHq6kKL3odbX4R0A9fqHc=" rel="preload stylesheet" as="style">
 <link rel="icon" href="http://localhost:1313/p1c0L0.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/p1c0L0.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/p1c0L0.github.io/favicon-32x32.png">
@@ -31,6 +31,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
 <link rel="shortcut icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
 <link rel="apple-touch-icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body id="top">
     <header class="header">
@@ -79,13 +80,11 @@
   <div class="post-content"><h2 id="-thành-tích-nổi-bật">🏆 Thành tích nổi bật<a hidden class="anchor" aria-hidden="true" href="#-thành-tích-nổi-bật">#</a></h2>
 <h3 id="2026">2026<a hidden class="anchor" aria-hidden="true" href="#2026">#</a></h3>
 <ul>
-<li><strong>MTA CTF 2025 Winter:</strong> Tham gia tổ chức và thiết kế banner sự kiện.</li>
-<li><strong>Cybersecurity Project:</strong> Xây dựng website &ldquo;merry-xmas&rdquo; an toàn.</li>
+<li><strong>MTA CTF 2025 Winter:</strong> Thành viên của team <strong>vibe_coders</strong> và đạt TOP 1ST Scoreboard 🥇</li>
 </ul>
 <h3 id="2025">2025<a hidden class="anchor" aria-hidden="true" href="#2025">#</a></h3>
 <ul>
-<li><strong>Giáo dục:</strong> Soạn giáo án lịch sử và tạo học liệu Quizlet môn Triết học Mác-Lênin.</li>
-<li><strong>Học tập:</strong> Nghiên cứu sâu về Docker, Web Security và Vật lý đại cương.</li>
+<li><strong>Cybersecurity Student Contest Vietnam:</strong> Thành viên của team <strong>MTA_SUPPORT</strong> và xếp hạng thứ 12 Bảng B vòng Chung khảo.</li>
 </ul>
 
 
@@ -114,69 +113,108 @@
 </a><canvas id="matrix-bg"></canvas>
 
 <style>
+     
     #matrix-bg {
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        z-index: -1;  
-        opacity: 0.2;  
-        pointer-events: none;  
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        z-index: -9999;  
+        pointer-events: none;
+    }
+
+     
+    .emoji-reset {
+         
+        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Android Emoji", sans-serif !important;
+        
+         
+        color: initial !important; 
+        
+         
+        background: none !important; 
+        -webkit-text-fill-color: initial !important; 
+        -webkit-background-clip: border-box !important;
+
+         
+        text-shadow: none !important; 
+        
+         
+        font-style: normal !important;
+        display: inline-block !important;
+        font-weight: normal !important;
     }
 </style>
 
 <script>
+    
     const canvas = document.getElementById('matrix-bg');
     const ctx = canvas.getContext('2d');
 
-    
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    
-    const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
-    const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const nums = '0123456789';
-    const alphabet = katakana + latin + nums;
-
-    const fontSize = 16;
-    const columns = canvas.width / fontSize;
-
-    const rainDrops = [];
-
-    
-    for (let x = 0; x < columns; x++) {
-        rainDrops[x] = 1;
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
     }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
-    const draw = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
+    const fontSize = 14;
+    const columns = Math.ceil(window.innerWidth / fontSize);
+    const drops = Array(columns).fill(1);
+
+    function draw() {
         
         ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.fillStyle = '#00ff41'; 
+        
+        ctx.fillStyle = 'rgba(0, 255, 65, 0.15)'; 
         ctx.font = fontSize + 'px monospace';
 
-        for (let i = 0; i < rainDrops.length; i++) {
-            const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-            ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+        for (let i = 0; i < drops.length; i++) {
+            const text = chars.charAt(Math.floor(Math.random() * chars.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
-            
-            if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                rainDrops[i] = 0;
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
             }
-            rainDrops[i]++;
+            drops[i]++;
         }
-    };
+    }
+    
+    
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    setInterval(draw, 35);
+
 
     
-    setInterval(draw, 30);
-
-    
-    window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        function rescueEmojis(node) {
+            
+            if (node.nodeType === 3) { 
+                const text = node.nodeValue;
+                
+                const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
+                
+                if (text.match(emojiRegex)) {
+                    const span = document.createElement('span');
+                    
+                    span.innerHTML = text.replace(emojiRegex, '<span class="emoji-reset">$&</span>');
+                    node.parentNode.replaceChild(span, node);
+                }
+            } 
+            
+            else if (node.nodeType === 1 && 
+                     !['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'].includes(node.tagName) && 
+                     !node.classList.contains('emoji-reset')) {
+                Array.from(node.childNodes).forEach(child => rescueEmojis(child));
+            }
+        }
+        
+        
+        rescueEmojis(document.body);
     });
 </script>
 

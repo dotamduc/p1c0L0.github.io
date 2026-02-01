@@ -2,30 +2,6 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:1313/p1c0L0.github.io/tags/ctf/</loc>
-    <lastmod>2026-01-30T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/p1c0L0.github.io/ctf/</loc>
-    <lastmod>2026-01-30T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/p1c0L0.github.io/ctf/writeups/</loc>
-    <lastmod>2026-01-30T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/p1c0L0.github.io/ctf/writeups/bai-mau-sql-injection/</loc>
-    <lastmod>2026-01-30T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/p1c0L0.github.io/</loc>
-    <lastmod>2026-01-30T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/p1c0L0.github.io/tags/sqli/</loc>
-    <lastmod>2026-01-30T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/p1c0L0.github.io/tags/</loc>
-    <lastmod>2026-01-30T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/p1c0L0.github.io/tags/web/</loc>
-    <lastmod>2026-01-30T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>http://localhost:1313/p1c0L0.github.io/about/</loc>
   </url><url>
     <loc>http://localhost:1313/p1c0L0.github.io/achievements/</loc>
@@ -34,6 +10,42 @@
   </url><url>
     <loc>http://localhost:1313/p1c0L0.github.io/contact/</loc>
   </url><url>
+    <loc>http://localhost:1313/p1c0L0.github.io/ctf/web-security/csp-content-security-policy/</loc>
+  </url><url>
+    <loc>http://localhost:1313/p1c0L0.github.io/ctf/</loc>
+  </url><url>
+    <loc>http://localhost:1313/p1c0L0.github.io/ctf/writeups/</loc>
+  </url><url>
+    <loc>http://localhost:1313/p1c0L0.github.io/ctf/web-security/dangling-markup-attack/</loc>
+  </url><url>
+    <loc>http://localhost:1313/p1c0L0.github.io/ctf/writeups/jshit/</loc>
+  </url><url>
+    <loc>http://localhost:1313/p1c0L0.github.io/ctf/writeups/leak-force/</loc>
+  </url><url>
+    <loc>http://localhost:1313/p1c0L0.github.io/ctf/writeups/0xnote/</loc>
+  </url><url>
+    <loc>http://localhost:1313/p1c0L0.github.io/</loc>
+  </url><url>
+    <loc>http://localhost:1313/p1c0L0.github.io/ctf/writeups/packages/</loc>
+  </url><url>
+    <loc>http://localhost:1313/p1c0L0.github.io/ctf/writeups/htb/</loc>
+  </url><url>
+    <loc>http://localhost:1313/p1c0L0.github.io/ctf/writeups/portfolios/</loc>
+  </url><url>
+    <loc>http://localhost:1313/p1c0L0.github.io/ctf/writeups/pwn-mta-ctf/</loc>
+  </url><url>
+    <loc>http://localhost:1313/p1c0L0.github.io/ctf/web-security/sql-injection---format-strings/</loc>
+  </url><url>
+    <loc>http://localhost:1313/p1c0L0.github.io/tags/</loc>
+  </url><url>
+    <loc>http://localhost:1313/p1c0L0.github.io/ctf/writeups/web-mta-ctf/</loc>
+  </url><url>
     <loc>http://localhost:1313/p1c0L0.github.io/ctf/web-security/</loc>
+  </url><url>
+    <loc>http://localhost:1313/p1c0L0.github.io/ctf/writeups/writeup---authman/</loc>
+  </url><url>
+    <loc>http://localhost:1313/p1c0L0.github.io/ctf/writeups/writeup_-authman-buckeye-2025/</loc>
+  </url><url>
+    <loc>http://localhost:1313/p1c0L0.github.io/ctf/writeups/zc-1-challenge/</loc>
   </url>
 </urlset>
