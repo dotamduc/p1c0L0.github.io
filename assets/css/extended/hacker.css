@@ -89,3 +89,37 @@ code {
     border: 2px solid #00ff41;
     box-shadow: 0 0 15px #00ff41;
 }
+
+/* --- FIX MÀU ICON Ở ĐẦU DÒNG --- */
+
+/* 1. Dành cho icon là ảnh (img) hoặc vector (svg) */
+body.dark .entry-content img,
+body.dark .entry-content svg {
+    /* Đặt lại màu về mặc định của icon */
+    color: initial !important; 
+    fill: initial !important; 
+    /* Loại bỏ hiệu ứng phát sáng gây nhòe */
+    text-shadow: none !important;
+    filter: none !important;
+}
+
+/* 2. Dành cho trường hợp icon là Emoji hoặc Font Icon nằm ngay đầu thẻ <li> */
+/* Cách này cố gắng reset màu cho ký tự đầu tiên trong danh sách */
+body.dark .entry-content li::first-letter,
+body.dark .entry-content p::first-letter {
+    /* Nếu đó là emoji, thử ép nó dùng font màu gốc của hệ thống */
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif !important;
+    color: initial !important;
+    text-shadow: none !important;
+    -webkit-text-fill-color: initial !important;
+}
+
+/* 3. Trường hợp đặc biệt: Nếu bạn dùng thẻ <span> hoặc <i> để bao quanh icon */
+/* Ví dụ: * <span>🏆</span> Giải nhất... */
+body.dark .entry-content li > span:first-child,
+body.dark .entry-content li > i:first-child,
+body.dark .entry-content p > span:first-child {
+    color: #ffffff !important; /* Hoặc dùng 'initial' nếu muốn màu gốc */
+    text-shadow: none !important;
+    font-weight: normal !important;
+}
