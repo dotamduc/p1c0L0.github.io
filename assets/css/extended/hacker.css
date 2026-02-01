@@ -123,3 +123,82 @@ body.dark .entry-content p > span:first-child {
     text-shadow: none !important;
     font-weight: normal !important;
 }
+
+/* --- HACKER ANIMATION PACK --- */
+
+/* 1. HIỆU ỨNG CON TRỎ NHẤP NHÁY (BLINKING CURSOR) */
+/* Áp dụng cho tên của bạn và các tiêu đề bài viết */
+.profile h1, .entry-title {
+    position: relative;
+    display: inline-block;
+}
+
+.profile h1::after, .entry-title::after {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 1em;
+    background-color: #00ff41; /* Màu con trỏ xanh */
+    margin-left: 5px;
+    vertical-align: text-bottom;
+    animation: blink-caret 1s step-end infinite;
+}
+
+@keyframes blink-caret {
+    from, to { opacity: 0; }
+    50% { opacity: 1; }
+}
+
+/* 2. HIỆU ỨNG GLITCH (NHIỄU SÓNG) CHO LOGO */
+/* Khi di chuột vào logo p1c0L0 hoặc Avatar sẽ bị giật */
+.site-title:hover, .profile .avatar img:hover {
+    animation: glitch-anim 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+    color: #00ff41 !important;
+}
+
+@keyframes glitch-anim {
+    0% { transform: translate(0) }
+    20% { transform: translate(-2px, 2px) }
+    40% { transform: translate(-2px, -2px) }
+    60% { transform: translate(2px, 2px) }
+    80% { transform: translate(2px, -2px) }
+    100% { transform: translate(0) }
+}
+
+/* 3. HIỆU ỨNG FADE-UP (NỘI DUNG TRƯỢT LÊN) */
+/* Giúp bài viết xuất hiện mượt mà thay vì hiện cục mịch */
+.post-entry, .main-content {
+    animation: fadeUp 0.8s ease-out forwards;
+    opacity: 0; /* Ẩn trước khi animation chạy */
+    transform: translateY(20px);
+}
+
+/* Delay cho từng bài viết để chúng hiện lần lượt (Stagger effect) */
+.post-entry:nth-child(1) { animation-delay: 0.1s; }
+.post-entry:nth-child(2) { animation-delay: 0.2s; }
+.post-entry:nth-child(3) { animation-delay: 0.3s; }
+.post-entry:nth-child(4) { animation-delay: 0.4s; }
+.post-entry:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes fadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 4. HIỆU ỨNG QUÉT (SCANLINE) */
+/* Tạo một vệt quét ngang màn hình như máy tính cũ */
+body::before {
+    content: " ";
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+    z-index: 9999; /* Luôn nằm trên cùng */
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none; /* Không chặn chuột */
+}

@@ -19,8 +19,10 @@ params:
         url: "https://github.com/dotamduc"
       - name: HackMD
         url: "https://hackmd.io/@_w5Xcz0HTuKuAJahDMj8Xw"
-      - name: Email
-        url: "doductamhp@gmail.com"
+      - name: Facebook
+        url: "https://www.facebook.com/ddtzzxT.07/"
+      - name: Instagram
+        url: "https://www.instagram.com/double_d_tm/"
   # Cấu hình Menu điều hướng (Navigation Bar)
 menu:
   main:
