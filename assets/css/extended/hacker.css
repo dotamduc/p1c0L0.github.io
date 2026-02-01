@@ -1,24 +1,34 @@
-/* --- HACKER THEME OVERRIDE --- */
+/* --- HACKER THEME OVERRIDE (MATRIX RAIN VERSION) --- */
 
 :root {
-    /* Bảng màu Hacker: Đen - Trắng - Xanh lá Neon */
-    --theme: #000000 !important;        /* Nền đen tuyệt đối */
-    --entry: #0a0a0a !important;        /* Nền các thẻ bài viết (hơi xám nhẹ để tách biệt) */
+    /* 1. CẤU HÌNH TRONG SUỐT (Quan trọng cho Matrix Rain) */
+    /* Nền chính trong suốt để lộ Canvas phía sau */
+    --theme: transparent !important;        
+    
+    /* Nền các khối bài viết đen mờ 80% để chữ vẫn đọc rõ trên nền mưa rơi */
+    --entry: rgba(57, 56, 56, 0.628) !important;        
+
+    /* 2. CẤU HÌNH MÀU SẮC */
     --primary: #00ff41 !important;      /* Màu xanh Matrix (Neon Green) */
-    --secondary: #dddddd !important;    /* Màu chữ phụ (Trắng xám) */
-    --tertiary: #1a1a1a !important;     /* Màu nền phụ */
-    --content: #ffffff !important;      /* Màu chữ nội dung (Trắng tinh) */
-    --hljs-bg: #111111 !important;      /* Nền khung code */
-    --code-bg: #111111 !important;
-    --border: #00ff41 !important;       /* Viền màu xanh lá */
+    --secondary: #dddddd !important;    /* Màu chữ phụ */
+    --tertiary: #1a1a1a !important;     
+    --content: #ffffff !important;      /* Màu chữ nội dung */
+    --hljs-bg: rgba(0, 0, 0, 0.9) !important; /* Nền code đen mờ */
+    --code-bg: rgba(0, 0, 0, 0.9) !important;
+    --border: #00ff41 !important;       /* Viền xanh */
 }
 
-/* 1. Phông chữ chuẩn Terminal (Monospace) */
-body, h1, h2, h3, h4, h5, h6, p, a {
-    font-family: 'Courier New', 'Courier', 'Lucida Sans Typewriter', 'Lucida Console', monospace !important;
+/* Thiết lập màu nền dự phòng cho Body */
+body {
+    background-color: #000000;
 }
 
-/* 2. Hiệu ứng phát sáng (Neon Glow) cho các tiêu đề và Link */
+/* 3. PHÔNG CHỮ TERMINAL */
+body, h1, h2, h3, h4, h5, h6, p, a, code {
+    font-family: 'Courier New', 'Courier', 'Lucida Sans Typewriter', monospace !important;
+}
+
+/* 4. HIỆU ỨNG PHÁT SÁNG (NEON GLOW) */
 a {
     color: var(--primary);
     text-decoration: none;
@@ -27,39 +37,41 @@ a {
 
 a:hover {
     color: #ffffff;
-    text-shadow: 0 0 8px var(--primary); /* Phát sáng khi di chuột */
+    text-shadow: 0 0 8px var(--primary); /* Link phát sáng khi di chuột */
 }
 
-/* Tiêu đề chính to nhất */
+/* Tiêu đề chính */
 h1 {
     color: #ffffff;
-    text-shadow: 2px 2px 0px #333; /* Bóng cứng tạo khối */
+    text-shadow: 2px 2px 0px #333; 
 }
 
-/* 3. Tùy biến các nút bấm (Social Buttons) trên trang chủ */
+/* 5. NÚT BẤM (SOCIAL BUTTONS) */
 .buttons .button {
-    background: transparent !important;
-    border: 1px solid var(--primary) !important; /* Viền xanh mảnh */
+    background: rgba(0, 0, 0, 0.5) !important; /* Nền nút hơi tối nhẹ */
+    border: 1px solid var(--primary) !important;
     color: var(--primary) !important;
     font-weight: bold;
-    border-radius: 0 !important; /* Vuông vức, không bo tròn */
+    border-radius: 0 !important;
+    backdrop-filter: blur(2px); /* Làm mờ nền sau nút */
 }
 
 .buttons .button:hover {
     background: var(--primary) !important;
-    color: #000000 !important; /* Di chuột vào thì nền xanh chữ đen */
-    box-shadow: 0 0 15px var(--primary); /* Phát sáng rực rỡ */
+    color: #000000 !important;
+    box-shadow: 0 0 15px var(--primary);
 }
 
-/* 4. Tùy biến thanh Menu trên cùng */
+/* 6. THANH MENU (HEADER) */
 .nav {
-    background: #000000 !important;
-    border-bottom: 1px solid var(--primary); /* Kẻ vạch xanh ngăn cách */
+    background: rgba(0, 0, 0, 0.8) !important; /* Menu đen mờ để không bị rối mắt */
+    border-bottom: 1px solid var(--primary);
 }
 
-/* 5. Tùy biến Avatar (Ảnh đại diện) */
+/* 7. ẢNH ĐẠI DIỆN (AVATAR) */
 .profile .avatar img {
-    border: 2px solid var(--primary); /* Viền ảnh xanh */
-    box-shadow: 0 0 15px rgba(0, 255, 65, 0.5); /* Ảnh phát sáng mờ ảo */
-    border-radius: 50%; /* Giữ tròn (hoặc xóa dòng này nếu muốn ảnh vuông) */
+    border: 2px solid var(--primary);
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+    border-radius: 50%;
+    background-color: #000; /* Đảm bảo nền ảnh không bị xuyên thấu nếu ảnh png */
 }

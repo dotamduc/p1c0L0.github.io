@@ -10,7 +10,7 @@
 <meta name="description" content="">
 <meta name="author" content="">
 <link rel="canonical" href="http://localhost:1313/p1c0L0.github.io/tags/web/">
-<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.657783c42dfd6941ac7e0dbc0b145f66af05dc4b721c1e00f87086167ad8a4bc.css" integrity="sha256-ZXeDxC39aUGsfg28CxRfZq8F3EtyHB4A&#43;HCGFnrYpLw=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.d1cc943bd26ea5a0c95df99ee0a6ec7429382e31fddd3daa0b92d86d69b10cfb.css" integrity="sha256-0cyUO9JupaDJXfme4KbsdCk4LjH93T2qC5LYbWmxDPs=" rel="preload stylesheet" as="style">
 <link rel="icon" href="http://localhost:1313/p1c0L0.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/p1c0L0.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/p1c0L0.github.io/favicon-32x32.png">
@@ -28,8 +28,10 @@
         }
 
     </style>
-</noscript><link rel="icon" type="image/png" href="/images/favicon.png">
-<link rel="shortcut icon" type="image/png" href="/images/favicon.png">
+</noscript><link rel="icon" type="image/png" sizes="32x32" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="shortcut icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
+<link rel="apple-touch-icon" href="https://dotamduc.github.io/p1c0L0.github.io/favicon.png">
 </head>
 <body class="list" id="top">
     <header class="header">
@@ -98,7 +100,74 @@ Phân tích Đoạn code backend đang nối chuỗi trực tiếp:
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
         <path d="M12 6H0l6-6z" />
     </svg>
-</a>
+</a><canvas id="matrix-bg"></canvas>
+
+<style>
+    #matrix-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: -1;  
+        opacity: 0.2;  
+        pointer-events: none;  
+    }
+</style>
+
+<script>
+    const canvas = document.getElementById('matrix-bg');
+    const ctx = canvas.getContext('2d');
+
+    
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    
+    const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+    const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const nums = '0123456789';
+    const alphabet = katakana + latin + nums;
+
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+
+    const rainDrops = [];
+
+    
+    for (let x = 0; x < columns; x++) {
+        rainDrops[x] = 1;
+    }
+
+    const draw = () => {
+        
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = '#00ff41'; 
+        ctx.font = fontSize + 'px monospace';
+
+        for (let i = 0; i < rainDrops.length; i++) {
+            const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+            ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+
+            
+            if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                rainDrops[i] = 0;
+            }
+            rainDrops[i]++;
+        }
+    };
+
+    
+    setInterval(draw, 30);
+
+    
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+</script>
 
 <script>
     let menu = document.getElementById('menu');

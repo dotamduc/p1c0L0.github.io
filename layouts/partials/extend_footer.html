@@ -1,0 +1,68 @@
+<canvas id="matrix-bg"></canvas>
+
+<style>
+    #matrix-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: -1; /* Nằm sau tất cả nội dung */
+        opacity: 0.2; /* Độ mờ vừa phải để không rối mắt */
+        pointer-events: none; /* Không chặn chuột click vào link */
+    }
+</style>
+
+<script>
+    const canvas = document.getElementById('matrix-bg');
+    const ctx = canvas.getContext('2d');
+
+    // Chỉnh kích thước canvas full màn hình
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Các ký tự sẽ rơi (Katakana + Số + Chữ cái)
+    const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+    const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const nums = '0123456789';
+    const alphabet = katakana + latin + nums;
+
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+
+    const rainDrops = [];
+
+    // Khởi tạo vị trí giọt mưa
+    for (let x = 0; x < columns; x++) {
+        rainDrops[x] = 1;
+    }
+
+    const draw = () => {
+        // Tạo hiệu ứng vệt mờ (đen bán trong suốt)
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = '#00ff41'; // Màu xanh Hacker
+        ctx.font = fontSize + 'px monospace';
+
+        for (let i = 0; i < rainDrops.length; i++) {
+            const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+            ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+
+            // Reset giọt mưa khi rơi xuống đáy hoặc ngẫu nhiên
+            if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                rainDrops[i] = 0;
+            }
+            rainDrops[i]++;
+        }
+    };
+
+    // Tốc độ rơi (30ms một khung hình)
+    setInterval(draw, 30);
+
+    // Tự chỉnh lại cỡ khi thay đổi kích thước cửa sổ
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+</script>
