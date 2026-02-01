@@ -202,3 +202,26 @@ body::before {
     background-size: 100% 2px, 3px 100%;
     pointer-events: none; /* Không chặn chuột */
 }
+
+/* --- STYLES CHO SOCIAL ICONS --- */
+
+/* 1. Định dạng chung cho icon trong nút */
+.buttons .button i {
+    margin-right: 8px;       /* Tạo khoảng cách giữa icon và chữ */
+    font-size: 1.1em;        /* Icon to hơn chữ một chút cho đẹp */
+    vertical-align: middle;  /* Canh giữa theo chiều dọc */
+    transition: transform 0.3s ease; /* Hiệu ứng chuyển động mượt */
+}
+
+/* 2. Màu sắc icon ở trạng thái bình thường (Dark Mode) */
+body.dark .buttons .button i {
+    color: #00ff41 !important; /* Màu xanh hacker */
+    text-shadow: 0 0 5px rgba(0, 255, 65, 0.5); /* Phát sáng nhẹ */
+}
+
+/* 3. Hiệu ứng khi di chuột vào nút */
+body.dark .buttons .button:hover i {
+    color: #000000 !important; /* Khi nền nút chuyển xanh thì icon chuyển đen cho dễ nhìn */
+    text-shadow: none;
+    transform: rotate(-10deg) scale(1.1); /* Lắc nhẹ và phóng to icon một chút */
+}
