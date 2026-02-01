@@ -2,7 +2,7 @@
 
 :root {
     --theme: transparent !important;       /* Trong suốt để hiện Matrix */
-    --entry: rgba(0, 0, 0, 0.7) !important; /* Nền bài viết đen mờ (để dễ đọc chữ) */
+    --entry: rgba(0, 0, 0, 0.92) !important; /* Nền bài viết đen mờ (để dễ đọc chữ) */
     
     --primary: #00ff41 !important;         /* Xanh Neon (Hacker Green) */
     --secondary: #00ff41 !important;
