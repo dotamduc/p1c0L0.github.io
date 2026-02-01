@@ -124,7 +124,7 @@
         position: fixed;
         top: 0; left: 0;
         width: 100vw; height: 100vh;
-        z-index: -9999;  
+        z-index: -9999;
         pointer-events: none;
     }
 
@@ -160,18 +160,14 @@
     const drops = Array(columns).fill(1);
 
     function draw() {
-        
         ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        
         ctx.fillStyle = 'rgba(0, 255, 65, 0.15)'; 
         ctx.font = fontSize + 'px monospace';
 
         for (let i = 0; i < drops.length; i++) {
             const text = chars.charAt(Math.floor(Math.random() * chars.length));
             ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
             if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
                 drops[i] = 0;
             }
@@ -179,11 +175,9 @@
         }
     }
     
-    
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     setInterval(draw, 35);
-
 
     
     document.addEventListener("DOMContentLoaded", function() {
@@ -191,16 +185,13 @@
             if (node.nodeType === 3) { 
                 const text = node.nodeValue;
                 const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
-                
                 if (text.match(emojiRegex)) {
                     const span = document.createElement('span');
                     span.innerHTML = text.replace(emojiRegex, '<span class="emoji-reset">$&</span>');
                     node.parentNode.replaceChild(span, node);
                 }
             } 
-            else if (node.nodeType === 1 && 
-                     !['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'].includes(node.tagName) && 
-                     !node.classList.contains('emoji-reset')) {
+            else if (node.nodeType === 1 && !['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'].includes(node.tagName) && !node.classList.contains('emoji-reset')) {
                 Array.from(node.childNodes).forEach(child => rescueEmojis(child));
             }
         }
@@ -230,11 +221,9 @@
         const particle = {};
         particle.x = x;
         particle.y = y;
-        
         const colors = ['#00ff41', '#008F11', '#ffffff'];
         particle.color = colors[Math.floor(Math.random() * colors.length)];
-        particle.radius = Math.random() * 2 + 1; 
-        
+        particle.radius = Math.random() * 2 + 1;
         const angle = Math.random() * Math.PI * 2;
         const velocity = Math.random() * 6 + 2;
         particle.vx = Math.cos(angle) * velocity;
@@ -248,20 +237,17 @@
     function animateFireworks() {
         requestAnimationFrame(animateFireworks);
         fwCtx.clearRect(0, 0, fwWidth, fwHeight);
-        
         for (let i = 0; i < particles.length; i++) {
             const p = particles[i];
             fwCtx.beginPath();
             fwCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
             fwCtx.fillStyle = p.color;
-            fwCtx.globalAlpha = p.life / 100; 
+            fwCtx.globalAlpha = p.life / 100;
             fwCtx.fill();
             fwCtx.globalAlpha = 1;
-            
             p.x += p.vx;
             p.y += p.vy;
-            p.life--; 
-            
+            p.life--;
             if (p.life <= 0) {
                 particles.splice(i, 1);
                 i--;
@@ -271,7 +257,6 @@
     animateFireworks();
 
     document.addEventListener('mousedown', (e) => {
-        
         if(e.button === 0) { 
             for (let i = 0; i < 30; i++) {
                 particles.push(createParticle(e.clientX, e.clientY));
@@ -283,22 +268,45 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
 <script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
 
-<div class="hacker-player">
-    <meting-js
-        server="netease"
-        type="playlist"
-        id="8263939636"
-        fixed="true"
-        mini="true"
-        order="random"
-        loop="all"
-        preload="auto"
-        list-folded="true"
-        theme="#00ff41">
-    </meting-js>
-    </div>
+<div id="aplayer-fixed" class="hacker-player"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ap = new APlayer({
+            container: document.getElementById('aplayer-fixed'),
+            fixed: true,       
+            mini: true,        
+            autoplay: true,    
+            theme: '#00ff41',  
+            loop: 'all',       
+            order: 'list',     
+            preload: 'auto',   
+            volume: 0.5,       
+            mutex: true,       
+            listFolded: true,  
+            
+            
+            audio: [
+                {
+                    name: 'Người tình mùa đông', 
+                    artist: 'Tâm zela',   
+                    url: 'music/nhac.mp3', 
+                    cover: 'images/cover.png' 
+                },
+                
+                
+
+            ]
+        });
+        
+        
+        
+        document.body.addEventListener('click', function() {
+            ap.play();
+        }, { once: true });
+    });
+</script>
 
 <style>
      
@@ -315,11 +323,7 @@
     .aplayer .aplayer-info .aplayer-music .aplayer-author { color: #008f11 !important; }
     
      
-    .aplayer .aplayer-lrc p { 
-        color: #00ff41 !important; 
-        text-shadow: 0 0 5px #00ff41; 
-        font-weight: bold;
-    }
+    .aplayer .aplayer-lrc { display: none !important; }
     
      
     .aplayer .aplayer-bar-wrap .aplayer-bar { background: #333 !important; }
