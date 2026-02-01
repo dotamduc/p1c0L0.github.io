@@ -1,52 +1,44 @@
 <canvas id="matrix-bg"></canvas>
 
-<style>
-    #matrix-bg {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        z-index: -9999; /* Đẩy lùi sâu nhất có thể */
-        pointer-events: none;
-    }
-</style>
-
 <script>
     const canvas = document.getElementById('matrix-bg');
     const ctx = canvas.getContext('2d');
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    // Hàm chỉnh kích thước canvas full màn hình
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
     const fontSize = 14;
-    const columns = canvas.width / fontSize;
-    const drops = Array(Math.ceil(columns)).fill(1);
+    const columns = Math.ceil(window.innerWidth / fontSize);
+    const drops = Array(columns).fill(1);
 
     // CẤU HÌNH MÀU SẮC
     const themes = {
         light: {
-            bg: '#f4f4f4',        // Màu nền Light Mode (Xám nhạt)
-            text: '#000080',      // Màu chữ Matrix (Navy)
-            fade: 'rgba(244, 244, 244, 0.2)' // Lớp phủ mờ (phải trùng màu nền)
+            bgFade: 'rgba(244, 244, 244, 0.2)', // Màu nền trắng mờ (Light)
+            text: '#000080' // Chữ Navy
         },
         dark: {
-            bg: '#000000',        // Màu nền Dark Mode (Đen)
-            text: '#00ff41',      // Màu chữ Matrix (Xanh lá)
-            fade: 'rgba(0, 0, 0, 0.1)'       // Lớp phủ mờ (Đen)
+            bgFade: 'rgba(0, 0, 0, 0.1)', // Màu nền đen mờ (Dark)
+            text: '#00ff41' // Chữ Xanh lá
         }
     };
 
     function draw() {
-        // Tự động phát hiện Dark Mode
+        // Kiểm tra trực tiếp xem body có class 'dark' không
         const isDark = document.body.classList.contains('dark');
         const theme = isDark ? themes.dark : themes.light;
 
-        // Vẽ lớp phủ mờ đè lên frame cũ (Tạo hiệu ứng đuôi dài)
-        ctx.fillStyle = theme.fade;
+        // Vẽ lớp phủ mờ để tạo hiệu ứng đuôi dài
+        ctx.fillStyle = theme.bgFade;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+        // Thiết lập màu chữ
         ctx.fillStyle = theme.text;
         ctx.font = fontSize + 'px monospace';
 
@@ -61,15 +53,6 @@
         }
     }
 
-    // Vẽ nền lần đầu để tránh bị trắng chớp nhoáng
-    const initTheme = document.body.classList.contains('dark') ? themes.dark : themes.light;
-    ctx.fillStyle = initTheme.bg;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+    // Chạy vòng lặp vẽ (35ms/khung hình)
     setInterval(draw, 35);
-
-    window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    });
 </script>
