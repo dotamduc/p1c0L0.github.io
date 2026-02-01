@@ -7,7 +7,7 @@
         left: 0;
         width: 100vw;
         height: 100vh;
-        z-index: -9999;
+        z-index: -9999; /* Luôn nằm dưới cùng */
         pointer-events: none;
     }
 </style>
@@ -28,27 +28,13 @@
     const columns = Math.ceil(window.innerWidth / fontSize);
     const drops = Array(columns).fill(1);
 
-    const themes = {
-        light: {
-            text: '#000080',       // Chữ Navy
-            fade: 'rgba(244, 244, 244, 0.2)' // Phủ mờ màu trắng xám
-        },
-        dark: {
-            text: '#00ff41',       // Chữ Xanh lá
-            fade: 'rgba(0, 0, 0, 0.1)'       // Phủ mờ màu đen
-        }
-    };
-
     function draw() {
-        const isDark = document.body.classList.contains('dark');
-        const theme = isDark ? themes.dark : themes.light;
-
-        // Vẽ lớp phủ mờ
-        ctx.fillStyle = theme.fade;
+        // Tạo lớp phủ mờ màu ĐEN để tạo hiệu ứng đuôi dài
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Vẽ ký tự
-        ctx.fillStyle = theme.text;
+        // Màu chữ XANH LÁ HACKER
+        ctx.fillStyle = '#00ff41';
         ctx.font = fontSize + 'px monospace';
 
         for (let i = 0; i < drops.length; i++) {
@@ -61,6 +47,10 @@
             drops[i]++;
         }
     }
-    
-    setInterval(draw, 40);
+
+    // Vẽ nền đen lần đầu
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    setInterval(draw, 35);
 </script>

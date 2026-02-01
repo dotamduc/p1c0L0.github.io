@@ -1,101 +1,91 @@
-/* --- HACKER THEME: VARIABLE OVERRIDE METHOD --- */
+/* --- HACKER THEME: ULTIMATE DARK MODE --- */
 
-/* 1. KHAI BÁO BIẾN CHO LIGHT MODE (Mặc định) */
 :root {
-    --theme: #f4f4f4 !important;           /* Nền xám nhạt */
-    --entry: rgba(255, 255, 255, 0.9) !important; /* Nền bài viết trắng */
-    
-    --primary: #000080 !important;         /* MÀU CHÍNH: Navy Blue */
-    --secondary: #000080 !important;       
-    --content: #000000 !important;         /* VĂN BẢN: Màu đen */
-    
-    --hljs-bg: #e5e5e5 !important;         /* Nền Code */
-    --code-bg: rgba(0, 0, 128, 0.1) !important;
-    --border: #000080 !important;          /* Viền Navy */
-    
-    /* Biến riêng: Màu phát sáng cho Light Mode (Xanh dương nhẹ) */
-    --glow-color: rgba(0, 0, 128, 0.3);
-    
-    /* Font chữ */
-    --font-family: 'Courier New', monospace;
-}
-
-/* 2. KHAI BÁO BIẾN CHO DARK MODE (Ghi đè khi có class 'dark') */
-body.dark {
     --theme: transparent !important;       /* Trong suốt để hiện Matrix */
-    --entry: rgba(0, 0, 0, 0.8) !important; /* Nền bài viết đen mờ */
+    --entry: rgba(0, 0, 0, 0.7) !important; /* Nền bài viết đen mờ (để dễ đọc chữ) */
     
-    --primary: #00ff41 !important;         /* MÀU CHÍNH: Neon Green */
+    --primary: #00ff41 !important;         /* Xanh Neon (Hacker Green) */
     --secondary: #00ff41 !important;
-    --content: #00ff41 !important;         /* VĂN BẢN: Neon Green (Toàn bộ) */
+    --content: #ffffff !important;         /* Chữ nội dung màu Trắng */
     
-    --hljs-bg: #111111 !important;
-    --code-bg: rgba(0, 255, 65, 0.15) !important;
+    --hljs-bg: rgba(10, 10, 10, 0.9) !important;
+    --code-bg: rgba(0, 255, 65, 0.1) !important;
     --border: #00ff41 !important;
     
-    /* Biến riêng: Màu phát sáng cho Dark Mode (Xanh lá mạnh) */
-    --glow-color: rgba(0, 255, 65, 0.7);
+    /* Màu Gradient đặc biệt cho Tên/Tiêu đề */
+    --gradient-text: linear-gradient(90deg, #00ff41, #ffffff, #00ff41);
 }
 
-/* 3. ÁP DỤNG CÁC BIẾN VÀO GIAO DIỆN */
-
-/* Thiết lập nền gốc cho HTML (Nằm dưới cùng) */
-html {
-    background-color: #f4f4f4; /* Mặc định Light */
-}
-html.dark {
-    background-color: #000000; /* Dark mode thì nền đen */
-}
-
-/* Thiết lập Body */
+/* 1. THIẾT LẬP NỀN CỐ ĐỊNH */
 body {
-    background-color: var(--theme) !important;
+    background-color: #000000 !important;
     color: var(--content) !important;
-    font-family: var(--font-family) !important;
+    font-family: 'Courier New', monospace !important;
 }
 
-/* Ép màu cho Tiêu đề, Link, Nút bấm */
-h1, h2, h3, h4, h5, h6, a, strong, b, .title, .entry-title {
-    color: var(--primary) !important;
-    text-shadow: 0 0 5px var(--glow-color); /* Hiệu ứng phát sáng */
-    font-family: var(--font-family) !important;
+/* 2. HIỆU ỨNG CHỮ GRADIENT & GLOW (Điểm nhấn) */
+h1, h2, h3, h4, h5, h6, .site-title, .entry-title {
+    /* Tạo màu chuyển sắc (Gradient) cho chữ */
+    background: var(--gradient-text);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    
+    /* Hiệu ứng phát sáng */
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+    animation: shine 5s linear infinite; /* Chữ lấp lánh nhẹ */
 }
 
-/* Ép màu cho văn bản thường */
-p, li, span, div, .entry-content {
-    color: var(--content) !important;
-    font-family: var(--font-family) !important;
+/* Animation cho chữ chạy màu */
+@keyframes shine {
+    to { background-position: 200% center; }
 }
 
-/* Link khi di chuột */
+/* 3. XỬ LÝ VĂN BẢN & LINK */
+p, li, span, div {
+    color: #ffffff !important; /* Chữ thường màu trắng */
+}
+
+a {
+    color: #00ff41 !important; /* Link màu xanh */
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
 a:hover {
-    text-decoration: underline decoration-wavy var(--primary) !important;
-    text-shadow: 0 0 15px var(--primary) !important;
-    opacity: 1 !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 15px #00ff41, 0 0 30px #00ff41; /* Hover sáng rực */
 }
 
-/* Nút bấm (Social Buttons, v.v.) */
+/* 4. CODE BLOCKS */
+code {
+    background-color: var(--code-bg) !important;
+    color: #00ff41 !important;
+    border: 1px solid #00ff41 !important;
+    text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+}
+
+/* 5. HEADER & BUTTONS */
+.nav {
+    background: rgba(0, 0, 0, 0.8) !important;
+    border-bottom: 2px solid #00ff41;
+}
+
 .buttons .button {
-    border: 1px solid var(--primary) !important;
-    color: var(--primary) !important;
-    background: transparent !important;
-    box-shadow: 0 0 5px var(--glow-color);
+    background: rgba(0, 0, 0, 0.6) !important;
+    border: 1px solid #00ff41 !important;
+    color: #00ff41 !important;
+    box-shadow: 0 0 5px #00ff41;
 }
 
 .buttons .button:hover {
-    background: var(--primary) !important;
-    color: var(--theme) !important; /* Đảo màu nền/chữ */
-    box-shadow: 0 0 20px var(--primary);
+    background: #00ff41 !important;
+    color: #000000 !important;
+    box-shadow: 0 0 20px #00ff41;
 }
 
-/* Thanh Header */
-.nav {
-    background: var(--entry) !important;
-    border-bottom: 2px solid var(--primary) !important;
-}
-
-/* Ảnh Avatar */
+/* 6. AVATAR */
 .profile .avatar img {
-    border: 2px solid var(--primary) !important;
-    box-shadow: 0 0 15px var(--glow-color);
+    border: 2px solid #00ff41;
+    box-shadow: 0 0 15px #00ff41;
 }
