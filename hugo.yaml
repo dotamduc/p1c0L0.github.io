@@ -14,6 +14,15 @@ params:
     imageTitle: "My Avatar"
     imageWidth: 120
     imageHeight: 120
+    buttons:
+      - name: Github
+        url: "https://github.com/dotamduc"
+      - name: HackMD
+        url: "https://hackmd.io/@_w5Xcz0HTuKuAJahDMj8Xw"
+      - name: Facebook
+        url: "https://www.facebook.com/ddtzzxT.07/"
+      - name: Instagram
+        url: "https://www.instagram.com/double_d_tm/"
     socialIcons:
       - name: "<i class='fab fa-github'></i> Github"
         url: "https://github.com/dotamduc"
