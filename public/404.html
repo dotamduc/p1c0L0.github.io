@@ -70,7 +70,7 @@
     </main>
     
 <footer class="footer">
-        <span>© 2024 Đỗ Đức Tâm</span> · 
+        <span>© Đỗ Đức Tâm</span> · 
 
     <span>
         Powered by
@@ -83,14 +83,13 @@
         <path d="M12 6H0l6-6z" />
     </svg>
 </a><canvas id="matrix-bg"></canvas>
-
 <style>
      
     #matrix-bg {
         position: fixed;
         top: 0; left: 0;
         width: 100vw; height: 100vh;
-        z-index: -9999;
+        z-index: -9999;  
         pointer-events: none;
     }
 
@@ -107,7 +106,6 @@
         font-weight: normal !important;
     }
 </style>
-
 <script>
     
     const canvas = document.getElementById('matrix-bg');
@@ -167,166 +165,264 @@
 
 
 <canvas id="fireworks" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:99999;"></canvas>
-<script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
 <script>
-    const fireworkCanvas = document.getElementById('fireworks');
-    const fwCtx = fireworkCanvas.getContext('2d');
-    let fwWidth = window.innerWidth;
-    let fwHeight = window.innerHeight;
-    fireworkCanvas.width = fwWidth;
-    fireworkCanvas.height = fwHeight;
+    
+    (function() {
+        if(!window.anime) {
+            var script = document.createElement('script');
+            script.src = "https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js";
+            script.onload = initFireworks;
+            document.head.appendChild(script);
+        } else { initFireworks(); }
+    })();
 
-    window.addEventListener('resize', () => {
-        fwWidth = window.innerWidth;
-        fwHeight = window.innerHeight;
+    function initFireworks() {
+        const fireworkCanvas = document.getElementById('fireworks');
+        const fwCtx = fireworkCanvas.getContext('2d');
+        let fwWidth = window.innerWidth;
+        let fwHeight = window.innerHeight;
         fireworkCanvas.width = fwWidth;
         fireworkCanvas.height = fwHeight;
-    });
 
-    function createParticle(x, y) {
-        const particle = {};
-        particle.x = x;
-        particle.y = y;
-        const colors = ['#00ff41', '#008F11', '#ffffff'];
-        particle.color = colors[Math.floor(Math.random() * colors.length)];
-        particle.radius = Math.random() * 2 + 1;
-        const angle = Math.random() * Math.PI * 2;
-        const velocity = Math.random() * 6 + 2;
-        particle.vx = Math.cos(angle) * velocity;
-        particle.vy = Math.sin(angle) * velocity;
-        particle.life = 100; 
-        return particle;
-    }
+        window.addEventListener('resize', () => {
+            fwWidth = window.innerWidth;
+            fwHeight = window.innerHeight;
+            fireworkCanvas.width = fwWidth;
+            fireworkCanvas.height = fwHeight;
+        });
 
-    let particles = [];
+        function createParticle(x, y) {
+            const particle = {};
+            particle.x = x;
+            particle.y = y;
+            const colors = ['#00ff41', '#008F11', '#ffffff'];
+            particle.color = colors[Math.floor(Math.random() * colors.length)];
+            particle.radius = Math.random() * 2 + 1;
+            const angle = Math.random() * Math.PI * 2;
+            const velocity = Math.random() * 6 + 2;
+            particle.vx = Math.cos(angle) * velocity;
+            particle.vy = Math.sin(angle) * velocity;
+            particle.life = 100; 
+            return particle;
+        }
 
-    function animateFireworks() {
-        requestAnimationFrame(animateFireworks);
-        fwCtx.clearRect(0, 0, fwWidth, fwHeight);
-        for (let i = 0; i < particles.length; i++) {
-            const p = particles[i];
-            fwCtx.beginPath();
-            fwCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-            fwCtx.fillStyle = p.color;
-            fwCtx.globalAlpha = p.life / 100;
-            fwCtx.fill();
-            fwCtx.globalAlpha = 1;
-            p.x += p.vx;
-            p.y += p.vy;
-            p.life--;
-            if (p.life <= 0) {
-                particles.splice(i, 1);
-                i--;
+        let particles = [];
+
+        function animateFireworks() {
+            requestAnimationFrame(animateFireworks);
+            fwCtx.clearRect(0, 0, fwWidth, fwHeight);
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                fwCtx.beginPath();
+                fwCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                fwCtx.fillStyle = p.color;
+                fwCtx.globalAlpha = p.life / 100;
+                fwCtx.fill();
+                fwCtx.globalAlpha = 1;
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life--;
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                    i--;
+                }
             }
         }
-    }
-    animateFireworks();
+        animateFireworks();
 
-    document.addEventListener('mousedown', (e) => {
-        if(e.button === 0) { 
-            for (let i = 0; i < 30; i++) {
-                particles.push(createParticle(e.clientX, e.clientY));
+        document.addEventListener('mousedown', (e) => {
+            if(e.button === 0) { 
+                for (let i = 0; i < 30; i++) {
+                    particles.push(createParticle(e.clientX, e.clientY));
+                }
             }
-        }
-    });
+        });
+    }
 </script>
 
 
+<script src="https://cdn.jsdelivr.net/npm/pjax/pjax.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
 <script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
 
 <div id="aplayer-fixed" class="hacker-player"></div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const ap = new APlayer({
-            container: document.getElementById('aplayer-fixed'),
-            fixed: true,       
-            mini: true,        
-            autoplay: true,    
-            theme: '#00ff41',  
-            loop: 'all',       
-            order: 'list',     
-            preload: 'auto',   
-            volume: 0.5,       
-            mutex: true,       
-            listFolded: true,  
-            
-            
-            audio: [
-                {
-                    name: 'Người tình mùa đông', 
-                    artist: 'Tâm zela',   
-                    url: 'music/nhac.mp3', 
-                    cover: 'images/cover.png' 
-                },
-                
-                
-
-            ]
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        var pjax = new Pjax({
+            selectors: [
+                "title", 
+                "meta[name=description]", 
+                "main", 
+            ],
+            cacheBust: false
         });
+
+        
+        if (!window.ap) {
+            window.ap = new APlayer({
+                container: document.getElementById('aplayer-fixed'),
+                fixed: true,
+                autoplay: true,
+                theme: '#00ff41',
+                loop: 'all',
+                order: 'list',
+                preload: 'auto',
+                volume: 0.5,
+                mutex: true,
+                listFolded: true,
+                audio: [
+                    
+                    {
+                        name: 'Người tình mùa đông',
+                        artist: 'Hà Anh Tuấn',
+                        url: 'music/nhac.mp3', 
+                        cover: 'images/cover.png'
+                    },
+                    
+                ]
+            });
+
+            
+            document.body.addEventListener('click', function() {
+                window.ap.play();
+            }, { once: true });
+        }
         
         
-        
-        document.body.addEventListener('click', function() {
-            ap.play();
-        }, { once: true });
+        initCyberClock();
+    });
+
+    
+    
+    document.addEventListener('pjax:complete', function() {
+        initCyberClock();
     });
 </script>
 
 <style>
      
-    .aplayer {
-        background: rgba(0, 0, 0, 0.9) !important;
-        border: 1px solid #00ff41 !important;  
-        box-shadow: 0 0 10px rgba(0, 255, 65, 0.2) !important;
-        color: #00ff41 !important;
-        font-family: 'Courier New', monospace !important;
-    }
-    
-     
+    .aplayer { background: rgba(0, 0, 0, 0.9) !important; border: 1px solid #00ff41 !important; box-shadow: 0 0 10px rgba(0, 255, 65, 0.2) !important; color: #00ff41 !important; font-family: 'Courier New', monospace !important; z-index: 99999 !important; }
     .aplayer .aplayer-info .aplayer-music .aplayer-title { color: #00ff41 !important; }
     .aplayer .aplayer-info .aplayer-music .aplayer-author { color: #008f11 !important; }
-    
-     
     .aplayer .aplayer-lrc { display: none !important; }
-    
-     
     .aplayer .aplayer-bar-wrap .aplayer-bar { background: #333 !important; }
     .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-loaded { background: #555 !important; }
-    .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-played {
-        background: #00ff41 !important;
-        box-shadow: 0 0 10px #00ff41;
-    }
-    
-     
-    .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-played .aplayer-thumb {
-        background: #00ff41 !important;
-        border: 2px solid #000 !important;
-    }
-    
-     
-    .aplayer .aplayer-pic .aplayer-button {
-        background: rgba(0,0,0,0.5) !important;
-        border: 1px solid #00ff41 !important;
-    }
+    .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-played { background: #00ff41 !important; box-shadow: 0 0 10px #00ff41; }
+    .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-played .aplayer-thumb { background: #00ff41 !important; border: 2px solid #000 !important; }
+    .aplayer .aplayer-pic .aplayer-button { background: rgba(0,0,0,0.5) !important; border: 1px solid #00ff41 !important; }
     .aplayer .aplayer-pic .aplayer-button path { fill: #00ff41 !important; }
-    
-     
-    .aplayer-list {
-        background: #000000 !important;
-        border-top: 1px solid #00ff41 !important;
-    }
+    .aplayer-list { background: #000000 !important; border-top: 1px solid #00ff41 !important; }
     .aplayer-list ol li { border-bottom: 1px dashed #333 !important; }
-    
-     
     .aplayer-list ol li:hover { background: rgba(0, 255, 65, 0.1) !important; }
-    
-     
     .aplayer-list ol li.aplayer-list-light { background: rgba(0, 255, 65, 0.2) !important; }
     .aplayer-list ol li .aplayer-list-title { color: #00ff41 !important; }
     .aplayer-list ol li .aplayer-list-index { color: #00ff41 !important; }
     .aplayer-list ol li .aplayer-list-author { color: #008f11 !important; }
+</style>
+
+
+<script>
+    function initCyberClock() {
+        
+        if (document.getElementById('cyber-clock-container')) return;
+
+        
+        const navMenu = document.querySelector('.nav') || document.querySelector('nav');
+        
+        if (navMenu) {
+            
+            const clockDiv = document.createElement('div');
+            clockDiv.id = 'cyber-clock-container';
+            clockDiv.innerHTML = `
+                <div class="cyber-time">
+                    <span id="cyber-hours">00</span><span class="blink">:</span><span id="cyber-minutes">00</span><span class="blink">:</span><span id="cyber-seconds">00</span>
+                </div>
+                <div class="cyber-date" id="cyber-date">YYYY-MM-DD</div>
+            `;
+            
+            
+            navMenu.appendChild(clockDiv);
+            
+            
+            function updateTime() {
+                const now = new Date();
+                
+                const h = String(now.getHours()).padStart(2, '0');
+                const m = String(now.getMinutes()).padStart(2, '0');
+                const s = String(now.getSeconds()).padStart(2, '0');
+                
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                
+                const hEl = document.getElementById('cyber-hours');
+                const mEl = document.getElementById('cyber-minutes');
+                const sEl = document.getElementById('cyber-seconds');
+                const dEl = document.getElementById('cyber-date');
+                
+                if(hEl && mEl && sEl && dEl) {
+                    hEl.innerText = h;
+                    mEl.innerText = m;
+                    sEl.innerText = s;
+                    dEl.innerText = `-- ${year}-${month}-${day} --`;
+                }
+            }
+            
+            setInterval(updateTime, 1000);
+            updateTime(); 
+        }
+    }
+</script>
+
+<style>
+     
+    #cyber-clock-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-top: 15px;
+        padding: 5px;
+        font-family: 'Courier New', monospace;
+        color: #00ff41;
+        text-shadow: 0 0 5px #00ff41;
+        border-top: 1px dashed rgba(0, 255, 65, 0.3);
+        
+         
+        width: 100%; 
+        order: 999;  
+    }
+
+    .cyber-time {
+        font-size: 2.5em;
+        font-weight: bold;
+        letter-spacing: 2px;
+    }
+
+    .cyber-date {
+        font-size: 1.5em;
+        opacity: 0.8;
+        letter-spacing: 1px;
+    }
+
+     
+    .blink {
+        animation: blink-anim 1s infinite;
+    }
+
+    @keyframes blink-anim {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+    
+     
+    @media screen and (max-width: 480px) {
+        #cyber-clock-container {
+            font-size: 0.8em;
+        }
+    }
 </style>
 
 <script>

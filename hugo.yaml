@@ -2,7 +2,7 @@ baseURL: "https://dotamduc.github.io/p1c0L0.github.io/"
 title: "p1c0L0"
 theme: "PaperMod"
 languageCode: "en-us"
-copyright: "© 2024 Đỗ Đức Tâm"
+copyright: "© Đỗ Đức Tâm"
 
 
 
@@ -16,8 +16,8 @@ params:
     subtitle: "Cybersecurity Student | Web Player 🌐" # Giới thiệu ngắn gọn
     imageUrl: "images/avt.png" # Link ảnh Avatar
     imageTitle: "My Avatar"
-    imageWidth: 120
-    imageHeight: 120
+    imageWidth: 400
+    imageHeight: 400
     buttons:
       - name: "<i class='fab fa-github'></i> Github"
         url: "https://github.com/dotamduc"
