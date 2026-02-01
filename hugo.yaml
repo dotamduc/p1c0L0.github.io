@@ -14,14 +14,18 @@ params:
     imageTitle: "My Avatar"
     imageWidth: 120
     imageHeight: 120
-    buttons:
-      - name: Github
+    socialIcons:
+      - name: "<i class='fab fa-github'></i> Github"
         url: "https://github.com/dotamduc"
-      - name: HackMD
+        
+      # HackMD không có icon chuẩn, dùng tạm icon 'file-code' nhìn cho hacker
+      - name: "<i class='fas fa-file-code'></i> HackMD" 
         url: "https://hackmd.io/@_w5Xcz0HTuKuAJahDMj8Xw"
-      - name: Facebook
+
+      - name: "<i class='fab fa-facebook'></i> Facebook"
         url: "https://www.facebook.com/ddtzzxT.07/"
-      - name: Instagram
+
+      - name: "<i class='fab fa-instagram'></i> Instagram"
         url: "https://www.instagram.com/double_d_tm/"
   # Cấu hình Menu điều hướng (Navigation Bar)
 menu:
