@@ -1,97 +1,101 @@
-/* --- ULTIMATE DUAL THEME FIX --- */
+/* --- HACKER THEME: VARIABLE OVERRIDE METHOD --- */
 
-/* 1. THIẾT LẬP CHUNG CHO TOÀN BỘ WEB */
-body, h1, h2, h3, h4, h5, h6, p, a, code, li, span, div {
-    font-family: 'Courier New', monospace !important;
-    transition: background-color 0.3s, color 0.3s; /* Hiệu ứng chuyển màu mượt */
+/* 1. KHAI BÁO BIẾN CHO LIGHT MODE (Mặc định) */
+:root {
+    --theme: #f4f4f4 !important;           /* Nền xám nhạt */
+    --entry: rgba(255, 255, 255, 0.9) !important; /* Nền bài viết trắng */
+    
+    --primary: #000080 !important;         /* MÀU CHÍNH: Navy Blue */
+    --secondary: #000080 !important;       
+    --content: #000000 !important;         /* VĂN BẢN: Màu đen */
+    
+    --hljs-bg: #e5e5e5 !important;         /* Nền Code */
+    --code-bg: rgba(0, 0, 128, 0.1) !important;
+    --border: #000080 !important;          /* Viền Navy */
+    
+    /* Biến riêng: Màu phát sáng cho Light Mode (Xanh dương nhẹ) */
+    --glow-color: rgba(0, 0, 128, 0.3);
+    
+    /* Font chữ */
+    --font-family: 'Courier New', monospace;
 }
 
-/* Đặt Canvas Matrix làm nền cố định phía sau */
-#matrix-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: -1;
-}
-
-/* ================================================= */
-/* 2. CHẾ ĐỘ SÁNG (LIGHT MODE) - Mặc định khi không có class 'dark' */
-/* ================================================= */
-body:not(.dark) {
-    background-color: #f4f4f4 !important; /* Nền xám nhạt */
-    color: #000000 !important;            /* Chữ đen */
-}
-
-/* Màu chữ tiêu đề & Link ở Light Mode */
-body:not(.dark) h1, body:not(.dark) h2, body:not(.dark) a {
-    color: #000080 !important; /* Xanh Navy */
-    text-shadow: none !important;
-}
-
-/* Khối Code ở Light Mode */
-body:not(.dark) code {
-    background-color: rgba(0, 0, 128, 0.1) !important;
-    color: #000080 !important;
-    border: 1px solid #000080 !important;
-}
-
-/* Nút bấm ở Light Mode */
-body:not(.dark) .buttons .button {
-    background: transparent !important;
-    border: 1px solid #000080 !important;
-    color: #000080 !important;
-}
-
-/* ================================================= */
-/* 3. CHẾ ĐỘ TỐI (DARK MODE) - Khi body có class 'dark' */
-/* ================================================= */
+/* 2. KHAI BÁO BIẾN CHO DARK MODE (Ghi đè khi có class 'dark') */
 body.dark {
-    background-color: #000000 !important; /* Ép nền ĐEN tuyệt đối */
-    color: #00ff41 !important;            /* Ép chữ XANH LÁ tuyệt đối */
+    --theme: transparent !important;       /* Trong suốt để hiện Matrix */
+    --entry: rgba(0, 0, 0, 0.8) !important; /* Nền bài viết đen mờ */
+    
+    --primary: #00ff41 !important;         /* MÀU CHÍNH: Neon Green */
+    --secondary: #00ff41 !important;
+    --content: #00ff41 !important;         /* VĂN BẢN: Neon Green (Toàn bộ) */
+    
+    --hljs-bg: #111111 !important;
+    --code-bg: rgba(0, 255, 65, 0.15) !important;
+    --border: #00ff41 !important;
+    
+    /* Biến riêng: Màu phát sáng cho Dark Mode (Xanh lá mạnh) */
+    --glow-color: rgba(0, 255, 65, 0.7);
 }
 
-/* Ép màu cho TẤT CẢ các thẻ con trong Dark Mode */
-body.dark h1, body.dark h2, body.dark h3, body.dark h4,
-body.dark p, body.dark a, body.dark li, body.dark span, body.dark div {
-    color: #00ff41 !important;
-    text-shadow: 0 0 2px rgba(0, 255, 65, 0.5) !important; /* Phát sáng nhẹ */
+/* 3. ÁP DỤNG CÁC BIẾN VÀO GIAO DIỆN */
+
+/* Thiết lập nền gốc cho HTML (Nằm dưới cùng) */
+html {
+    background-color: #f4f4f4; /* Mặc định Light */
+}
+html.dark {
+    background-color: #000000; /* Dark mode thì nền đen */
 }
 
-/* Hiệu ứng Glow mạnh cho tiêu đề */
-body.dark h1 {
-    text-shadow: 0 0 10px rgba(0, 255, 65, 0.8) !important;
+/* Thiết lập Body */
+body {
+    background-color: var(--theme) !important;
+    color: var(--content) !important;
+    font-family: var(--font-family) !important;
 }
 
-/* Link trong Dark Mode */
-body.dark a:hover {
-    color: #ffffff !important;
-    text-shadow: 0 0 10px #ffffff !important;
-    text-decoration: underline;
+/* Ép màu cho Tiêu đề, Link, Nút bấm */
+h1, h2, h3, h4, h5, h6, a, strong, b, .title, .entry-title {
+    color: var(--primary) !important;
+    text-shadow: 0 0 5px var(--glow-color); /* Hiệu ứng phát sáng */
+    font-family: var(--font-family) !important;
 }
 
-/* Nút bấm trong Dark Mode */
-body.dark .buttons .button {
-    background: rgba(0, 0, 0, 0.6) !important;
-    border: 1px solid #00ff41 !important;
-    color: #00ff41 !important;
-    box-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+/* Ép màu cho văn bản thường */
+p, li, span, div, .entry-content {
+    color: var(--content) !important;
+    font-family: var(--font-family) !important;
 }
 
-body.dark .buttons .button:hover {
-    background: #00ff41 !important;
-    color: #000000 !important;
-    box-shadow: 0 0 20px #00ff41;
+/* Link khi di chuột */
+a:hover {
+    text-decoration: underline decoration-wavy var(--primary) !important;
+    text-shadow: 0 0 15px var(--primary) !important;
+    opacity: 1 !important;
 }
 
-/* Header & Avatar trong Dark Mode */
-body.dark .nav {
-    background: rgba(0, 0, 0, 0.8) !important;
-    border-bottom: 2px solid #00ff41 !important;
+/* Nút bấm (Social Buttons, v.v.) */
+.buttons .button {
+    border: 1px solid var(--primary) !important;
+    color: var(--primary) !important;
+    background: transparent !important;
+    box-shadow: 0 0 5px var(--glow-color);
 }
 
-body.dark .profile .avatar img {
-    border: 2px solid #00ff41 !important;
-    box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+.buttons .button:hover {
+    background: var(--primary) !important;
+    color: var(--theme) !important; /* Đảo màu nền/chữ */
+    box-shadow: 0 0 20px var(--primary);
+}
+
+/* Thanh Header */
+.nav {
+    background: var(--entry) !important;
+    border-bottom: 2px solid var(--primary) !important;
+}
+
+/* Ảnh Avatar */
+.profile .avatar img {
+    border: 2px solid var(--primary) !important;
+    box-shadow: 0 0 15px var(--glow-color);
 }

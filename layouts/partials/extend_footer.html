@@ -1,10 +1,21 @@
 <canvas id="matrix-bg"></canvas>
 
+<style>
+    #matrix-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: -9999;
+        pointer-events: none;
+    }
+</style>
+
 <script>
     const canvas = document.getElementById('matrix-bg');
     const ctx = canvas.getContext('2d');
 
-    // Hàm chỉnh kích thước canvas full màn hình
     function resizeCanvas() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -17,28 +28,26 @@
     const columns = Math.ceil(window.innerWidth / fontSize);
     const drops = Array(columns).fill(1);
 
-    // CẤU HÌNH MÀU SẮC
     const themes = {
         light: {
-            bgFade: 'rgba(244, 244, 244, 0.2)', // Màu nền trắng mờ (Light)
-            text: '#000080' // Chữ Navy
+            text: '#000080',       // Chữ Navy
+            fade: 'rgba(244, 244, 244, 0.2)' // Phủ mờ màu trắng xám
         },
         dark: {
-            bgFade: 'rgba(0, 0, 0, 0.1)', // Màu nền đen mờ (Dark)
-            text: '#00ff41' // Chữ Xanh lá
+            text: '#00ff41',       // Chữ Xanh lá
+            fade: 'rgba(0, 0, 0, 0.1)'       // Phủ mờ màu đen
         }
     };
 
     function draw() {
-        // Kiểm tra trực tiếp xem body có class 'dark' không
         const isDark = document.body.classList.contains('dark');
         const theme = isDark ? themes.dark : themes.light;
 
-        // Vẽ lớp phủ mờ để tạo hiệu ứng đuôi dài
-        ctx.fillStyle = theme.bgFade;
+        // Vẽ lớp phủ mờ
+        ctx.fillStyle = theme.fade;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Thiết lập màu chữ
+        // Vẽ ký tự
         ctx.fillStyle = theme.text;
         ctx.font = fontSize + 'px monospace';
 
@@ -52,7 +61,6 @@
             drops[i]++;
         }
     }
-
-    // Chạy vòng lặp vẽ (35ms/khung hình)
-    setInterval(draw, 35);
+    
+    setInterval(draw, 40);
 </script>
