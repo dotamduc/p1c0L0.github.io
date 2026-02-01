@@ -1,72 +1,107 @@
 <canvas id="matrix-bg"></canvas>
+
 <style>
+    /* 1. Cấu hình nền Matrix */
     #matrix-bg {
         position: fixed;
-        top: 0; left: 0; width: 100vw; height: 100vh;
-        z-index: -9999; pointer-events: none;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        z-index: -9999; /* Luôn nằm dưới cùng */
+        pointer-events: none;
     }
-    /* Class để reset màu cho Emoji */
+
+    /* 2. Cấu hình CLASS CỨU HỘ EMOJI (Quan trọng) */
     .emoji-reset {
-        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
-        color: initial !important;
-        text-shadow: none !important;
+        /* A. Ép dùng font Emoji chuẩn của hệ thống (tránh bị font Hacker đè) */
+        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Android Emoji", sans-serif !important;
+        
+        /* B. Lấy lại màu gốc */
+        color: initial !important; 
+        
+        /* C. TẮT HIỆU ỨNG GRADIENT (Thủ phạm chính) */
+        background: none !important; 
+        -webkit-text-fill-color: initial !important; 
+        -webkit-background-clip: border-box !important;
+
+        /* D. Tắt hiệu ứng phát sáng (Glow) làm nhòe icon */
+        text-shadow: none !important; 
+        
+        /* E. Giữ nguyên định dạng */
         font-style: normal !important;
-        filter: none !important;
-        display: inline-block;
+        display: inline-block !important;
+        font-weight: normal !important;
     }
 </style>
 
 <script>
-    // --- PHẦN 1: MATRIX RAIN SCRIPT (Giữ nguyên) ---
+    // --- PHẦN 1: MATRIX RAIN SCRIPT (Nền xanh đen mờ) ---
     const canvas = document.getElementById('matrix-bg');
     const ctx = canvas.getContext('2d');
-    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    window.addEventListener('resize', resizeCanvas); resizeCanvas();
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
     const fontSize = 14;
     const columns = Math.ceil(window.innerWidth / fontSize);
     const drops = Array(columns).fill(1);
+
     function draw() {
+        // Tạo lớp phủ mờ màu ĐEN để tạo hiệu ứng đuôi dài
         ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'rgba(0, 255, 65, 0.15)'; // Màu xanh mờ
+
+        // Màu chữ XANH LÁ MỜ (để không rối mắt)
+        ctx.fillStyle = 'rgba(0, 255, 65, 0.15)'; 
         ctx.font = fontSize + 'px monospace';
+
         for (let i = 0; i < drops.length; i++) {
             const text = chars.charAt(Math.floor(Math.random() * chars.length));
             ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
             drops[i]++;
         }
     }
-    // Vẽ nền đen ban đầu
-    ctx.fillStyle = '#000000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Vẽ nền đen lần đầu
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     setInterval(draw, 35);
 
-    // --- PHẦN 2: EMOJI RESCUE SCRIPT (SCRIPT CỨU HỘ ICON) ---
-    // Tự động tìm và trả lại màu gốc cho Emoji
-    document.addEventListener("DOMContentLoaded", function() {
-        const contentArea = document.querySelector('body'); // Quét toàn bộ body
-        
-        // Regex nhận diện Emoji
-        const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
 
+    // --- PHẦN 2: SCRIPT TỰ ĐỘNG TÌM VÀ SỬA EMOJI ---
+    document.addEventListener("DOMContentLoaded", function() {
+        // Hàm quét và bao bọc Emoji
         function rescueEmojis(node) {
-            // Chỉ xử lý các nút văn bản (Text Nodes), bỏ qua thẻ script/style
+            // Nếu là nút văn bản (Text Node)
             if (node.nodeType === 3) { 
                 const text = node.nodeValue;
-                // Nếu tìm thấy Emoji trong đoạn văn bản
+                // Regex tìm tất cả các loại Emoji
+                const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
+                
                 if (text.match(emojiRegex)) {
                     const span = document.createElement('span');
-                    // Bao bọc Emoji bằng thẻ span có class .emoji-reset
+                    // Thay thế Emoji bằng thẻ span có class .emoji-reset
                     span.innerHTML = text.replace(emojiRegex, '<span class="emoji-reset">$&</span>');
                     node.parentNode.replaceChild(span, node);
                 }
-            } else if (node.nodeType === 1 && node.tagName !== 'SCRIPT' && node.tagName !== 'STYLE' && node.tagName !== 'TEXTAREA' && !node.classList.contains('emoji-reset')) {
-                // Đệ quy để tìm sâu vào các thẻ con
+            } 
+            // Đệ quy vào các thẻ con (trừ thẻ script/style/textarea)
+            else if (node.nodeType === 1 && 
+                     !['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'].includes(node.tagName) && 
+                     !node.classList.contains('emoji-reset')) {
                 Array.from(node.childNodes).forEach(child => rescueEmojis(child));
             }
         }
         
-        rescueEmojis(contentArea);
+        // Chạy hàm quét trên toàn bộ body
+        rescueEmojis(document.body);
     });
 </script>
