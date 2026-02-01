@@ -1,77 +1,100 @@
-/* --- HACKER THEME OVERRIDE (MATRIX RAIN VERSION) --- */
+/* --- DUAL THEME FIX: TRANSPARENT BODY --- */
 
 :root {
-    /* 1. CẤU HÌNH TRONG SUỐT (Quan trọng cho Matrix Rain) */
-    /* Nền chính trong suốt để lộ Canvas phía sau */
-    --theme: transparent !important;        
+    /* === 1. LIGHT MODE (Navy Theme) === */
+    --theme: transparent !important;       /* QUAN TRỌNG: Phải trong suốt để thấy Matrix */
+    --entry: rgba(255, 255, 255, 0.9) !important; /* Nền bài viết trắng mờ */
     
-    /* Nền các khối bài viết đen mờ 80% để chữ vẫn đọc rõ trên nền mưa rơi */
-    --entry: rgba(57, 56, 56, 0.628) !important;        
-
-    /* 2. CẤU HÌNH MÀU SẮC */
-    --primary: #00ff41 !important;      /* Màu xanh Matrix (Neon Green) */
-    --secondary: #dddddd !important;    /* Màu chữ phụ */
-    --tertiary: #1a1a1a !important;     
-    --content: #ffffff !important;      /* Màu chữ nội dung */
-    --hljs-bg: rgba(0, 0, 0, 0.9) !important; /* Nền code đen mờ */
-    --code-bg: rgba(0, 0, 0, 0.9) !important;
-    --border: #00ff41 !important;       /* Viền xanh */
+    --primary: #000080 !important;         /* Xanh Navy */
+    --secondary: #000080 !important;       
+    --content: #000000 !important;         /* Chữ Đen */
+    
+    --hljs-bg: #e5e5e5 !important;
+    --code-bg: rgba(0, 0, 128, 0.1) !important;
+    --border: #000080 !important;
+    
+    --glow-color: rgba(0, 0, 128, 0.4);
 }
 
-/* Thiết lập màu nền dự phòng cho Body */
-body {
-    background-color: #000000;
+/* === 2. DARK MODE (Hacker Green Theme) === */
+body.dark {
+    --theme: transparent !important;       /* Cũng phải trong suốt */
+    --entry: rgba(0, 0, 0, 0.8) !important; /* Nền bài viết đen mờ */
+    
+    --primary: #00ff41 !important;         /* Xanh Neon */
+    --secondary: #00ff41 !important;
+    --content: #00ff41 !important;         /* Chữ Xanh Lá */
+    
+    --hljs-bg: rgba(20, 20, 20, 0.9) !important;
+    --code-bg: rgba(0, 255, 65, 0.1) !important;
+    --border: #00ff41 !important;
+    
+    --glow-color: rgba(0, 255, 65, 0.6);
 }
 
-/* 3. PHÔNG CHỮ TERMINAL */
-body, h1, h2, h3, h4, h5, h6, p, a, code {
+/* === 3. ÉP MÀU CHỮ & PHÔNG CHỮ (Global Override) === */
+body, h1, h2, h3, h4, h5, h6, p, a, code, li, span, div, strong, b, i, em {
     font-family: 'Courier New', 'Courier', 'Lucida Sans Typewriter', monospace !important;
+    transition: color 0.3s ease;
 }
 
-/* 4. HIỆU ỨNG PHÁT SÁNG (NEON GLOW) */
-a {
-    color: var(--primary);
-    text-decoration: none;
-    transition: all 0.3s ease;
+/* Ép background của toàn bộ trang web thành trong suốt để lộ Canvas */
+body, html {
+    background-color: transparent !important; 
+    background: transparent !important;
 }
 
+/* --- XỬ LÝ MÀU CHỮ CỤ THỂ --- */
+
+/* LIGHT MODE: Chữ đen, Link Navy */
+body:not(.dark) h1, body:not(.dark) a { color: var(--primary) !important; }
+body:not(.dark) p, body:not(.dark) li, body:not(.dark) div { color: #000000 !important; }
+
+/* DARK MODE: TOÀN BỘ LÀ XANH LÁ (Theo yêu cầu) */
+body.dark, 
+body.dark h1, body.dark h2, body.dark h3, 
+body.dark p, body.dark li, body.dark span, 
+body.dark div, body.dark a, body.dark strong {
+    color: #00ff41 !important; /* Ép toàn bộ thành màu xanh lá */
+    text-shadow: 0 0 2px rgba(0, 255, 65, 0.4); /* Thêm chút phát quang nhẹ */
+}
+
+/* Link Hover */
 a:hover {
-    color: #ffffff;
-    text-shadow: 0 0 8px var(--primary); /* Link phát sáng khi di chuột */
+    text-shadow: 0 0 10px var(--primary) !important;
+    text-decoration: underline decoration-wavy var(--primary) !important;
 }
 
-/* Tiêu đề chính */
-h1 {
-    color: #ffffff;
-    text-shadow: 2px 2px 0px #333; 
+body.dark a:hover {
+    color: #ffffff !important; /* Riêng Dark mode hover vào link thì sáng trắng lên */
+    text-shadow: 0 0 10px #ffffff !important;
 }
 
-/* 5. NÚT BẤM (SOCIAL BUTTONS) */
+/* === 4. CÁC THÀNH PHẦN KHÁC === */
+/* Header */
+.nav {
+    background: var(--entry) !important;
+    border-bottom: 2px solid var(--primary);
+    backdrop-filter: blur(5px);
+}
+
+/* Buttons */
 .buttons .button {
-    background: rgba(0, 0, 0, 0.5) !important; /* Nền nút hơi tối nhẹ */
+    background: transparent !important;
     border: 1px solid var(--primary) !important;
     color: var(--primary) !important;
-    font-weight: bold;
-    border-radius: 0 !important;
-    backdrop-filter: blur(2px); /* Làm mờ nền sau nút */
+    box-shadow: 0 0 5px var(--glow-color);
 }
 
 .buttons .button:hover {
     background: var(--primary) !important;
     color: #000000 !important;
-    box-shadow: 0 0 15px var(--primary);
+    box-shadow: 0 0 20px var(--primary);
 }
 
-/* 6. THANH MENU (HEADER) */
-.nav {
-    background: rgba(0, 0, 0, 0.8) !important; /* Menu đen mờ để không bị rối mắt */
-    border-bottom: 1px solid var(--primary);
-}
-
-/* 7. ẢNH ĐẠI DIỆN (AVATAR) */
+/* Avatar */
 .profile .avatar img {
     border: 2px solid var(--primary);
-    box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
-    border-radius: 50%;
-    background-color: #000; /* Đảm bảo nền ảnh không bị xuyên thấu nếu ảnh png */
+    box-shadow: 0 0 10px var(--glow-color);
+    background-color: #000;
 }

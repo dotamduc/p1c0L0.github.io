@@ -1,6 +1,10 @@
 ---
-title: 0xNote
+title: OxL4ugh CTF
 
+---
+
+---
+title: OxL4ugh CTF
 ---
 
 # 0xNote
@@ -963,7 +967,24 @@ if __name__ == "__main__":
 ![image](https://hackmd.io/_uploads/SyFinLdIZe.png)
 ## Overview 
 ![image](https://hackmd.io/_uploads/BJeVcYO8Wl.png)
-- 
+
+- Reg không có quyền cao và cũng không thể làm gì hơn 
+
+## Exploit 
+- Passwd được lấy bằng national_id 
+- Đầu tiên sẽ đi vào `/api/profile/patient_test` muốn biết được path này thì cần có kĩ năng fuzzing , và lấy được các thông tin như sau:
+![image](https://hackmd.io/_uploads/Sy077yK8Zl.png)
+- Dựa vào thông tin này ta có thể tìm ra được `national_id` cũng như `passwd` của user : `patient_test`
+![image](https://hackmd.io/_uploads/S1mu7JFI-l.png)
+
+- Auke lấy được account có xác thực : `patient_test` : `30508011601589`
+- Như vậy ta đã chạm để đến các enpoint private của hệ thống 
+- Ta sẽ lấy `ADMIN_KEY` ở file `proc/1/environ` bằng việc ReDos ; nếu thời gian delay thì kí tự ở vị trí đó là chính xác ; cứ thế ta sẽ lấy được chuỗi `ADMIN_KEY` ; path traversal chuyển về file `environ` để tìm kiếm thay vì chức năng mặc định là tìm kiếm ở file có tên được lấy với `username` người dùng 
+![image](https://hackmd.io/_uploads/BJ58LyKIbe.png)
+
+- Sau khi có được `ADMIN_KEY` ta mới có thể upload được file trên `/api/health` để rồi xss ...... 
+![image](https://hackmd.io/_uploads/Sy1TDkFIWg.png)
+
 
 
 

@@ -1,17 +1,17 @@
 ---
 title: "About Me"
 layout: "page"
+summary: "timeline"
 ---
 
 ## 👨‍💻 Who am I?
 
-Tôi là **Đỗ Đức Tâm**, một sinh viên đam mê **An ninh mạng (Cybersecurity)** và **Lập trình**. 
+Tôi là **Đỗ Đức Tâm**, một sinh viên của **Học viện Kỹ thuật quân sự (MTA)** và đang học chuyên ngành **An toàn không gian mạng**
 
-Tôi thích tìm hiểu về cách các hệ thống hoạt động và cách... bẻ khóa chúng (trong môi trường hợp pháp!).
 
 ### 🛠 Kỹ năng chính
 * **Web Security:** Pentest, tìm lỗ hổng XSS, SQLi...
-* **CTF Player:** Chuyên mảng Web & Forensics.
-* **Programming:** Python, Go, JavaScript.
+* **CTF Player:** Thích chơi Web
+* **Programming:** Python, Go, JavaScript, PHP.
 
 > "Hacking is not about breaking things, it's about understanding them."

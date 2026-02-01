@@ -7,9 +7,8 @@
         left: 0;
         width: 100vw;
         height: 100vh;
-        z-index: -1; /* Nằm sau tất cả nội dung */
-        opacity: 0.2; /* Độ mờ vừa phải để không rối mắt */
-        pointer-events: none; /* Không chặn chuột click vào link */
+        z-index: -9999; /* Đẩy lùi sâu nhất có thể */
+        pointer-events: none;
     }
 </style>
 
@@ -17,50 +16,58 @@
     const canvas = document.getElementById('matrix-bg');
     const ctx = canvas.getContext('2d');
 
-    // Chỉnh kích thước canvas full màn hình
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Các ký tự sẽ rơi (Katakana + Số + Chữ cái)
-    const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
-    const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const nums = '0123456789';
-    const alphabet = katakana + latin + nums;
-
-    const fontSize = 16;
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
+    const fontSize = 14;
     const columns = canvas.width / fontSize;
+    const drops = Array(Math.ceil(columns)).fill(1);
 
-    const rainDrops = [];
-
-    // Khởi tạo vị trí giọt mưa
-    for (let x = 0; x < columns; x++) {
-        rainDrops[x] = 1;
-    }
-
-    const draw = () => {
-        // Tạo hiệu ứng vệt mờ (đen bán trong suốt)
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.fillStyle = '#00ff41'; // Màu xanh Hacker
-        ctx.font = fontSize + 'px monospace';
-
-        for (let i = 0; i < rainDrops.length; i++) {
-            const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-            ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
-
-            // Reset giọt mưa khi rơi xuống đáy hoặc ngẫu nhiên
-            if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                rainDrops[i] = 0;
-            }
-            rainDrops[i]++;
+    // CẤU HÌNH MÀU SẮC
+    const themes = {
+        light: {
+            bg: '#f4f4f4',        // Màu nền Light Mode (Xám nhạt)
+            text: '#000080',      // Màu chữ Matrix (Navy)
+            fade: 'rgba(244, 244, 244, 0.2)' // Lớp phủ mờ (phải trùng màu nền)
+        },
+        dark: {
+            bg: '#000000',        // Màu nền Dark Mode (Đen)
+            text: '#00ff41',      // Màu chữ Matrix (Xanh lá)
+            fade: 'rgba(0, 0, 0, 0.1)'       // Lớp phủ mờ (Đen)
         }
     };
 
-    // Tốc độ rơi (30ms một khung hình)
-    setInterval(draw, 30);
+    function draw() {
+        // Tự động phát hiện Dark Mode
+        const isDark = document.body.classList.contains('dark');
+        const theme = isDark ? themes.dark : themes.light;
 
-    // Tự chỉnh lại cỡ khi thay đổi kích thước cửa sổ
+        // Vẽ lớp phủ mờ đè lên frame cũ (Tạo hiệu ứng đuôi dài)
+        ctx.fillStyle = theme.fade;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = theme.text;
+        ctx.font = fontSize + 'px monospace';
+
+        for (let i = 0; i < drops.length; i++) {
+            const text = chars.charAt(Math.floor(Math.random() * chars.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+
+    // Vẽ nền lần đầu để tránh bị trắng chớp nhoáng
+    const initTheme = document.body.classList.contains('dark') ? themes.dark : themes.light;
+    ctx.fillStyle = initTheme.bg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    setInterval(draw, 35);
+
     window.addEventListener('resize', () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
