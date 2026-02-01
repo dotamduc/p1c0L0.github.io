@@ -413,3 +413,73 @@ body.dark .buttons .button:hover i {
     0%, 100% { opacity: 1; }
     50% { opacity: 0; }
 }
+
+/* --- HACKER MUSIC PLAYER STYLE --- */
+
+/* 1. Đổi màu nền sang đen trong suốt */
+.aplayer {
+    background: rgba(0, 0, 0, 0.9) !important;
+    border: 1px solid #00ff41 !important;
+    box-shadow: 0 0 10px rgba(0, 255, 65, 0.2) !important;
+    color: #00ff41 !important;
+    font-family: 'Courier New', monospace !important;
+}
+
+/* 2. Chỉnh màu chữ và icon */
+.aplayer .aplayer-info .aplayer-music .aplayer-title {
+    color: #00ff41 !important; /* Tên bài hát xanh */
+}
+.aplayer .aplayer-info .aplayer-music .aplayer-author {
+    color: #008f11 !important; /* Tên ca sĩ xanh đậm */
+}
+.aplayer .aplayer-lrc p {
+    color: #00ff41 !important; /* Lời bài hát xanh */
+    text-shadow: 0 0 5px #00ff41;
+}
+
+/* 3. Thanh tiến trình (Progress Bar) */
+.aplayer .aplayer-bar-wrap .aplayer-bar {
+    background: #333 !important;
+}
+.aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-loaded {
+    background: #555 !important;
+}
+.aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-played {
+    background: #00ff41 !important; /* Thanh đã chạy màu xanh neon */
+    box-shadow: 0 0 10px #00ff41;
+}
+.aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-played .aplayer-thumb {
+    background: #00ff41 !important;
+    border: 2px solid #000 !important;
+}
+
+/* 4. Nút bấm điều khiển */
+.aplayer .aplayer-pic .aplayer-button {
+    background: rgba(0,0,0,0.5) !important;
+    border: 1px solid #00ff41 !important;
+}
+.aplayer .aplayer-pic .aplayer-button path {
+    fill: #00ff41 !important;
+}
+
+/* 5. List nhạc (khi mở rộng) */
+.aplayer-list {
+    background: #000000 !important;
+    border-top: 1px solid #00ff41 !important;
+}
+.aplayer-list ol li {
+    border-bottom: 1px dashed #333 !important;
+}
+.aplayer-list ol li:hover {
+    background: rgba(0, 255, 65, 0.1) !important;
+}
+.aplayer-list ol li.aplayer-list-light {
+    background: rgba(0, 255, 65, 0.2) !important; /* Bài đang hát */
+}
+.aplayer-list ol li .aplayer-list-title,
+.aplayer-list ol li .aplayer-list-index {
+    color: #00ff41 !important;
+}
+.aplayer-list ol li .aplayer-list-author {
+    color: #008f11 !important;
+}
