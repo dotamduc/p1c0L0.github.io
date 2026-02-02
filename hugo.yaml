@@ -35,10 +35,25 @@ markup:
   highlight:
     codeFences: true
     guessSyntax: true
-    lineNos: true
+    lineNos: false
+    lineNumbersInTable: true
+    tabWidth: 4
+    html: true
+    css: true
+    js: true
+    pygmentsUseClasses: true
+    pygmentsCodeFences: true
+    pygmentsCodeFencesGuessSyntax: true
+    pygmentsOptions: linenos=table
+    hl_Lines: ""
+    guessSyntax: true
     noClasses: false
-    style: monokai  # Style màu rực rỡ trên nền tối
-  # Cấu hình Menu điều hướng (Navigation Bar)
+    style: monokai
+  goldmark:
+    renderer:
+      unsafe: true  # Cho phép HTML thô trong Markdown
+
+
 menu:
   main:
     - identifier: about

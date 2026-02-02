@@ -1,0 +1,50 @@
+{{- if gt .Paginator.TotalPages 1 }}
+<nav class="pagination-container">
+  {{- if .Paginator.HasPrev }}
+  <a class="page-link prev" href="{{ .Paginator.Prev.URL }}">
+    <span>&lt;</span> PREV
+  </a>
+  {{- end }}
+
+  {{- $paginator := .Paginator }}
+  {{- $adjacent_links := 2 }}
+  {{- $max_links := (add (mul $adjacent_links 2) 1) }}
+  {{- $lower_limit := (add $adjacent_links 1) }}
+  {{- $upper_limit := (sub $paginator.TotalPages $adjacent_links) }}
+
+  {{- range $paginator.Pagers }}
+    {{- $.Scratch.Set "page_number_flag" false }}
+    {{- if gt $paginator.TotalPages $max_links }}
+      {{- if le $paginator.PageNumber $lower_limit }}
+        {{- if le .PageNumber $max_links }}
+          {{- $.Scratch.Set "page_number_flag" true }}
+        {{- end }}
+      {{- else if ge $paginator.PageNumber $upper_limit }}
+        {{- if gt .PageNumber (sub $paginator.TotalPages $max_links) }}
+          {{- $.Scratch.Set "page_number_flag" true }}
+        {{- end }}
+      {{- else }}
+        {{- if and (ge .PageNumber (sub $paginator.PageNumber $adjacent_links)) (le .PageNumber (add $paginator.PageNumber $adjacent_links)) }}
+          {{- $.Scratch.Set "page_number_flag" true }}
+        {{- end }}
+      {{- end }}
+    {{- else }}
+      {{- $.Scratch.Set "page_number_flag" true }}
+    {{- end }}
+
+    {{- if eq ($.Scratch.Get "page_number_flag") true }}
+      {{- if eq . $paginator }}
+      <span class="page-link active">{{ .PageNumber }}</span>
+      {{- else }}
+      <a class="page-link" href="{{ .URL }}">{{ .PageNumber }}</a>
+      {{- end }}
+    {{- end }}
+  {{- end }}
+
+  {{- if .Paginator.HasNext }}
+  <a class="page-link next" href="{{ .Paginator.Next.URL }}">
+    NEXT <span>&gt;</span>
+  </a>
+  {{- end }}
+</nav>
+{{- end }}

