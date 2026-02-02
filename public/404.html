@@ -10,7 +10,7 @@
 <meta name="description" content="">
 <meta name="author" content="">
 <link rel="canonical" href="http://localhost:1313/p1c0L0.github.io/404.html">
-<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.3912f7d78342996305e28a91f6bcffb0a0c28bf30571d68044f0b44be9719c43.css" integrity="sha256-ORL314NCmWMF4oqR9rz/sKDCi/MFcdaARPC0S&#43;lxnEM=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.c85d014ccab6242e17ca522adf6f47099d53d21ed8842ec884f11d5fe103d061.css" integrity="sha256-yF0BTMq2JC4XylIq329HCZ1T0h7YhC7IhPEdX&#43;ED0GE=" rel="preload stylesheet" as="style">
 <link rel="icon" href="http://localhost:1313/p1c0L0.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/p1c0L0.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/p1c0L0.github.io/favicon-32x32.png">
@@ -82,268 +82,74 @@
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
         <path d="M12 6H0l6-6z" />
     </svg>
-</a><canvas id="matrix-bg"></canvas>
+</a><canvas id="network-canvas"></canvas>
 <style>
-     
-    #matrix-bg {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100vw; height: 100vh;
-        z-index: -9999;  
-        pointer-events: none;
-    }
-
-     
-    .emoji-reset {
-        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Android Emoji", sans-serif !important;
-        color: initial !important; 
-        background: none !important; 
-        -webkit-text-fill-color: initial !important; 
-        -webkit-background-clip: border-box !important;
-        text-shadow: none !important; 
-        font-style: normal !important;
-        display: inline-block !important;
-        font-weight: normal !important;
-    }
+    #network-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -9999; background-color: #000000; }
 </style>
 <script>
-    
-    const canvas = document.getElementById('matrix-bg');
+    const canvas = document.getElementById('network-canvas');
     const ctx = canvas.getContext('2d');
-
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+    let w, h;
+    const particles = [];
+    const config = { particleCount: 100, connectionDist: 150, color: '#00ff41', baseSpeed: 0.5, glow: 15 };
+    function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resize); resize();
+    class Particle {
+        constructor() { this.x = Math.random() * w; this.y = Math.random() * h; this.vx = (Math.random() - 0.5) * config.baseSpeed; this.vy = (Math.random() - 0.5) * config.baseSpeed; this.size = Math.random() * 2 + 1; }
+        update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > w) this.vx *= -1; if (this.y < 0 || this.y > h) this.vy *= -1; }
+        draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = config.color; ctx.shadowBlur = config.glow; ctx.shadowColor = config.color; ctx.fill(); ctx.shadowBlur = 0; }
     }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
-    const fontSize = 14;
-    const columns = Math.ceil(window.innerWidth / fontSize);
-    const drops = Array(columns).fill(1);
-
-    function draw() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'rgba(0, 255, 65, 0.15)'; 
-        ctx.font = fontSize + 'px monospace';
-
-        for (let i = 0; i < drops.length; i++) {
-            const text = chars.charAt(Math.floor(Math.random() * chars.length));
-            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                drops[i] = 0;
-            }
-            drops[i]++;
-        }
-    }
-    
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    setInterval(draw, 35);
-
-    
-    document.addEventListener("DOMContentLoaded", function() {
-        function rescueEmojis(node) {
-            if (node.nodeType === 3) { 
-                const text = node.nodeValue;
-                const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
-                if (text.match(emojiRegex)) {
-                    const span = document.createElement('span');
-                    span.innerHTML = text.replace(emojiRegex, '<span class="emoji-reset">$&</span>');
-                    node.parentNode.replaceChild(span, node);
+    function init() { particles.length = 0; for (let i = 0; i < config.particleCount; i++) { particles.push(new Particle()); } }
+    function animate() {
+        ctx.clearRect(0, 0, w, h);
+        for (let i = 0; i < particles.length; i++) {
+            let p1 = particles[i]; p1.update(); p1.draw();
+            for (let j = i + 1; j < particles.length; j++) {
+                let p2 = particles[j];
+                let dx = p1.x - p2.x; let dy = p1.y - p2.y;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < config.connectionDist) {
+                    ctx.beginPath();
+                    let alpha = 1 - (dist / config.connectionDist);
+                    ctx.strokeStyle = `rgba(0, 255, 65, ${alpha})`; ctx.lineWidth = 0.8; ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
                 }
-            } 
-            else if (node.nodeType === 1 && !['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'].includes(node.tagName) && !node.classList.contains('emoji-reset')) {
-                Array.from(node.childNodes).forEach(child => rescueEmojis(child));
             }
         }
-        rescueEmojis(document.body);
-    });
+        requestAnimationFrame(animate);
+    }
+    init(); animate();
 </script>
 
-
-<canvas id="fireworks" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:99999;"></canvas>
 <script>
-    
-    (function() {
-        if(!window.anime) {
-            var script = document.createElement('script');
-            script.src = "https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js";
-            script.onload = initFireworks;
-            document.head.appendChild(script);
-        } else { initFireworks(); }
-    })();
-
-    function initFireworks() {
-        const fireworkCanvas = document.getElementById('fireworks');
-        const fwCtx = fireworkCanvas.getContext('2d');
-        let fwWidth = window.innerWidth;
-        let fwHeight = window.innerHeight;
-        fireworkCanvas.width = fwWidth;
-        fireworkCanvas.height = fwHeight;
-
-        window.addEventListener('resize', () => {
-            fwWidth = window.innerWidth;
-            fwHeight = window.innerHeight;
-            fireworkCanvas.width = fwWidth;
-            fireworkCanvas.height = fwHeight;
-        });
-
-        function createParticle(x, y) {
-            const particle = {};
-            particle.x = x;
-            particle.y = y;
-            const colors = ['#00ff41', '#008F11', '#ffffff'];
-            particle.color = colors[Math.floor(Math.random() * colors.length)];
-            particle.radius = Math.random() * 2 + 1;
-            const angle = Math.random() * Math.PI * 2;
-            const velocity = Math.random() * 6 + 2;
-            particle.vx = Math.cos(angle) * velocity;
-            particle.vy = Math.sin(angle) * velocity;
-            particle.life = 100; 
-            return particle;
-        }
-
-        let particles = [];
-
-        function animateFireworks() {
-            requestAnimationFrame(animateFireworks);
-            fwCtx.clearRect(0, 0, fwWidth, fwHeight);
-            for (let i = 0; i < particles.length; i++) {
-                const p = particles[i];
-                fwCtx.beginPath();
-                fwCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                fwCtx.fillStyle = p.color;
-                fwCtx.globalAlpha = p.life / 100;
-                fwCtx.fill();
-                fwCtx.globalAlpha = 1;
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life--;
-                if (p.life <= 0) {
-                    particles.splice(i, 1);
-                    i--;
-                }
-            }
-        }
-        animateFireworks();
-
-        document.addEventListener('mousedown', (e) => {
-            if(e.button === 0) { 
-                for (let i = 0; i < 30; i++) {
-                    particles.push(createParticle(e.clientX, e.clientY));
-                }
-            }
-        });
-    }
-</script>
-
-
-<script src="https://cdn.jsdelivr.net/npm/pjax/pjax.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
-<script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
-
-<div id="aplayer-fixed" class="hacker-player"></div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
+    function initStatusBar() {
         
-        var pjax = new Pjax({
-            selectors: [
-                "title", 
-                "meta[name=description]", 
-                "main", 
-            ],
-            cacheBust: false
-        });
-
+        if (document.getElementById('system-status-bar')) return;
         
-        if (!window.ap) {
-            window.ap = new APlayer({
-                container: document.getElementById('aplayer-fixed'),
-                fixed: true,
-                autoplay: true,
-                theme: '#00ff41',
-                loop: 'all',
-                order: 'list',
-                preload: 'auto',
-                volume: 0.5,
-                mutex: true,
-                listFolded: true,
-                audio: [
-                    
-                    {
-                        name: 'Người tình mùa đông',
-                        artist: 'Hà Anh Tuấn',
-                        url: 'music/nhac.mp3', 
-                        cover: 'images/cover.png'
-                    },
-                    
-                ]
-            });
-
+        
+        const header = document.querySelector('.header') || document.querySelector('header');
+        
+        if (header) {
             
-            document.body.addEventListener('click', function() {
-                window.ap.play();
-            }, { once: true });
-        }
-        
-        
-        initCyberClock();
-    });
-
-    
-    
-    document.addEventListener('pjax:complete', function() {
-        initCyberClock();
-    });
-</script>
-
-<style>
-     
-    .aplayer { background: rgba(0, 0, 0, 0.9) !important; border: 1px solid #00ff41 !important; box-shadow: 0 0 10px rgba(0, 255, 65, 0.2) !important; color: #00ff41 !important; font-family: 'Courier New', monospace !important; z-index: 99999 !important; }
-    .aplayer .aplayer-info .aplayer-music .aplayer-title { color: #00ff41 !important; }
-    .aplayer .aplayer-info .aplayer-music .aplayer-author { color: #008f11 !important; }
-    .aplayer .aplayer-lrc { display: none !important; }
-    .aplayer .aplayer-bar-wrap .aplayer-bar { background: #333 !important; }
-    .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-loaded { background: #555 !important; }
-    .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-played { background: #00ff41 !important; box-shadow: 0 0 10px #00ff41; }
-    .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-played .aplayer-thumb { background: #00ff41 !important; border: 2px solid #000 !important; }
-    .aplayer .aplayer-pic .aplayer-button { background: rgba(0,0,0,0.5) !important; border: 1px solid #00ff41 !important; }
-    .aplayer .aplayer-pic .aplayer-button path { fill: #00ff41 !important; }
-    .aplayer-list { background: #000000 !important; border-top: 1px solid #00ff41 !important; }
-    .aplayer-list ol li { border-bottom: 1px dashed #333 !important; }
-    .aplayer-list ol li:hover { background: rgba(0, 255, 65, 0.1) !important; }
-    .aplayer-list ol li.aplayer-list-light { background: rgba(0, 255, 65, 0.2) !important; }
-    .aplayer-list ol li .aplayer-list-title { color: #00ff41 !important; }
-    .aplayer-list ol li .aplayer-list-index { color: #00ff41 !important; }
-    .aplayer-list ol li .aplayer-list-author { color: #008f11 !important; }
-</style>
-
-
-<script>
-    function initCyberClock() {
-        
-        if (document.getElementById('cyber-clock-container')) return;
-
-        
-        const navMenu = document.querySelector('.nav') || document.querySelector('nav');
-        
-        if (navMenu) {
-            
-            const clockDiv = document.createElement('div');
-            clockDiv.id = 'cyber-clock-container';
-            clockDiv.innerHTML = `
-                <div class="cyber-time">
-                    <span id="cyber-hours">00</span><span class="blink">:</span><span id="cyber-minutes">00</span><span class="blink">:</span><span id="cyber-seconds">00</span>
+            const statusBar = document.createElement('div');
+            statusBar.id = 'system-status-bar';
+            statusBar.innerHTML = `
+                <div class="status-content">
+                    <div class="status-item">
+                        <span class="label">SYSTEM:</span> <span class="value">ONLINE</span>
+                    </div>
+                    
+                    <div class="status-clock">
+                        <span id="sb-hour">00</span><span class="blink">:</span><span id="sb-min">00</span><span class="blink">:</span><span id="sb-sec">00</span>
+                    </div>
+                    
+                    <div class="status-item">
+                        <span class="label">DATE:</span> <span class="value" id="sb-date">LOADING...</span>
+                    </div>
                 </div>
-                <div class="cyber-date" id="cyber-date">YYYY-MM-DD</div>
             `;
             
             
-            navMenu.appendChild(clockDiv);
+            header.parentNode.insertBefore(statusBar, header.nextSibling);
             
             
             function updateTime() {
@@ -353,76 +159,157 @@
                 const m = String(now.getMinutes()).padStart(2, '0');
                 const s = String(now.getSeconds()).padStart(2, '0');
                 
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const day = String(now.getDate()).padStart(2, '0');
+                const hEl = document.getElementById('sb-hour');
+                const mEl = document.getElementById('sb-min');
+                const sEl = document.getElementById('sb-sec');
+                const dEl = document.getElementById('sb-date');
                 
-                const hEl = document.getElementById('cyber-hours');
-                const mEl = document.getElementById('cyber-minutes');
-                const sEl = document.getElementById('cyber-seconds');
-                const dEl = document.getElementById('cyber-date');
-                
-                if(hEl && mEl && sEl && dEl) {
+                if(hEl) {
                     hEl.innerText = h;
                     mEl.innerText = m;
                     sEl.innerText = s;
-                    dEl.innerText = `-- ${year}-${month}-${day} --`;
+                }
+                
+                if(dEl) {
+                    
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const day = String(now.getDate()).padStart(2, '0');
+                    dEl.innerText = `${year}-${month}-${day}`;
                 }
             }
-            
-            setInterval(updateTime, 1000);
-            updateTime(); 
+            setInterval(updateTime, 1000); updateTime();
         }
     }
 </script>
 
 <style>
      
-    #cyber-clock-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin-top: 15px;
-        padding: 5px;
+    #system-status-bar {
+        width: 100%;
+        background-color: rgba(0, 10, 0, 0.8);  
+        border-bottom: 1px solid #00ff41;  
+        border-top: 1px solid rgba(0, 255, 65, 0.2);
+        padding: 10px 0;
+        margin-bottom: 30px;  
         font-family: 'Courier New', monospace;
-        color: #00ff41;
-        text-shadow: 0 0 5px #00ff41;
-        border-top: 1px dashed rgba(0, 255, 65, 0.3);
-        
-         
-        width: 100%; 
-        order: 999;  
+        backdrop-filter: blur(5px);
+        position: relative;
+        z-index: 99;
     }
 
-    .cyber-time {
-        font-size: 2.5em;
-        font-weight: bold;
-        letter-spacing: 2px;
-    }
-
-    .cyber-date {
-        font-size: 1.5em;
-        opacity: 0.8;
-        letter-spacing: 1px;
+    .status-content {
+        max-width: 1200px;  
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;  
+        align-items: center;
+        padding: 0 20px;
     }
 
      
+    .status-item {
+        font-size: 0.9rem;
+        color: #00ff41;
+        opacity: 0.8;
+    }
+    .status-item .label {
+        font-weight: bold;
+        color: #fff;
+    }
+
+     
+    .status-clock {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #00ff41;
+        text-shadow: 0 0 15px rgba(0, 255, 65, 0.6);
+        letter-spacing: 3px;
+        background: rgba(0, 255, 65, 0.05);  
+        padding: 5px 20px;
+        border-radius: 5px;
+        border: 1px dashed rgba(0, 255, 65, 0.3);
+    }
+
     .blink {
         animation: blink-anim 1s infinite;
     }
 
     @keyframes blink-anim {
         0%, 100% { opacity: 1; }
-        50% { opacity: 0; }
+        50% { opacity: 0.2; }
+    }
+
+     
+    @media screen and (max-width: 768px) {
+        .status-content {
+            flex-direction: column;  
+            gap: 5px;
+        }
+        .status-clock {
+            font-size: 1.4rem;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .status-item {
+            font-size: 0.8rem;
+        }
+    }
+</style>
+
+
+<style>
+     
+    .profile img { 
+        border-radius: 50% !important; 
+        border: 3px solid #00ff41 !important; 
+        box-shadow: 0 0 25px rgba(0, 255, 65, 0.4) !important; 
+        background: #000; 
+        transition: transform 0.3s ease; 
+    }
+    .profile img:hover { 
+        transform: scale(1.05) rotate(5deg); 
+        box-shadow: 0 0 50px rgba(0, 255, 65, 0.9) !important; 
     }
     
      
-    @media screen and (max-width: 480px) {
-        #cyber-clock-container {
-            font-size: 0.8em;
+    .art-widget, .cyber-panel, .avatar-wrapper-hud { display: none !important; }
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/pjax/pjax.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
+<script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
+<div id="aplayer-fixed"></div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        var pjax = new Pjax({ selectors: ["title", "meta[name=description]", "main"], cacheBust: false });
+        if (!window.ap) {
+            window.ap = new APlayer({
+                container: document.getElementById('aplayer-fixed'), fixed: true, autoplay: true, theme: '#00ff41', loop: 'all', order: 'list', preload: 'auto', volume: 0.5, mutex: true, listFolded: true,
+                audio: [ { name: 'Cyberpunk City', artist: 'Hacker', url: '/music/song.mp3', cover: '/images/cover.jpg' } ]
+            });
+            document.body.addEventListener('click', function() { window.ap.play(); }, { once: true });
         }
-    }
+        initStatusBar(); 
+    });
+    document.addEventListener('pjax:complete', function() { initStatusBar(); });
+</script>
+<style>
+    .aplayer { background: rgba(0, 0, 0, 0.9) !important; border: 1px solid #00ff41 !important; box-shadow: 0 0 10px rgba(0, 255, 65, 0.2) !important; color: #00ff41 !important; font-family: 'Courier New', monospace !important; z-index: 99999 !important; }
+    .aplayer .aplayer-info .aplayer-music .aplayer-title { color: #00ff41 !important; }
+    .aplayer .aplayer-info .aplayer-music .aplayer-author { color: #008f11 !important; }
+    .aplayer .aplayer-lrc { display: none !important; }
+    .aplayer .aplayer-bar-wrap .aplayer-bar { background: #333 !important; }
+    .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-played { background: #00ff41 !important; box-shadow: 0 0 10px #00ff41; }
+    .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-played .aplayer-thumb { background: #00ff41 !important; border: 1px solid #000 !important; }
+    .aplayer-list { background: #000 !important; border-top: 1px solid #00ff41 !important; }
+    .aplayer-list ol li { border-bottom: 1px dashed #333 !important; }
+    .aplayer-list ol li:hover { background: rgba(0, 255, 65, 0.1) !important; }
+    .aplayer-list ol li.aplayer-list-light { background: rgba(0, 255, 65, 0.2) !important; }
+    .aplayer-list ol li .aplayer-list-title { color: #00ff41 !important; }
+    .aplayer-list ol li .aplayer-list-author { color: #008f11 !important; }
 </style>
 
 <script>

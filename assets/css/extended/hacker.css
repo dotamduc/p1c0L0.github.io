@@ -484,3 +484,156 @@ body.dark .buttons .button:hover i {
     color: #008f11 !important;
 }
 
+/* --- AVATAR HUD DECORATION STYLES --- */
+
+/* 1. Cái hộp bao quanh tất cả */
+.avatar-wrapper-hud {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-bottom: 30px; /* Khoảng cách với các nút bên dưới */
+}
+
+/* 2. Tinh chỉnh lại ảnh avatar khi nằm trong hộp mới */
+.avatar-wrapper-hud img {
+    /* Ghi đè margin cũ để ảnh nằm giữa 2 bảng mạch */
+    margin: 0 25px !important; 
+    /* Đảm bảo nó vẫn nằm trên các hiệu ứng nền */
+    z-index: 2; 
+    position: relative;
+}
+
+/* 3. Style chung cho 2 bảng mạch bên cạnh */
+.avatar-deco {
+    /* Chiều cao ngắn hơn avatar chút xíu */
+    height: 220px; 
+    width: 160px; /* Độ rộng của bảng */
+    
+    /* Giao diện kính Cyberpunk */
+    background: rgba(0, 20, 0, 0.6);
+    border: 2px solid #00ff41;
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.2) inset;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 15px;
+    
+    font-family: 'Courier New', monospace;
+    color: #00ff41;
+    font-size: 0.85em;
+    position: relative;
+    
+    /* Tạo hình khối góc cạnh công nghệ cao */
+    clip-path: polygon(0 10%, 10% 0, 90% 0, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0 90%);
+}
+
+/* Tinh chỉnh riêng cho bên TRÁI */
+.deco-left {
+    text-align: left;
+    border-right: none; /* Bỏ viền phía giáp avatar cho liền mạch */
+    transform: perspective(500px) rotateY(15deg); /* Hơi nghiêng 3D */
+}
+
+/* Tinh chỉnh riêng cho bên PHẢI */
+.deco-right {
+    text-align: right;
+    border-left: none; /* Bỏ viền phía giáp avatar */
+    transform: perspective(500px) rotateY(-15deg); /* Hơi nghiêng 3D ngược lại */
+}
+
+/* 4. Nội dung bên trong bảng mạch */
+.hud-text {
+    font-weight: bold;
+    border-bottom: 1px dashed rgba(0, 255, 65, 0.5);
+    padding-bottom: 5px;
+    text-shadow: 0 0 5px #00ff41;
+}
+
+.hud-anim-box {
+    flex-grow: 1;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.data-row {
+    margin: 5px 0;
+    opacity: 0.8;
+}
+.align-right { text-align: right; }
+
+/* 5. Hiệu ứng đường kẻ quét (Scan Line Animation) */
+.scan-line {
+    position: absolute;
+    top: 0; left: 0; 
+    width: 100%; height: 3px;
+    background: #00ff41;
+    box-shadow: 0 0 10px #00ff41, 0 0 20px #00ff41;
+    opacity: 0.6;
+    animation: hud-scan 3s ease-in-out infinite alternate;
+}
+
+/* Đường quét bên phải chạy chậm hơn chút cho tự nhiên */
+.scan-line.delay {
+    animation-delay: 0.5s;
+}
+
+@keyframes hud-scan {
+    0% { top: 5%; opacity: 0.3; }
+    100% { top: 95%; opacity: 0.8; }
+}
+
+/* 6. Ẩn trên điện thoại để tránh vỡ giao diện */
+@media screen and (max-width: 768px) {
+    .avatar-deco {
+        display: none !important;
+    }
+    /* Trên điện thoại, trả lại margin cũ cho avatar */
+    .avatar-wrapper-hud img {
+        margin: 0 auto 25px auto !important;
+    }
+}
+
+/* ================================================================================== */
+/* CUSTOM HEADER: FULL WIDTH & BIGGER FONTS                                           */
+/* ================================================================================== */
+
+/* 1. Header tràn viền (Full Width) */
+.nav {
+    max-width: 100% !important; /* Bắt buộc rộng 100% */
+    width: 100% !important;
+    padding: 0 40px !important; /* Cách lề trái phải một chút cho đẹp */
+    box-sizing: border-box; /* Đảm bảo padding không làm vỡ giao diện */
+    margin: 0 !important; /* Xóa margin canh giữa mặc định */
+}
+
+/* 2. Tăng kích thước Logo (Tên Web bên trái) */
+.logo a {
+    font-size: 32px !important; /* Kích thước chữ to hơn (Mặc định ~24px) */
+    font-weight: 800 !important; /* In đậm hơn */
+    letter-spacing: 2px; /* Giãn chữ ra một chút nhìn cho thoáng */
+}
+
+/* 3. Tăng kích thước Menu (Các nút bên phải: About, CTF...) */
+.menu li a {
+    font-size: 18px !important; /* Kích thước to hơn (Mặc định ~16px) */
+    font-weight: bold !important;
+    margin-left: 20px !important; /* Tăng khoảng cách giữa các nút */
+}
+
+/* Điều chỉnh lại trên điện thoại để không bị tràn */
+@media screen and (max-width: 768px) {
+    .nav {
+        padding: 0 15px !important;
+    }
+    .logo a {
+        font-size: 24px !important;
+    }
+    .menu li a {
+        font-size: 16px !important;
+    }
+}

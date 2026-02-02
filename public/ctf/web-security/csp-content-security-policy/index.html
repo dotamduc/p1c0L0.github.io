@@ -17,7 +17,7 @@ CSP (Content Security Policy) là một cơ chế bảo mật phía client giúp
 Nói dễ hiểu ra thì là: CSP = Whitelist các nguồn an toàn mà browser được phép dùng">
 <meta name="author" content="">
 <link rel="canonical" href="http://localhost:1313/p1c0L0.github.io/ctf/web-security/csp-content-security-policy/">
-<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.3912f7d78342996305e28a91f6bcffb0a0c28bf30571d68044f0b44be9719c43.css" integrity="sha256-ORL314NCmWMF4oqR9rz/sKDCi/MFcdaARPC0S&#43;lxnEM=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.cd7d779f43ba7341369cf5885000729d0346866d1e68e53eaa9502915f945caa.css" integrity="sha256-zX13n0O6c0E2nPWIUABynQNGhm0eaOU&#43;qpUCkV&#43;UXKo=" rel="preload stylesheet" as="style">
 <link rel="icon" href="http://localhost:1313/p1c0L0.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/p1c0L0.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/p1c0L0.github.io/favicon-32x32.png">
@@ -250,31 +250,85 @@ Nói dễ hiểu ra thì là: CSP = Whitelist các nguồn an toàn mà browser 
     </svg>
 </a><canvas id="matrix-bg"></canvas>
 <style>
-    #matrix-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -9999; pointer-events: none; }
-    .emoji-reset { font-family: "Apple Color Emoji", "Segoe UI Emoji", sans-serif !important; color: initial !important; background: none !important; -webkit-text-fill-color: initial !important; text-shadow: none !important; font-style: normal !important; display: inline-block !important; }
+     
+    #matrix-bg {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        z-index: -9999;  
+        pointer-events: none;
+    }
+
+     
+    .emoji-reset {
+        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Android Emoji", sans-serif !important;
+        color: initial !important; 
+        background: none !important; 
+        -webkit-text-fill-color: initial !important; 
+        -webkit-background-clip: border-box !important;
+        text-shadow: none !important; 
+        font-style: normal !important;
+        display: inline-block !important;
+        font-weight: normal !important;
+    }
 </style>
 <script>
+    
     const canvas = document.getElementById('matrix-bg');
     const ctx = canvas.getContext('2d');
-    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    window.addEventListener('resize', resizeCanvas); resizeCanvas();
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
     const fontSize = 14;
     const columns = Math.ceil(window.innerWidth / fontSize);
     const drops = Array(columns).fill(1);
+
     function draw() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'rgba(0, 255, 65, 0.15)'; ctx.font = fontSize + 'px monospace';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(0, 255, 65, 0.15)'; 
+        ctx.font = fontSize + 'px monospace';
+
         for (let i = 0; i < drops.length; i++) {
             const text = chars.charAt(Math.floor(Math.random() * chars.length));
             ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
             drops[i]++;
         }
     }
-    ctx.fillStyle = '#000000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     setInterval(draw, 35);
+
+    
+    document.addEventListener("DOMContentLoaded", function() {
+        function rescueEmojis(node) {
+            if (node.nodeType === 3) { 
+                const text = node.nodeValue;
+                const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
+                if (text.match(emojiRegex)) {
+                    const span = document.createElement('span');
+                    span.innerHTML = text.replace(emojiRegex, '<span class="emoji-reset">$&</span>');
+                    node.parentNode.replaceChild(span, node);
+                }
+            } 
+            else if (node.nodeType === 1 && !['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'].includes(node.tagName) && !node.classList.contains('emoji-reset')) {
+                Array.from(node.childNodes).forEach(child => rescueEmojis(child));
+            }
+        }
+        rescueEmojis(document.body);
+    });
 </script>
+
 
 <canvas id="fireworks" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:99999;"></canvas>
 <script>
@@ -291,31 +345,67 @@ Nói dễ hiểu ra thì là: CSP = Whitelist các nguồn an toàn mà browser 
     function initFireworks() {
         const fireworkCanvas = document.getElementById('fireworks');
         const fwCtx = fireworkCanvas.getContext('2d');
-        let fwWidth = window.innerWidth, fwHeight = window.innerHeight;
-        fireworkCanvas.width = fwWidth; fireworkCanvas.height = fwHeight;
-        window.addEventListener('resize', () => { fwWidth = window.innerWidth; fwHeight = window.innerHeight; fireworkCanvas.width = fwWidth; fireworkCanvas.height = fwHeight; });
+        let fwWidth = window.innerWidth;
+        let fwHeight = window.innerHeight;
+        fireworkCanvas.width = fwWidth;
+        fireworkCanvas.height = fwHeight;
+
+        window.addEventListener('resize', () => {
+            fwWidth = window.innerWidth;
+            fwHeight = window.innerHeight;
+            fireworkCanvas.width = fwWidth;
+            fireworkCanvas.height = fwHeight;
+        });
+
         function createParticle(x, y) {
-            const p = {}; p.x = x; p.y = y; p.color = ['#00ff41', '#008F11', '#ffffff'][Math.floor(Math.random() * 3)];
-            p.radius = Math.random() * 2 + 1; p.life = 100;
-            const angle = Math.random() * Math.PI * 2; const velocity = Math.random() * 6 + 2;
-            p.vx = Math.cos(angle) * velocity; p.vy = Math.sin(angle) * velocity;
-            return p;
+            const particle = {};
+            particle.x = x;
+            particle.y = y;
+            const colors = ['#00ff41', '#008F11', '#ffffff'];
+            particle.color = colors[Math.floor(Math.random() * colors.length)];
+            particle.radius = Math.random() * 2 + 1;
+            const angle = Math.random() * Math.PI * 2;
+            const velocity = Math.random() * 6 + 2;
+            particle.vx = Math.cos(angle) * velocity;
+            particle.vy = Math.sin(angle) * velocity;
+            particle.life = 100; 
+            return particle;
         }
+
         let particles = [];
+
         function animateFireworks() {
             requestAnimationFrame(animateFireworks);
             fwCtx.clearRect(0, 0, fwWidth, fwHeight);
             for (let i = 0; i < particles.length; i++) {
-                const p = particles[i]; fwCtx.beginPath(); fwCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                fwCtx.fillStyle = p.color; fwCtx.globalAlpha = p.life / 100; fwCtx.fill(); fwCtx.globalAlpha = 1;
-                p.x += p.vx; p.y += p.vy; p.life--;
-                if (p.life <= 0) { particles.splice(i, 1); i--; }
+                const p = particles[i];
+                fwCtx.beginPath();
+                fwCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                fwCtx.fillStyle = p.color;
+                fwCtx.globalAlpha = p.life / 100;
+                fwCtx.fill();
+                fwCtx.globalAlpha = 1;
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life--;
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                    i--;
+                }
             }
         }
         animateFireworks();
-        document.addEventListener('mousedown', (e) => { if(e.button === 0) for (let i = 0; i < 30; i++) particles.push(createParticle(e.clientX, e.clientY)); });
+
+        document.addEventListener('mousedown', (e) => {
+            if(e.button === 0) { 
+                for (let i = 0; i < 30; i++) {
+                    particles.push(createParticle(e.clientX, e.clientY));
+                }
+            }
+        });
     }
 </script>
+
 
 <script src="https://cdn.jsdelivr.net/npm/pjax/pjax.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
@@ -324,8 +414,8 @@ Nói dễ hiểu ra thì là: CSP = Whitelist các nguồn an toàn mà browser 
 <div id="aplayer-fixed" class="hacker-player"></div>
 
 <script>
-    
     document.addEventListener('DOMContentLoaded', () => {
+        
         var pjax = new Pjax({
             selectors: [
                 "title", 
@@ -334,45 +424,47 @@ Nói dễ hiểu ra thì là: CSP = Whitelist các nguồn an toàn mà browser 
             ],
             cacheBust: false
         });
+
+        
+        if (!window.ap) {
+            window.ap = new APlayer({
+                container: document.getElementById('aplayer-fixed'),
+                fixed: true,
+                autoplay: true,
+                theme: '#00ff41',
+                loop: 'all',
+                order: 'list',
+                preload: 'auto',
+                volume: 0.5,
+                mutex: true,
+                listFolded: true,
+                audio: [
+                    
+                    {
+                        name: 'Người tình mùa đông',
+                        artist: 'Hà Anh Tuấn',
+                        url: 'music/nhac.mp3', 
+                        cover: 'images/cover.png'
+                    },
+                    
+                ]
+            });
+
+            
+            document.body.addEventListener('click', function() {
+                window.ap.play();
+            }, { once: true });
+        }
+        
+        
+        initCyberClock();
     });
 
     
-    if (!window.ap) {
-        window.ap = new APlayer({
-            container: document.getElementById('aplayer-fixed'),
-            fixed: true,
-            autoplay: true,
-            theme: '#00ff41',
-            loop: 'all',
-            order: 'list',
-            preload: 'auto',
-            volume: 0.5,
-            mutex: true,
-            listFolded: true,
-            audio: [
-                {
-                    name: 'Người tình mùa đông', 
-                    artist: 'Tâm zela',   
-                    url: 'music/nhac.mp3', 
-                    cover: 'images/cover.png' 
-                },
-                
-                
-                {
-                    name: 'Bảo tàng của nuối tiếc',
-                    artist: 'Vũ.',
-                    url: 'music/vu.mp3', 
-                    cover: 'images/vu.png' 
-                },
-                
-            ]
-        });
-
-        
-        document.body.addEventListener('click', function() {
-            window.ap.play();
-        }, { once: true });
-    }
+    
+    document.addEventListener('pjax:complete', function() {
+        initCyberClock();
+    });
 </script>
 
 <style>
@@ -395,6 +487,203 @@ Nói dễ hiểu ra thì là: CSP = Whitelist các nguồn an toàn mà browser 
     .aplayer-list ol li .aplayer-list-index { color: #00ff41 !important; }
     .aplayer-list ol li .aplayer-list-author { color: #008f11 !important; }
 </style>
+
+
+<script>
+    function initCyberClock() {
+        
+        if (document.getElementById('cyber-clock-container')) return;
+
+        
+        const navMenu = document.querySelector('.nav') || document.querySelector('nav');
+        
+        if (navMenu) {
+            
+            const clockDiv = document.createElement('div');
+            clockDiv.id = 'cyber-clock-container';
+            clockDiv.innerHTML = `
+                <div class="cyber-time">
+                    <span id="cyber-hours">00</span><span class="blink">:</span><span id="cyber-minutes">00</span><span class="blink">:</span><span id="cyber-seconds">00</span>
+                </div>
+                <div class="cyber-date" id="cyber-date">YYYY-MM-DD</div>
+            `;
+            
+            
+            navMenu.appendChild(clockDiv);
+            
+            
+            function updateTime() {
+                const now = new Date();
+                
+                const h = String(now.getHours()).padStart(2, '0');
+                const m = String(now.getMinutes()).padStart(2, '0');
+                const s = String(now.getSeconds()).padStart(2, '0');
+                
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                
+                const hEl = document.getElementById('cyber-hours');
+                const mEl = document.getElementById('cyber-minutes');
+                const sEl = document.getElementById('cyber-seconds');
+                const dEl = document.getElementById('cyber-date');
+                
+                if(hEl && mEl && sEl && dEl) {
+                    hEl.innerText = h;
+                    mEl.innerText = m;
+                    sEl.innerText = s;
+                    dEl.innerText = `-- ${year}-${month}-${day} --`;
+                }
+            }
+            
+            setInterval(updateTime, 1000);
+            updateTime(); 
+        }
+    }
+</script>
+
+<style>
+     
+    #cyber-clock-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-top: 15px;
+        padding: 5px;
+        font-family: 'Courier New', monospace;
+        color: #00ff41;
+        text-shadow: 0 0 5px #00ff41;
+        border-top: 1px dashed rgba(0, 255, 65, 0.3);
+        
+         
+        width: 100%; 
+        order: 999;  
+    }
+
+    .cyber-time {
+        font-size: 2.5em;
+        font-weight: bold;
+        letter-spacing: 2px;
+    }
+
+    .cyber-date {
+        font-size: 1.5em;
+        opacity: 0.8;
+        letter-spacing: 1px;
+    }
+
+     
+    .blink {
+        animation: blink-anim 1s infinite;
+    }
+
+    @keyframes blink-anim {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+    
+     
+    @media screen and (max-width: 480px) {
+        #cyber-clock-container {
+            font-size: 0.8em;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        const profileImg = document.querySelector('.profile img');
+        
+        
+        if (profileImg && !document.querySelector('.avatar-wrapper-hud')) {
+            
+            
+            const wrapper = document.createElement('div');
+            wrapper.className = 'avatar-wrapper-hud';
+            
+            
+            const leftDeco = document.createElement('div');
+            leftDeco.className = 'avatar-deco deco-left';
+            leftDeco.innerHTML = `
+                <div class="hud-text">:: BIO-SCAN ::</div>
+                <div class="hud-anim-box">
+                    <div class="scan-line"></div>
+                    <div class="data-row">ID: P1C0L0</div>
+                    <div class="data-row">STATUS: ONLINE</div>
+                </div>
+            `;
+            
+            
+            const rightDeco = document.createElement('div');
+            rightDeco.className = 'avatar-deco deco-right';
+            rightDeco.innerHTML = `
+                <div class="hud-text">:: SYS-ANALYSIS ::</div>
+                <div class="hud-anim-box">
+                    <div class="scan-line delay"></div>
+                    <div class="data-row align-right">THREAT: NONE</div>
+                    <div class="data-row align-right">ACCESS: GRANTED</div>
+                </div>
+            `;
+            
+            
+            
+            profileImg.parentNode.insertBefore(wrapper, profileImg);
+            
+            wrapper.appendChild(leftDeco);
+            wrapper.appendChild(profileImg); 
+            wrapper.appendChild(rightDeco);
+        }
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        const profileImg = document.querySelector('.profile img');
+        
+        
+        if (profileImg && !document.querySelector('.avatar-wrapper-hud')) {
+            
+            
+            const wrapper = document.createElement('div');
+            wrapper.className = 'avatar-wrapper-hud';
+            
+            
+            const leftDeco = document.createElement('div');
+            leftDeco.className = 'avatar-deco deco-left';
+            leftDeco.innerHTML = `
+                <div class="hud-text">:: BIO-SCAN ::</div>
+                <div class="hud-anim-box">
+                    <div class="scan-line"></div>
+                    <div class="data-row">ID: P1C0L0</div>
+                    <div class="data-row">STATUS: ONLINE</div>
+                </div>
+            `;
+            
+            
+            const rightDeco = document.createElement('div');
+            rightDeco.className = 'avatar-deco deco-right';
+            rightDeco.innerHTML = `
+                <div class="hud-text">:: SYS-ANALYSIS ::</div>
+                <div class="hud-anim-box">
+                    <div class="scan-line delay"></div>
+                    <div class="data-row align-right">THREAT: NONE</div>
+                    <div class="data-row align-right">ACCESS: GRANTED</div>
+                </div>
+            `;
+            
+            
+            
+            profileImg.parentNode.insertBefore(wrapper, profileImg);
+            
+            wrapper.appendChild(leftDeco);
+            wrapper.appendChild(profileImg); 
+            wrapper.appendChild(rightDeco);
+        }
+    });
+</script>
 
 <script>
     let menu = document.getElementById('menu');

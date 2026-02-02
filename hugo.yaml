@@ -16,8 +16,8 @@ params:
     subtitle: "Cybersecurity Student | Web Player 🌐" # Giới thiệu ngắn gọn
     imageUrl: "images/avt.png" # Link ảnh Avatar
     imageTitle: "My Avatar"
-    imageWidth: 400
-    imageHeight: 400
+    imageWidth: 300
+    imageHeight: 300
     buttons:
       - name: "<i class='fab fa-github'></i> Github"
         url: "https://github.com/dotamduc"
