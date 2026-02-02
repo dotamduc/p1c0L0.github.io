@@ -22,7 +22,7 @@ HackMD: p1c0L0
 ">
 <meta name="author" content="">
 <link rel="canonical" href="http://localhost:1313/p1c0L0.github.io/contact/">
-<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.cd7d779f43ba7341369cf5885000729d0346866d1e68e53eaa9502915f945caa.css" integrity="sha256-zX13n0O6c0E2nPWIUABynQNGhm0eaOU&#43;qpUCkV&#43;UXKo=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.c85d014ccab6242e17ca522adf6f47099d53d21ed8842ec884f11d5fe103d061.css" integrity="sha256-yF0BTMq2JC4XylIq329HCZ1T0h7YhC7IhPEdX&#43;ED0GE=" rel="preload stylesheet" as="style">
 <link rel="icon" href="http://localhost:1313/p1c0L0.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/p1c0L0.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/p1c0L0.github.io/favicon-32x32.png">
@@ -126,442 +126,323 @@ HackMD: p1c0L0
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
         <path d="M12 6H0l6-6z" />
     </svg>
-</a><canvas id="matrix-bg"></canvas>
+</a><div id="three-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -9999; background: #000;"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+    let scene, camera, renderer, networkGroup;
+    let mouseX = 0, mouseY = 0;
+    const container = document.getElementById('three-container');
+    const windowHalfX = window.innerWidth / 2;
+    const windowHalfY = window.innerHeight / 2;
+
+    function initThreeJS() {
+        if (!container) return;
+        scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x000000, 0.0015);
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 2000);
+        camera.position.z = 1000;
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000, 1);
+        container.innerHTML = ''; 
+        container.appendChild(renderer.domElement);
+        networkGroup = new THREE.Group();
+        scene.add(networkGroup);
+        
+        const geometry = new THREE.BoxGeometry(40, 40, 40);
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff41, wireframe: true, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+        
+        for (let i = 0; i < 200; i++) {
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.x = (Math.random() - 0.5) * 2000;
+            mesh.position.y = (Math.random() - 0.5) * 2000;
+            mesh.position.z = (Math.random() - 0.5) * 2000;
+            mesh.rotation.x = Math.random() * 2 * Math.PI;
+            mesh.rotation.y = Math.random() * 2 * Math.PI;
+            mesh.scale.set(Math.random() * 2 + 0.5, Math.random() * 2 + 0.5, Math.random() * 2 + 0.5);
+            networkGroup.add(mesh);
+        }
+
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x00ff41, transparent: true, opacity: 0.2 });
+        const lineGeometry = new THREE.BufferGeometry();
+        const positions = [];
+        const blocks = networkGroup.children;
+
+        for (let i = 0; i < blocks.length; i++) {
+            for (let j = i + 1; j < blocks.length; j++) {
+                const dist = blocks[i].position.distanceTo(blocks[j].position);
+                if (dist < 300) {
+                    positions.push(blocks[i].position.x, blocks[i].position.y, blocks[i].position.z);
+                    positions.push(blocks[j].position.x, blocks[j].position.y, blocks[j].position.z);
+                }
+            }
+        }
+        lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+        networkGroup.add(lines);
+
+        document.addEventListener('mousemove', onDocumentMouseMove, false);
+        window.addEventListener('resize', onWindowResize, false);
+    }
+
+    function onWindowResize() { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
+    function onDocumentMouseMove(event) { mouseX = (event.clientX - windowHalfX) * 0.5; mouseY = (event.clientY - windowHalfY) * 0.5; }
+    function animateThreeJS() { requestAnimationFrame(animateThreeJS); render(); }
+    function render() {
+        const time = Date.now() * 0.0005;
+        camera.position.x += (mouseX - camera.position.x) * 0.05;
+        camera.position.y += (-mouseY - camera.position.y) * 0.05;
+        camera.lookAt(scene.position);
+        networkGroup.rotation.x = time * 0.2;
+        networkGroup.rotation.y = time * 0.3;
+        renderer.render(scene, camera);
+    }
+    
+    if(!window.threeInitialized) { initThreeJS(); animateThreeJS(); window.threeInitialized = true; }
+</script>
+
+
+<div id="cyber-back-btn" style="display: none;" onclick="goBack()">
+    <span class="cmd">&lt; cd ..</span> <span class="text">/ RETURN</span>
+</div>
+
+<div id="hackmd-toc-wrapper" style="display: none;">
+    <div class="toc-header">:: TABLE OF CONTENTS ::</div>
+    <div id="hackmd-toc-content"></div>
+</div>
+
+<script>
+    function goBack() {
+        if (window.history.length > 1 && document.referrer.indexOf(window.location.host) !== -1) {
+            window.history.back();
+        } else { window.location.href = '/'; }
+    }
+
+    function generateHackMDTOC() {
+        const tocWrapper = document.getElementById('hackmd-toc-wrapper');
+        const tocContent = document.getElementById('hackmd-toc-content');
+        const backBtn = document.getElementById('cyber-back-btn');
+        const postContent = document.querySelector('.post-content');
+
+        if(tocContent) tocContent.innerHTML = '';
+        if(tocWrapper) tocWrapper.style.display = 'none';
+        if(backBtn) backBtn.style.display = 'none';
+
+        if (postContent && tocContent) {
+            if(backBtn) backBtn.style.display = 'block';
+
+            const headings = postContent.querySelectorAll('h1, h2, h3, h4');
+            if (headings.length > 0) {
+                tocWrapper.style.display = 'block';
+                const ul = document.createElement('ul');
+
+                headings.forEach((heading) => {
+                    let id = heading.getAttribute('id');
+                    if (!id) {
+                        id = heading.innerText.toLowerCase().replace(/[^\w]+/g, '-');
+                        heading.setAttribute('id', id);
+                    }
+
+                    const li = document.createElement('li');
+                    const level = heading.tagName.toLowerCase();
+                    li.className = `toc-item ${level}`;
+
+                    const a = document.createElement('a');
+                    a.href = `#${id}`;
+                    a.innerText = heading.innerText;
+                    a.className = 'toc-link';
+                    
+                    a.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const target = document.getElementById(id);
+                        if(target) {
+                            const offsetPosition = target.getBoundingClientRect().top + window.pageYOffset - 100;
+                            window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+                            history.pushState(null, null, `#${id}`);
+                        }
+                    });
+
+                    li.appendChild(a);
+                    ul.appendChild(li);
+                });
+                tocContent.appendChild(ul);
+
+                const observer = new IntersectionObserver(entries => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const id = entry.target.getAttribute('id');
+                            document.querySelectorAll('.toc-link').forEach(link => link.classList.remove('active'));
+                            const activeLink = document.querySelector(`.toc-link[href="#${id}"]`);
+                            if (activeLink) {
+                                activeLink.classList.add('active');
+                                activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            }
+                        }
+                    });
+                }, { rootMargin: '-100px 0px -70% 0px' });
+                headings.forEach(heading => observer.observe(heading));
+            }
+        }
+    }
+</script>
+
 <style>
      
-    #matrix-bg {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100vw; height: 100vh;
-        z-index: -9999;  
-        pointer-events: none;
+    #cyber-back-btn { position: fixed; left: 20px; top: 130px; width: 260px; padding: 10px 15px; box-sizing: border-box; background: rgba(0, 0, 0, 0.8); border: 1px solid #00ff41; border-left: 5px solid #00ff41; color: #00ff41; font-family: 'Courier New', monospace; font-weight: bold; font-size: 14px; cursor: pointer; z-index: 95; transition: all 0.3s ease; backdrop-filter: blur(5px); text-transform: uppercase; letter-spacing: 1px; }
+    #cyber-back-btn:hover { background: rgba(0, 255, 65, 0.2); box-shadow: 0 0 15px rgba(0, 255, 65, 0.4); padding-left: 25px; }
+    #hackmd-toc-wrapper { position: fixed; left: 20px; top: 180px; width: 260px; max-height: calc(100vh - 200px); overflow-y: auto; z-index: 90; background: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; padding-right: 10px; }
+    .toc-header { font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; color: #00ff41; margin-bottom: 15px; border-bottom: 1px solid rgba(0, 255, 65, 0.3); padding-bottom: 5px; opacity: 0.8; }
+    #hackmd-toc-content ul { list-style: none; padding: 0; margin: 0; border-left: 2px solid rgba(255, 255, 255, 0.1); }
+    #hackmd-toc-content li { margin: 0; position: relative; }
+    .toc-link { display: block; text-decoration: none; color: #888; font-size: 13px; padding: 5px 0 5px 15px; line-height: 1.5; transition: all 0.2s ease; border-left: 2px solid transparent; margin-left: -2px; }
+    .toc-link:hover { color: #fff; }
+    .toc-link.active { color: #00ff41 !important; font-weight: 500; border-left: 2px solid #00ff41; background: linear-gradient(90deg, rgba(0, 255, 65, 0.05), transparent); }
+    .toc-item.h1 { padding-left: 0; } .toc-item.h1 .toc-link { font-weight: bold; font-size: 14px; color: #ccc; }
+    .toc-item.h2 { padding-left: 0; }
+    .toc-item.h3 .toc-link { padding-left: 30px; font-size: 12px; }
+    .toc-item.h4 .toc-link { padding-left: 45px; font-size: 11px; opacity: 0.8; }
+    #hackmd-toc-wrapper::-webkit-scrollbar { width: 3px; }
+    #hackmd-toc-wrapper::-webkit-scrollbar-thumb { background: #333; }
+    @media screen and (max-width: 1450px) { #hackmd-toc-wrapper, #cyber-back-btn { display: none !important; } }
+</style>
+
+
+<style>
+     
+    .post-single {
+        background-color: rgba(0, 0, 0, 0.85) !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid #00ff41;
+        border-radius: 12px;
+        padding: 40px;
+        margin-top: 20px;
+        box-shadow: 0 0 30px rgba(0, 255, 65, 0.15);
+        position: relative;
+        z-index: 1;
+    }
+    @media screen and (min-width: 1451px) {
+        .post-single { margin-left: 300px !important; width: calc(100% - 300px) !important; max-width: 1000px; }
+        .main { max-width: 1600px !important; margin: auto; }
+    }
+    .post-content { color: #e0e0e0; font-family: 'Segoe UI', sans-serif; }
+
+     
+     
+    .post-content pre { 
+        background: #0d1117 !important;  
+        border: 1px solid rgba(0, 255, 65, 0.3) !important; 
+        border-radius: 6px;
+        padding: 15px;
+        overflow-x: auto;
+    }
+    
+     
+    .post-content pre::-webkit-scrollbar { height: 8px; }
+    .post-content pre::-webkit-scrollbar-thumb { background: #00ff41; border-radius: 4px; }
+    .post-content pre::-webkit-scrollbar-track { background: #1a1a1a; }
+
+     
+    .post-content code {
+        font-family: 'Fira Code', 'Consolas', monospace;
+        font-size: 0.9em;
     }
 
      
-    .emoji-reset {
-        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Android Emoji", sans-serif !important;
-        color: initial !important; 
-        background: none !important; 
-        -webkit-text-fill-color: initial !important; 
-        -webkit-background-clip: border-box !important;
-        text-shadow: none !important; 
-        font-style: normal !important;
-        display: inline-block !important;
-        font-weight: normal !important;
-    }
+     
+    .chroma .k, .chroma .kd, .chroma .kp, .chroma .kr { color: #f92672 !important; font-weight: bold; }
+     
+    .chroma .s, .chroma .sa, .chroma .sb, .chroma .sc, .chroma .dl, .chroma .sd, .chroma .s2, .chroma .se, .chroma .sh, .chroma .si, .chroma .sx, .chroma .sr, .chroma .s1, .chroma .ss { color: #e6db74 !important; }
+     
+    .chroma .m, .chroma .mb, .chroma .mf, .chroma .mh, .chroma .mi, .chroma .il, .chroma .mo { color: #ae81ff !important; }
+     
+    .chroma .nf, .chroma .nc, .chroma .no, .chroma .nd, .chroma .ni, .chroma .ne { color: #a6e22e !important; }
+     
+    .chroma .c, .chroma .ch, .chroma .cm, .chroma .c1, .chroma .cs, .chroma .cp, .chroma .cpf { color: #75715e !important; font-style: italic; }
+     
+    .chroma .o, .chroma .ow { color: #f92672 !important; }
 </style>
+
+
 <script>
-    
-    const canvas = document.getElementById('matrix-bg');
-    const ctx = canvas.getContext('2d');
-
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
-    const fontSize = 14;
-    const columns = Math.ceil(window.innerWidth / fontSize);
-    const drops = Array(columns).fill(1);
-
-    function draw() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'rgba(0, 255, 65, 0.15)'; 
-        ctx.font = fontSize + 'px monospace';
-
-        for (let i = 0; i < drops.length; i++) {
-            const text = chars.charAt(Math.floor(Math.random() * chars.length));
-            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                drops[i] = 0;
+    function initStatusBar() {
+        if (document.getElementById('system-status-bar')) return;
+        const header = document.querySelector('.header') || document.querySelector('header');
+        if (header) {
+            const statusBar = document.createElement('div');
+            statusBar.id = 'system-status-bar';
+            statusBar.innerHTML = `
+                <div class="status-content">
+                    <div class="status-item"><span class="label">SYSTEM:</span> <span class="value">ONLINE</span></div>
+                    <div class="status-clock"><span id="sb-hour">00</span><span class="blink">:</span><span id="sb-min">00</span><span class="blink">:</span><span id="sb-sec">00</span></div>
+                    <div class="status-item"><span class="label">DATE:</span> <span class="value" id="sb-date">LOADING...</span></div>
+                </div>`;
+            header.parentNode.insertBefore(statusBar, header.nextSibling);
+            function updateTime() {
+                const now = new Date();
+                const hEl = document.getElementById('sb-hour'), mEl = document.getElementById('sb-min'), sEl = document.getElementById('sb-sec'), dEl = document.getElementById('sb-date');
+                if(hEl) { hEl.innerText = String(now.getHours()).padStart(2, '0'); mEl.innerText = String(now.getMinutes()).padStart(2, '0'); sEl.innerText = String(now.getSeconds()).padStart(2, '0'); }
+                if(dEl) { dEl.innerText = now.toLocaleDateString('en-CA'); }
             }
-            drops[i]++;
+            setInterval(updateTime, 1000); updateTime();
         }
-    }
-    
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    setInterval(draw, 35);
-
-    
-    document.addEventListener("DOMContentLoaded", function() {
-        function rescueEmojis(node) {
-            if (node.nodeType === 3) { 
-                const text = node.nodeValue;
-                const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
-                if (text.match(emojiRegex)) {
-                    const span = document.createElement('span');
-                    span.innerHTML = text.replace(emojiRegex, '<span class="emoji-reset">$&</span>');
-                    node.parentNode.replaceChild(span, node);
-                }
-            } 
-            else if (node.nodeType === 1 && !['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'].includes(node.tagName) && !node.classList.contains('emoji-reset')) {
-                Array.from(node.childNodes).forEach(child => rescueEmojis(child));
-            }
-        }
-        rescueEmojis(document.body);
-    });
-</script>
-
-
-<canvas id="fireworks" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:99999;"></canvas>
-<script>
-    
-    (function() {
-        if(!window.anime) {
-            var script = document.createElement('script');
-            script.src = "https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js";
-            script.onload = initFireworks;
-            document.head.appendChild(script);
-        } else { initFireworks(); }
-    })();
-
-    function initFireworks() {
-        const fireworkCanvas = document.getElementById('fireworks');
-        const fwCtx = fireworkCanvas.getContext('2d');
-        let fwWidth = window.innerWidth;
-        let fwHeight = window.innerHeight;
-        fireworkCanvas.width = fwWidth;
-        fireworkCanvas.height = fwHeight;
-
-        window.addEventListener('resize', () => {
-            fwWidth = window.innerWidth;
-            fwHeight = window.innerHeight;
-            fireworkCanvas.width = fwWidth;
-            fireworkCanvas.height = fwHeight;
-        });
-
-        function createParticle(x, y) {
-            const particle = {};
-            particle.x = x;
-            particle.y = y;
-            const colors = ['#00ff41', '#008F11', '#ffffff'];
-            particle.color = colors[Math.floor(Math.random() * colors.length)];
-            particle.radius = Math.random() * 2 + 1;
-            const angle = Math.random() * Math.PI * 2;
-            const velocity = Math.random() * 6 + 2;
-            particle.vx = Math.cos(angle) * velocity;
-            particle.vy = Math.sin(angle) * velocity;
-            particle.life = 100; 
-            return particle;
-        }
-
-        let particles = [];
-
-        function animateFireworks() {
-            requestAnimationFrame(animateFireworks);
-            fwCtx.clearRect(0, 0, fwWidth, fwHeight);
-            for (let i = 0; i < particles.length; i++) {
-                const p = particles[i];
-                fwCtx.beginPath();
-                fwCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                fwCtx.fillStyle = p.color;
-                fwCtx.globalAlpha = p.life / 100;
-                fwCtx.fill();
-                fwCtx.globalAlpha = 1;
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life--;
-                if (p.life <= 0) {
-                    particles.splice(i, 1);
-                    i--;
-                }
-            }
-        }
-        animateFireworks();
-
-        document.addEventListener('mousedown', (e) => {
-            if(e.button === 0) { 
-                for (let i = 0; i < 30; i++) {
-                    particles.push(createParticle(e.clientX, e.clientY));
-                }
-            }
-        });
     }
 </script>
+<style>
+    #system-status-bar { width: 100%; background-color: rgba(0, 10, 0, 0.85); border-bottom: 1px solid #00ff41; border-top: 1px solid rgba(0, 255, 65, 0.2); padding: 10px 0; margin-bottom: 30px; font-family: 'Courier New', monospace; backdrop-filter: blur(5px); position: relative; z-index: 99; }
+    .status-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+    .status-item { font-size: 0.9rem; color: #00ff41; opacity: 0.8; } .status-item .label { font-weight: bold; color: #fff; }
+    .status-clock { font-size: 1.8rem; font-weight: 800; color: #00ff41; text-shadow: 0 0 15px rgba(0, 255, 65, 0.6); letter-spacing: 3px; background: rgba(0, 255, 65, 0.05); padding: 5px 20px; border-radius: 5px; border: 1px dashed rgba(0, 255, 65, 0.3); }
+    .blink { animation: blink-anim 1s infinite; } @keyframes blink-anim { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+    @media screen and (max-width: 768px) { .status-content { flex-direction: column; gap: 5px; } .status-clock { font-size: 1.4rem; width: 100%; text-align: center; box-sizing: border-box; } }
+</style>
 
+
+<style>
+    .profile img { border-radius: 50% !important; border: 3px solid #00ff41 !important; box-shadow: 0 0 25px rgba(0, 255, 65, 0.4) !important; background: #000; transition: transform 0.3s ease; }
+    .profile img:hover { transform: scale(1.05) rotate(5deg); box-shadow: 0 0 50px rgba(0, 255, 65, 0.9) !important; }
+    .art-widget, .cyber-panel, .avatar-wrapper-hud { display: none !important; }
+</style>
 
 <script src="https://cdn.jsdelivr.net/npm/pjax/pjax.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
 <script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
-
-<div id="aplayer-fixed" class="hacker-player"></div>
+<div id="aplayer-fixed"></div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        
-        var pjax = new Pjax({
-            selectors: [
-                "title", 
-                "meta[name=description]", 
-                "main", 
-            ],
-            cacheBust: false
-        });
+    function initAllWidgets() {
+        initStatusBar();
+        generateHackMDTOC();
+    }
 
-        
+    document.addEventListener('DOMContentLoaded', () => {
+        var pjax = new Pjax({ selectors: ["title", "meta[name=description]", "main"], cacheBust: false });
         if (!window.ap) {
             window.ap = new APlayer({
-                container: document.getElementById('aplayer-fixed'),
-                fixed: true,
-                autoplay: true,
-                theme: '#00ff41',
-                loop: 'all',
-                order: 'list',
-                preload: 'auto',
-                volume: 0.5,
-                mutex: true,
-                listFolded: true,
-                audio: [
-                    
-                    {
-                        name: 'Người tình mùa đông',
-                        artist: 'Hà Anh Tuấn',
-                        url: 'music/nhac.mp3', 
-                        cover: 'images/cover.png'
-                    },
-                    
-                ]
+                container: document.getElementById('aplayer-fixed'), fixed: true, autoplay: true, theme: '#00ff41', loop: 'all', order: 'list', preload: 'auto', volume: 0.5, mutex: true, listFolded: true,
+                audio: [ { name: 'Cyberpunk City', artist: 'Hacker', url: '/music/song.mp3', cover: '/images/cover.jpg' } ]
             });
-
-            
-            document.body.addEventListener('click', function() {
-                window.ap.play();
-            }, { once: true });
+            document.body.addEventListener('click', function() { window.ap.play(); }, { once: true });
         }
-        
-        
-        initCyberClock();
+        initAllWidgets();
     });
 
-    
-    
     document.addEventListener('pjax:complete', function() {
-        initCyberClock();
+        initAllWidgets();
     });
 </script>
-
 <style>
-     
     .aplayer { background: rgba(0, 0, 0, 0.9) !important; border: 1px solid #00ff41 !important; box-shadow: 0 0 10px rgba(0, 255, 65, 0.2) !important; color: #00ff41 !important; font-family: 'Courier New', monospace !important; z-index: 99999 !important; }
     .aplayer .aplayer-info .aplayer-music .aplayer-title { color: #00ff41 !important; }
     .aplayer .aplayer-info .aplayer-music .aplayer-author { color: #008f11 !important; }
     .aplayer .aplayer-lrc { display: none !important; }
     .aplayer .aplayer-bar-wrap .aplayer-bar { background: #333 !important; }
-    .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-loaded { background: #555 !important; }
     .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-played { background: #00ff41 !important; box-shadow: 0 0 10px #00ff41; }
-    .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-played .aplayer-thumb { background: #00ff41 !important; border: 2px solid #000 !important; }
-    .aplayer .aplayer-pic .aplayer-button { background: rgba(0,0,0,0.5) !important; border: 1px solid #00ff41 !important; }
-    .aplayer .aplayer-pic .aplayer-button path { fill: #00ff41 !important; }
-    .aplayer-list { background: #000000 !important; border-top: 1px solid #00ff41 !important; }
+    .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-played .aplayer-thumb { background: #00ff41 !important; border: 1px solid #000 !important; }
+    .aplayer-list { background: #000 !important; border-top: 1px solid #00ff41 !important; }
     .aplayer-list ol li { border-bottom: 1px dashed #333 !important; }
     .aplayer-list ol li:hover { background: rgba(0, 255, 65, 0.1) !important; }
-    .aplayer-list ol li.aplayer-list-light { background: rgba(0, 255, 65, 0.2) !important; }
-    .aplayer-list ol li .aplayer-list-title { color: #00ff41 !important; }
-    .aplayer-list ol li .aplayer-list-index { color: #00ff41 !important; }
-    .aplayer-list ol li .aplayer-list-author { color: #008f11 !important; }
 </style>
-
-
-<script>
-    function initCyberClock() {
-        
-        if (document.getElementById('cyber-clock-container')) return;
-
-        
-        const navMenu = document.querySelector('.nav') || document.querySelector('nav');
-        
-        if (navMenu) {
-            
-            const clockDiv = document.createElement('div');
-            clockDiv.id = 'cyber-clock-container';
-            clockDiv.innerHTML = `
-                <div class="cyber-time">
-                    <span id="cyber-hours">00</span><span class="blink">:</span><span id="cyber-minutes">00</span><span class="blink">:</span><span id="cyber-seconds">00</span>
-                </div>
-                <div class="cyber-date" id="cyber-date">YYYY-MM-DD</div>
-            `;
-            
-            
-            navMenu.appendChild(clockDiv);
-            
-            
-            function updateTime() {
-                const now = new Date();
-                
-                const h = String(now.getHours()).padStart(2, '0');
-                const m = String(now.getMinutes()).padStart(2, '0');
-                const s = String(now.getSeconds()).padStart(2, '0');
-                
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const day = String(now.getDate()).padStart(2, '0');
-                
-                const hEl = document.getElementById('cyber-hours');
-                const mEl = document.getElementById('cyber-minutes');
-                const sEl = document.getElementById('cyber-seconds');
-                const dEl = document.getElementById('cyber-date');
-                
-                if(hEl && mEl && sEl && dEl) {
-                    hEl.innerText = h;
-                    mEl.innerText = m;
-                    sEl.innerText = s;
-                    dEl.innerText = `-- ${year}-${month}-${day} --`;
-                }
-            }
-            
-            setInterval(updateTime, 1000);
-            updateTime(); 
-        }
-    }
-</script>
-
-<style>
-     
-    #cyber-clock-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin-top: 15px;
-        padding: 5px;
-        font-family: 'Courier New', monospace;
-        color: #00ff41;
-        text-shadow: 0 0 5px #00ff41;
-        border-top: 1px dashed rgba(0, 255, 65, 0.3);
-        
-         
-        width: 100%; 
-        order: 999;  
-    }
-
-    .cyber-time {
-        font-size: 2.5em;
-        font-weight: bold;
-        letter-spacing: 2px;
-    }
-
-    .cyber-date {
-        font-size: 1.5em;
-        opacity: 0.8;
-        letter-spacing: 1px;
-    }
-
-     
-    .blink {
-        animation: blink-anim 1s infinite;
-    }
-
-    @keyframes blink-anim {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0; }
-    }
-    
-     
-    @media screen and (max-width: 480px) {
-        #cyber-clock-container {
-            font-size: 0.8em;
-        }
-    }
-</style>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        
-        const profileImg = document.querySelector('.profile img');
-        
-        
-        if (profileImg && !document.querySelector('.avatar-wrapper-hud')) {
-            
-            
-            const wrapper = document.createElement('div');
-            wrapper.className = 'avatar-wrapper-hud';
-            
-            
-            const leftDeco = document.createElement('div');
-            leftDeco.className = 'avatar-deco deco-left';
-            leftDeco.innerHTML = `
-                <div class="hud-text">:: BIO-SCAN ::</div>
-                <div class="hud-anim-box">
-                    <div class="scan-line"></div>
-                    <div class="data-row">ID: P1C0L0</div>
-                    <div class="data-row">STATUS: ONLINE</div>
-                </div>
-            `;
-            
-            
-            const rightDeco = document.createElement('div');
-            rightDeco.className = 'avatar-deco deco-right';
-            rightDeco.innerHTML = `
-                <div class="hud-text">:: SYS-ANALYSIS ::</div>
-                <div class="hud-anim-box">
-                    <div class="scan-line delay"></div>
-                    <div class="data-row align-right">THREAT: NONE</div>
-                    <div class="data-row align-right">ACCESS: GRANTED</div>
-                </div>
-            `;
-            
-            
-            
-            profileImg.parentNode.insertBefore(wrapper, profileImg);
-            
-            wrapper.appendChild(leftDeco);
-            wrapper.appendChild(profileImg); 
-            wrapper.appendChild(rightDeco);
-        }
-    });
-</script>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        
-        const profileImg = document.querySelector('.profile img');
-        
-        
-        if (profileImg && !document.querySelector('.avatar-wrapper-hud')) {
-            
-            
-            const wrapper = document.createElement('div');
-            wrapper.className = 'avatar-wrapper-hud';
-            
-            
-            const leftDeco = document.createElement('div');
-            leftDeco.className = 'avatar-deco deco-left';
-            leftDeco.innerHTML = `
-                <div class="hud-text">:: BIO-SCAN ::</div>
-                <div class="hud-anim-box">
-                    <div class="scan-line"></div>
-                    <div class="data-row">ID: P1C0L0</div>
-                    <div class="data-row">STATUS: ONLINE</div>
-                </div>
-            `;
-            
-            
-            const rightDeco = document.createElement('div');
-            rightDeco.className = 'avatar-deco deco-right';
-            rightDeco.innerHTML = `
-                <div class="hud-text">:: SYS-ANALYSIS ::</div>
-                <div class="hud-anim-box">
-                    <div class="scan-line delay"></div>
-                    <div class="data-row align-right">THREAT: NONE</div>
-                    <div class="data-row align-right">ACCESS: GRANTED</div>
-                </div>
-            `;
-            
-            
-            
-            profileImg.parentNode.insertBefore(wrapper, profileImg);
-            
-            wrapper.appendChild(leftDeco);
-            wrapper.appendChild(profileImg); 
-            wrapper.appendChild(rightDeco);
-        }
-    });
-</script>
 
 <script>
     let menu = document.getElementById('menu');

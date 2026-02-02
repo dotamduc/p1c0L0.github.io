@@ -30,6 +30,14 @@ params:
 
       - name: "<i class='fab fa-instagram'></i> Instagram"
         url: "https://www.instagram.com/double_d_tm/"
+
+markup:
+  highlight:
+    codeFences: true
+    guessSyntax: true
+    lineNos: true
+    noClasses: false
+    style: monokai  # Style màu rực rỡ trên nền tối
   # Cấu hình Menu điều hướng (Navigation Bar)
 menu:
   main:
