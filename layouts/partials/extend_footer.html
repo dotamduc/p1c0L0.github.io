@@ -1,7 +1,6 @@
 <div id="three-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -9999; background: #000;"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-    // --- 3D BACKGROUND SCRIPT ---
     let scene, camera, renderer, networkGroup;
     let mouseX = 0, mouseY = 0;
     const container = document.getElementById('three-container');
@@ -75,7 +74,6 @@
     if(!window.threeInitialized) { initThreeJS(); animateThreeJS(); window.threeInitialized = true; }
 </script>
 
-
 <div id="cyber-back-btn" style="display: none;" onclick="goBack()">
     <span class="cmd">&lt; cd ../</span> <span class="text"></span>
 </div>
@@ -87,9 +85,13 @@
 
 <script>
     function goBack() {
+        // Kiểm tra lịch sử duyệt web
         if (window.history.length > 1 && document.referrer.indexOf(window.location.host) !== -1) {
             window.history.back();
-        } else { window.location.href = '/'; }
+        } else { 
+            // FIX LỖI 404: Sử dụng BaseURL của Hugo thay vì '/'
+            window.location.href = '{{ .Site.BaseURL }}'; 
+        }
     }
 
     function generateHackMDTOC() {
@@ -103,30 +105,19 @@
         if(backBtn) backBtn.style.display = 'none';
 
         if (postContent && tocContent) {
-            // Hiện nút Back
             backBtn.style.display = 'block';
-
             const headings = postContent.querySelectorAll('h1, h2, h3, h4');
             if (headings.length > 0) {
                 tocWrapper.style.display = 'block';
                 const ul = document.createElement('ul');
-
                 headings.forEach((heading) => {
                     let id = heading.getAttribute('id');
-                    if (!id) {
-                        id = heading.innerText.toLowerCase().replace(/[^\w]+/g, '-');
-                        heading.setAttribute('id', id);
-                    }
-
+                    if (!id) { id = heading.innerText.toLowerCase().replace(/[^\w]+/g, '-'); heading.setAttribute('id', id); }
                     const li = document.createElement('li');
                     const level = heading.tagName.toLowerCase();
                     li.className = `toc-item ${level}`;
-
                     const a = document.createElement('a');
-                    a.href = `#${id}`;
-                    a.innerText = heading.innerText;
-                    a.className = 'toc-link';
-                    
+                    a.href = `#${id}`; a.innerText = heading.innerText; a.className = 'toc-link';
                     a.addEventListener('click', (e) => {
                         e.preventDefault();
                         const target = document.getElementById(id);
@@ -136,23 +127,16 @@
                             history.pushState(null, null, `#${id}`);
                         }
                     });
-
-                    li.appendChild(a);
-                    ul.appendChild(li);
+                    li.appendChild(a); ul.appendChild(li);
                 });
                 tocContent.appendChild(ul);
-
-                // Scrollspy
                 const observer = new IntersectionObserver(entries => {
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
                             const id = entry.target.getAttribute('id');
                             document.querySelectorAll('.toc-link').forEach(link => link.classList.remove('active'));
                             const activeLink = document.querySelector(`.toc-link[href="#${id}"]`);
-                            if (activeLink) {
-                                activeLink.classList.add('active');
-                                activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                            }
+                            if (activeLink) { activeLink.classList.add('active'); activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
                         }
                     });
                 }, { rootMargin: '-100px 0px -70% 0px' });
@@ -163,7 +147,7 @@
 </script>
 
 <style>
-    /* CSS NAVIGATION */
+    /* CSS NAVIGATION & TOC */
     #cyber-back-btn { position: fixed; left: 20px; top: 130px; width: 150px; padding: 10px 15px; box-sizing: border-box; background: rgba(0, 0, 0, 0.8); border: 1px solid #00ff41; border-left: 5px solid #00ff41; color: #00ff41; font-family: 'Courier New', monospace; font-weight: bold; font-size: 15px; cursor: pointer; z-index: 95; transition: all 0.3s ease; backdrop-filter: blur(5px); text-transform: uppercase; letter-spacing: 1px; }
     #cyber-back-btn:hover { background: rgba(0, 255, 65, 0.2); box-shadow: 0 0 15px rgba(0, 255, 65, 0.4); padding-left: 25px; }
     #hackmd-toc-wrapper { position: fixed; left: 20px; top: 180px; width: 260px; max-height: calc(100vh - 200px); overflow-y: auto; z-index: 90; background: transparent; padding-right: 10px; }
@@ -179,155 +163,49 @@
     @media screen and (max-width: 1450px) { #hackmd-toc-wrapper, #cyber-back-btn { display: none !important; } }
 </style>
 
-
 <script>
-    // Hàm khởi tạo nút Copy
     function initCodeCopy() {
-        // Tìm tất cả các khối highlight của Hugo
         const codeBlocks = document.querySelectorAll('.highlight');
-
         codeBlocks.forEach(block => {
-            // Kiểm tra xem đã có nút copy chưa
             if (block.querySelector('.cyber-copy-btn')) return;
-
-            // Tạo container tương đối để định vị nút
-            if (getComputedStyle(block).position === 'static') {
-                block.style.position = 'relative';
-            }
-
-            // Tạo nút Copy
+            if (getComputedStyle(block).position === 'static') block.style.position = 'relative';
             const btn = document.createElement('button');
             btn.className = 'cyber-copy-btn';
-            btn.innerHTML = '<span>COPY</span>'; // Dùng span để dễ style
-            
-            // Xử lý sự kiện click
+            btn.innerHTML = '<span>COPY</span>'; 
             btn.addEventListener('click', () => {
-                // Clone khối code để xử lý dữ liệu sạch
                 const clone = block.cloneNode(true);
-                
-                // Loại bỏ các phần tử số dòng (nếu CSS chưa ẩn hết)
                 const lineNums = clone.querySelectorAll('.ln, .lnt, .lntd:first-child');
                 lineNums.forEach(el => el.remove());
-                
-                // Lấy text sạch
                 const codeText = clone.innerText.trim();
-
                 navigator.clipboard.writeText(codeText).then(() => {
                     btn.innerHTML = '<span style="color:#fff">COPIED!</span>';
                     btn.classList.add('copied');
-                    setTimeout(() => {
-                        btn.innerHTML = '<span>COPY</span>';
-                        btn.classList.remove('copied');
-                    }, 2000);
+                    setTimeout(() => { btn.innerHTML = '<span>COPY</span>'; btn.classList.remove('copied'); }, 2000);
                 });
             });
-
             block.appendChild(btn);
         });
     }
 </script>
 
 <style>
-    /* 1. ẨN SỐ DÒNG (Line Numbers) */
-    /* Ẩn các class số dòng của Hugo/Chroma */
-    .ln, .lnt, .lntd:first-child { 
-        display: none !important; 
-        width: 0 !important;
-        padding: 0 !important;
-        user-select: none;
-    }
+    /* Ẩn số dòng */
+    .ln, .lnt, .lntd:first-child { display: none !important; width: 0 !important; padding: 0 !important; }
+    .lntd:last-child { width: 100% !important; padding-left: 0 !important; }
+    .lntable { width: 100% !important; display: block !important; }
+    .lntable tbody, .lntable tr, .lntable td { display: block !important; width: 100% !important; }
+
+    /* Nút Copy */
+    .cyber-copy-btn { position: absolute; top: 0; right: 0; z-index: 10; background: rgba(0, 255, 65, 0.1); border: none; border-bottom-left-radius: 5px; border-left: 1px solid #00ff41; border-bottom: 1px solid #00ff41; color: #00ff41; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; padding: 5px 10px; cursor: pointer; opacity: 0; transition: all 0.3s ease; }
+    .highlight:hover .cyber-copy-btn { opacity: 1; }
+    .cyber-copy-btn:hover { background: #00ff41; color: #000; }
     
-    /* Mở rộng cột code ra 100% */
-    .lntd:last-child { 
-        width: 100% !important; 
-        padding-left: 0 !important;
-    }
-    
-    /* Reset layout table của Hugo */
-    .lntable { 
-        width: 100% !important; 
-        display: block !important; 
-    }
-    .lntable tbody, .lntable tr, .lntable td { 
-        display: block !important; 
-        width: 100% !important; 
-    }
-
-    /* 2. STYLE CHO NÚT COPY */
-    .cyber-copy-btn {
-        position: absolute;
-        top: 0;
-        right: 0;
-        z-index: 10;
-        background: rgba(0, 255, 65, 0.1);
-        border: none;
-        border-bottom-left-radius: 5px;
-        border-left: 1px solid #00ff41;
-        border-bottom: 1px solid #00ff41;
-        color: #00ff41;
-        font-family: 'Courier New', monospace;
-        font-size: 11px;
-        font-weight: bold;
-        padding: 5px 10px;
-        cursor: pointer;
-        opacity: 0; /* Ẩn mặc định */
-        transition: all 0.3s ease;
-    }
-
-    /* Hiện nút khi di chuột vào code block */
-    .highlight:hover .cyber-copy-btn {
-        opacity: 1;
-    }
-
-    .cyber-copy-btn:hover {
-        background: #00ff41;
-        color: #000;
-    }
-
-    /* 3. STYLE LẠI CODE BLOCK CHO ĐẸP */
-    .post-content .highlight {
-        background: #0d1117 !important; /* Nền tối giống Github */
-        border: 1px solid rgba(0, 255, 65, 0.3);
-        border-radius: 6px;
-        margin-bottom: 20px;
-        overflow: hidden; /* Bo góc */
-    }
-    
-    .post-content pre {
-        padding: 15px !important;
-        margin: 0 !important;
-        background: transparent !important;
-        overflow-x: auto; /* Thanh cuộn ngang nếu code dài */
-    }
-
-    /* Thanh cuộn code */
+    /* Code Block Style */
+    .post-content .highlight { background: #0d1117 !important; border: 1px solid rgba(0, 255, 65, 0.3); border-radius: 6px; margin-bottom: 20px; overflow: hidden; }
+    .post-content pre { padding: 15px !important; margin: 0 !important; background: transparent !important; overflow-x: auto; }
     .post-content pre::-webkit-scrollbar { height: 6px; }
     .post-content pre::-webkit-scrollbar-thumb { background: #00ff41; border-radius: 3px; }
     .post-content pre::-webkit-scrollbar-track { background: #1a1a1a; }
-</style>
-
-
-<style>
-    /* Khung bài viết */
-    .post-single {
-        background-color: rgba(0, 0, 0, 0.85) !important;
-        backdrop-filter: blur(10px);
-        border: 1px solid #00ff41;
-        border-radius: 12px;
-        padding: 40px;
-        margin-top: 20px;
-        box-shadow: 0 0 30px rgba(0, 255, 65, 0.15);
-        position: relative;
-        z-index: 1;
-    }
-    @media screen and (min-width: 1451px) {
-        .post-single { margin-left: 300px !important; width: calc(100% - 300px) !important; max-width: 1000px; }
-        .main { max-width: 1600px !important; margin: auto; }
-    }
-    .post-content { color: #e0e0e0; font-family: 'Segoe UI', sans-serif; }
-    .profile img { border-radius: 50% !important; border: 3px solid #00ff41 !important; box-shadow: 0 0 25px rgba(0, 255, 65, 0.4) !important; background: #000; transition: transform 0.3s ease; }
-    .profile img:hover { transform: scale(1.05) rotate(5deg); box-shadow: 0 0 50px rgba(0, 255, 65, 0.9) !important; }
-    .art-widget, .cyber-panel, .avatar-wrapper-hud { display: none !important; }
 </style>
 
 <script>
@@ -356,6 +234,25 @@
     .status-clock { font-size: 1.8rem; font-weight: 800; color: #00ff41; text-shadow: 0 0 15px rgba(0, 255, 65, 0.6); letter-spacing: 3px; background: rgba(0, 255, 65, 0.05); padding: 5px 20px; border-radius: 5px; border: 1px dashed rgba(0, 255, 65, 0.3); }
     .blink { animation: blink-anim 1s infinite; } @keyframes blink-anim { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
     @media screen and (max-width: 768px) { .status-content { flex-direction: column; gap: 5px; } .status-clock { font-size: 1.4rem; width: 100%; text-align: center; box-sizing: border-box; } }
+
+    /* CSS PHÂN TRANG (PAGINATION) */
+    .pagination { display: none !important; }
+    .pagination-container { display: flex; justify-content: center; align-items: center; margin: 50px auto 80px auto; gap: 10px; flex-wrap: wrap; position: relative; z-index: 10; }
+    .page-link { display: inline-flex; align-items: center; justify-content: center; height: 40px; min-width: 40px; padding: 0 15px; background: rgba(0, 0, 0, 0.8); border: 1px solid #00ff41; color: #00ff41; font-family: 'Courier New', monospace; font-weight: bold; font-size: 16px; text-decoration: none !important; border-radius: 6px; transition: all 0.3s ease; box-shadow: 0 0 5px rgba(0, 255, 65, 0.2); }
+    .page-link:hover { background: rgba(0, 255, 65, 0.2); box-shadow: 0 0 15px rgba(0, 255, 65, 0.6); transform: translateY(-3px); color: #fff; cursor: pointer; }
+    .page-link.active { background: #00ff41; color: #000; box-shadow: 0 0 20px rgba(0, 255, 65, 0.8); border-color: #00ff41; pointer-events: none; }
+    .page-link.prev, .page-link.next { padding: 0 20px; text-transform: uppercase; letter-spacing: 1px; }
+    .page-link span { margin: 0 5px; font-size: 1.2em; line-height: 0; position: relative; top: -1px; }
+    @media screen and (max-width: 480px) { .pagination-container { gap: 5px; } .page-link { height: 35px; min-width: 35px; font-size: 14px; padding: 0 10px; } }
+</style>
+
+<style>
+    .post-single { background-color: rgba(0, 0, 0, 0.85) !important; backdrop-filter: blur(10px); border: 1px solid #00ff41; border-radius: 12px; padding: 40px; margin-top: 20px; box-shadow: 0 0 30px rgba(0, 255, 65, 0.15); position: relative; z-index: 1; }
+    @media screen and (min-width: 1451px) { .post-single { margin-left: 300px !important; width: calc(100% - 300px) !important; max-width: 1000px; } .main { max-width: 1600px !important; margin: auto; } }
+    .post-content { color: #e0e0e0; font-family: 'Segoe UI', sans-serif; }
+    .profile img { border-radius: 50% !important; border: 3px solid #00ff41 !important; box-shadow: 0 0 25px rgba(0, 255, 65, 0.4) !important; background: #000; transition: transform 0.3s ease; }
+    .profile img:hover { transform: scale(1.05) rotate(5deg); box-shadow: 0 0 50px rgba(0, 255, 65, 0.9) !important; }
+    .art-widget, .cyber-panel, .avatar-wrapper-hud { display: none !important; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/pjax/pjax.js"></script>
@@ -367,7 +264,7 @@
     function initAllWidgets() {
         initStatusBar();
         generateHackMDTOC();
-        initCodeCopy(); // <--- GỌI HÀM TẠO NÚT COPY
+        initCodeCopy();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -375,7 +272,7 @@
         if (!window.ap) {
             window.ap = new APlayer({
                 container: document.getElementById('aplayer-fixed'), fixed: true, autoplay: true, theme: '#00ff41', loop: 'all', order: 'list', preload: 'auto', volume: 0.5, mutex: true, listFolded: true,
-                audio: [ { name: 'Người tình mùa đông', artist: 'Hà Anh Tuấn', url: 'music/nhac.mp3', cover: 'images/cover.png' } ]
+                audio: [ { name: 'Cyberpunk City', artist: 'Hacker', url: '/music/song.mp3', cover: '/images/cover.jpg' } ]
             });
             document.body.addEventListener('click', function() { window.ap.play(); }, { once: true });
         }
@@ -397,14 +294,4 @@
     .aplayer-list { background: #000 !important; border-top: 1px solid #00ff41 !important; }
     .aplayer-list ol li { border-bottom: 1px dashed #333 !important; }
     .aplayer-list ol li:hover { background: rgba(0, 255, 65, 0.1) !important; }
-    
-    /* --- PAGINATION CSS (PHÂN TRANG SỐ) --- */
-    .pagination { display: none !important; }
-    .pagination-container { display: flex; justify-content: center; align-items: center; margin: 50px auto 80px auto; gap: 10px; flex-wrap: wrap; position: relative; z-index: 10; }
-    .page-link { display: inline-flex; align-items: center; justify-content: center; height: 40px; min-width: 40px; padding: 0 15px; background: rgba(0, 0, 0, 0.8); border: 1px solid #00ff41; color: #00ff41; font-family: 'Courier New', monospace; font-weight: bold; font-size: 16px; text-decoration: none !important; border-radius: 6px; transition: all 0.3s ease; box-shadow: 0 0 5px rgba(0, 255, 65, 0.2); }
-    .page-link:hover { background: rgba(0, 255, 65, 0.2); box-shadow: 0 0 15px rgba(0, 255, 65, 0.6); transform: translateY(-3px); color: #fff; cursor: pointer; }
-    .page-link.active { background: #00ff41; color: #000; box-shadow: 0 0 20px rgba(0, 255, 65, 0.8); border-color: #00ff41; pointer-events: none; }
-    .page-link.prev, .page-link.next { padding: 0 20px; text-transform: uppercase; letter-spacing: 1px; }
-    .page-link span { margin: 0 5px; font-size: 1.2em; line-height: 0; position: relative; top: -1px; }
-    @media screen and (max-width: 480px) { .pagination-container { gap: 5px; } .page-link { height: 35px; min-width: 35px; font-size: 14px; padding: 0 10px; } }
 </style>

@@ -252,7 +252,6 @@ authman/app/__init__.py – khởi tạo Flask app, cấu hình, HTTPDigestAuth 
 </a><div id="three-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -9999; background: #000;"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-    
     let scene, camera, renderer, networkGroup;
     let mouseX = 0, mouseY = 0;
     const container = document.getElementById('three-container');
@@ -326,7 +325,6 @@ authman/app/__init__.py – khởi tạo Flask app, cấu hình, HTTPDigestAuth 
     if(!window.threeInitialized) { initThreeJS(); animateThreeJS(); window.threeInitialized = true; }
 </script>
 
-
 <div id="cyber-back-btn" style="display: none;" onclick="goBack()">
     <span class="cmd">&lt; cd ../</span> <span class="text"></span>
 </div>
@@ -338,9 +336,13 @@ authman/app/__init__.py – khởi tạo Flask app, cấu hình, HTTPDigestAuth 
 
 <script>
     function goBack() {
+        
         if (window.history.length > 1 && document.referrer.indexOf(window.location.host) !== -1) {
             window.history.back();
-        } else { window.location.href = '/'; }
+        } else { 
+            
+            window.location.href = 'http:\/\/localhost:1313\/p1c0L0.github.io\/'; 
+        }
     }
 
     function generateHackMDTOC() {
@@ -354,30 +356,19 @@ authman/app/__init__.py – khởi tạo Flask app, cấu hình, HTTPDigestAuth 
         if(backBtn) backBtn.style.display = 'none';
 
         if (postContent && tocContent) {
-            
             backBtn.style.display = 'block';
-
             const headings = postContent.querySelectorAll('h1, h2, h3, h4');
             if (headings.length > 0) {
                 tocWrapper.style.display = 'block';
                 const ul = document.createElement('ul');
-
                 headings.forEach((heading) => {
                     let id = heading.getAttribute('id');
-                    if (!id) {
-                        id = heading.innerText.toLowerCase().replace(/[^\w]+/g, '-');
-                        heading.setAttribute('id', id);
-                    }
-
+                    if (!id) { id = heading.innerText.toLowerCase().replace(/[^\w]+/g, '-'); heading.setAttribute('id', id); }
                     const li = document.createElement('li');
                     const level = heading.tagName.toLowerCase();
                     li.className = `toc-item ${level}`;
-
                     const a = document.createElement('a');
-                    a.href = `#${id}`;
-                    a.innerText = heading.innerText;
-                    a.className = 'toc-link';
-                    
+                    a.href = `#${id}`; a.innerText = heading.innerText; a.className = 'toc-link';
                     a.addEventListener('click', (e) => {
                         e.preventDefault();
                         const target = document.getElementById(id);
@@ -387,23 +378,16 @@ authman/app/__init__.py – khởi tạo Flask app, cấu hình, HTTPDigestAuth 
                             history.pushState(null, null, `#${id}`);
                         }
                     });
-
-                    li.appendChild(a);
-                    ul.appendChild(li);
+                    li.appendChild(a); ul.appendChild(li);
                 });
                 tocContent.appendChild(ul);
-
-                
                 const observer = new IntersectionObserver(entries => {
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
                             const id = entry.target.getAttribute('id');
                             document.querySelectorAll('.toc-link').forEach(link => link.classList.remove('active'));
                             const activeLink = document.querySelector(`.toc-link[href="#${id}"]`);
-                            if (activeLink) {
-                                activeLink.classList.add('active');
-                                activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                            }
+                            if (activeLink) { activeLink.classList.add('active'); activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
                         }
                     });
                 }, { rootMargin: '-100px 0px -70% 0px' });
@@ -430,49 +414,26 @@ authman/app/__init__.py – khởi tạo Flask app, cấu hình, HTTPDigestAuth 
     @media screen and (max-width: 1450px) { #hackmd-toc-wrapper, #cyber-back-btn { display: none !important; } }
 </style>
 
-
 <script>
-    
     function initCodeCopy() {
-        
         const codeBlocks = document.querySelectorAll('.highlight');
-
         codeBlocks.forEach(block => {
-            
             if (block.querySelector('.cyber-copy-btn')) return;
-
-            
-            if (getComputedStyle(block).position === 'static') {
-                block.style.position = 'relative';
-            }
-
-            
+            if (getComputedStyle(block).position === 'static') block.style.position = 'relative';
             const btn = document.createElement('button');
             btn.className = 'cyber-copy-btn';
             btn.innerHTML = '<span>COPY</span>'; 
-            
-            
             btn.addEventListener('click', () => {
-                
                 const clone = block.cloneNode(true);
-                
-                
                 const lineNums = clone.querySelectorAll('.ln, .lnt, .lntd:first-child');
                 lineNums.forEach(el => el.remove());
-                
-                
                 const codeText = clone.innerText.trim();
-
                 navigator.clipboard.writeText(codeText).then(() => {
                     btn.innerHTML = '<span style="color:#fff">COPIED!</span>';
                     btn.classList.add('copied');
-                    setTimeout(() => {
-                        btn.innerHTML = '<span>COPY</span>';
-                        btn.classList.remove('copied');
-                    }, 2000);
+                    setTimeout(() => { btn.innerHTML = '<span>COPY</span>'; btn.classList.remove('copied'); }, 2000);
                 });
             });
-
             block.appendChild(btn);
         });
     }
@@ -480,105 +441,22 @@ authman/app/__init__.py – khởi tạo Flask app, cấu hình, HTTPDigestAuth 
 
 <style>
      
+    .ln, .lnt, .lntd:first-child { display: none !important; width: 0 !important; padding: 0 !important; }
+    .lntd:last-child { width: 100% !important; padding-left: 0 !important; }
+    .lntable { width: 100% !important; display: block !important; }
+    .lntable tbody, .lntable tr, .lntable td { display: block !important; width: 100% !important; }
+
      
-    .ln, .lnt, .lntd:first-child { 
-        display: none !important; 
-        width: 0 !important;
-        padding: 0 !important;
-        user-select: none;
-    }
+    .cyber-copy-btn { position: absolute; top: 0; right: 0; z-index: 10; background: rgba(0, 255, 65, 0.1); border: none; border-bottom-left-radius: 5px; border-left: 1px solid #00ff41; border-bottom: 1px solid #00ff41; color: #00ff41; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; padding: 5px 10px; cursor: pointer; opacity: 0; transition: all 0.3s ease; }
+    .highlight:hover .cyber-copy-btn { opacity: 1; }
+    .cyber-copy-btn:hover { background: #00ff41; color: #000; }
     
      
-    .lntd:last-child { 
-        width: 100% !important; 
-        padding-left: 0 !important;
-    }
-    
-     
-    .lntable { 
-        width: 100% !important; 
-        display: block !important; 
-    }
-    .lntable tbody, .lntable tr, .lntable td { 
-        display: block !important; 
-        width: 100% !important; 
-    }
-
-     
-    .cyber-copy-btn {
-        position: absolute;
-        top: 0;
-        right: 0;
-        z-index: 10;
-        background: rgba(0, 255, 65, 0.1);
-        border: none;
-        border-bottom-left-radius: 5px;
-        border-left: 1px solid #00ff41;
-        border-bottom: 1px solid #00ff41;
-        color: #00ff41;
-        font-family: 'Courier New', monospace;
-        font-size: 11px;
-        font-weight: bold;
-        padding: 5px 10px;
-        cursor: pointer;
-        opacity: 0;  
-        transition: all 0.3s ease;
-    }
-
-     
-    .highlight:hover .cyber-copy-btn {
-        opacity: 1;
-    }
-
-    .cyber-copy-btn:hover {
-        background: #00ff41;
-        color: #000;
-    }
-
-     
-    .post-content .highlight {
-        background: #0d1117 !important;  
-        border: 1px solid rgba(0, 255, 65, 0.3);
-        border-radius: 6px;
-        margin-bottom: 20px;
-        overflow: hidden;  
-    }
-    
-    .post-content pre {
-        padding: 15px !important;
-        margin: 0 !important;
-        background: transparent !important;
-        overflow-x: auto;  
-    }
-
-     
+    .post-content .highlight { background: #0d1117 !important; border: 1px solid rgba(0, 255, 65, 0.3); border-radius: 6px; margin-bottom: 20px; overflow: hidden; }
+    .post-content pre { padding: 15px !important; margin: 0 !important; background: transparent !important; overflow-x: auto; }
     .post-content pre::-webkit-scrollbar { height: 6px; }
     .post-content pre::-webkit-scrollbar-thumb { background: #00ff41; border-radius: 3px; }
     .post-content pre::-webkit-scrollbar-track { background: #1a1a1a; }
-</style>
-
-
-<style>
-     
-    .post-single {
-        background-color: rgba(0, 0, 0, 0.85) !important;
-        backdrop-filter: blur(10px);
-        border: 1px solid #00ff41;
-        border-radius: 12px;
-        padding: 40px;
-        margin-top: 20px;
-        box-shadow: 0 0 30px rgba(0, 255, 65, 0.15);
-        position: relative;
-        z-index: 1;
-    }
-    @media screen and (min-width: 1451px) {
-        .post-single { margin-left: 300px !important; width: calc(100% - 300px) !important; max-width: 1000px; }
-        .main { max-width: 1600px !important; margin: auto; }
-    }
-    .post-content { color: #e0e0e0; font-family: 'Segoe UI', sans-serif; }
-    .profile img { border-radius: 50% !important; border: 3px solid #00ff41 !important; box-shadow: 0 0 25px rgba(0, 255, 65, 0.4) !important; background: #000; transition: transform 0.3s ease; }
-    .profile img:hover { transform: scale(1.05) rotate(5deg); box-shadow: 0 0 50px rgba(0, 255, 65, 0.9) !important; }
-    .art-widget, .cyber-panel, .avatar-wrapper-hud { display: none !important; }
 </style>
 
 <script>
@@ -607,6 +485,25 @@ authman/app/__init__.py – khởi tạo Flask app, cấu hình, HTTPDigestAuth 
     .status-clock { font-size: 1.8rem; font-weight: 800; color: #00ff41; text-shadow: 0 0 15px rgba(0, 255, 65, 0.6); letter-spacing: 3px; background: rgba(0, 255, 65, 0.05); padding: 5px 20px; border-radius: 5px; border: 1px dashed rgba(0, 255, 65, 0.3); }
     .blink { animation: blink-anim 1s infinite; } @keyframes blink-anim { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
     @media screen and (max-width: 768px) { .status-content { flex-direction: column; gap: 5px; } .status-clock { font-size: 1.4rem; width: 100%; text-align: center; box-sizing: border-box; } }
+
+     
+    .pagination { display: none !important; }
+    .pagination-container { display: flex; justify-content: center; align-items: center; margin: 50px auto 80px auto; gap: 10px; flex-wrap: wrap; position: relative; z-index: 10; }
+    .page-link { display: inline-flex; align-items: center; justify-content: center; height: 40px; min-width: 40px; padding: 0 15px; background: rgba(0, 0, 0, 0.8); border: 1px solid #00ff41; color: #00ff41; font-family: 'Courier New', monospace; font-weight: bold; font-size: 16px; text-decoration: none !important; border-radius: 6px; transition: all 0.3s ease; box-shadow: 0 0 5px rgba(0, 255, 65, 0.2); }
+    .page-link:hover { background: rgba(0, 255, 65, 0.2); box-shadow: 0 0 15px rgba(0, 255, 65, 0.6); transform: translateY(-3px); color: #fff; cursor: pointer; }
+    .page-link.active { background: #00ff41; color: #000; box-shadow: 0 0 20px rgba(0, 255, 65, 0.8); border-color: #00ff41; pointer-events: none; }
+    .page-link.prev, .page-link.next { padding: 0 20px; text-transform: uppercase; letter-spacing: 1px; }
+    .page-link span { margin: 0 5px; font-size: 1.2em; line-height: 0; position: relative; top: -1px; }
+    @media screen and (max-width: 480px) { .pagination-container { gap: 5px; } .page-link { height: 35px; min-width: 35px; font-size: 14px; padding: 0 10px; } }
+</style>
+
+<style>
+    .post-single { background-color: rgba(0, 0, 0, 0.85) !important; backdrop-filter: blur(10px); border: 1px solid #00ff41; border-radius: 12px; padding: 40px; margin-top: 20px; box-shadow: 0 0 30px rgba(0, 255, 65, 0.15); position: relative; z-index: 1; }
+    @media screen and (min-width: 1451px) { .post-single { margin-left: 300px !important; width: calc(100% - 300px) !important; max-width: 1000px; } .main { max-width: 1600px !important; margin: auto; } }
+    .post-content { color: #e0e0e0; font-family: 'Segoe UI', sans-serif; }
+    .profile img { border-radius: 50% !important; border: 3px solid #00ff41 !important; box-shadow: 0 0 25px rgba(0, 255, 65, 0.4) !important; background: #000; transition: transform 0.3s ease; }
+    .profile img:hover { transform: scale(1.05) rotate(5deg); box-shadow: 0 0 50px rgba(0, 255, 65, 0.9) !important; }
+    .art-widget, .cyber-panel, .avatar-wrapper-hud { display: none !important; }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/pjax/pjax.js"></script>
@@ -618,7 +515,7 @@ authman/app/__init__.py – khởi tạo Flask app, cấu hình, HTTPDigestAuth 
     function initAllWidgets() {
         initStatusBar();
         generateHackMDTOC();
-        initCodeCopy(); 
+        initCodeCopy();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -626,7 +523,7 @@ authman/app/__init__.py – khởi tạo Flask app, cấu hình, HTTPDigestAuth 
         if (!window.ap) {
             window.ap = new APlayer({
                 container: document.getElementById('aplayer-fixed'), fixed: true, autoplay: true, theme: '#00ff41', loop: 'all', order: 'list', preload: 'auto', volume: 0.5, mutex: true, listFolded: true,
-                audio: [ { name: 'Người tình mùa đông', artist: 'Hà Anh Tuấn', url: 'music/nhac.mp3', cover: 'images/cover.png' } ]
+                audio: [ { name: 'Cyberpunk City', artist: 'Hacker', url: '/music/song.mp3', cover: '/images/cover.jpg' } ]
             });
             document.body.addEventListener('click', function() { window.ap.play(); }, { once: true });
         }
@@ -648,16 +545,6 @@ authman/app/__init__.py – khởi tạo Flask app, cấu hình, HTTPDigestAuth 
     .aplayer-list { background: #000 !important; border-top: 1px solid #00ff41 !important; }
     .aplayer-list ol li { border-bottom: 1px dashed #333 !important; }
     .aplayer-list ol li:hover { background: rgba(0, 255, 65, 0.1) !important; }
-    
-     
-    .pagination { display: none !important; }
-    .pagination-container { display: flex; justify-content: center; align-items: center; margin: 50px auto 80px auto; gap: 10px; flex-wrap: wrap; position: relative; z-index: 10; }
-    .page-link { display: inline-flex; align-items: center; justify-content: center; height: 40px; min-width: 40px; padding: 0 15px; background: rgba(0, 0, 0, 0.8); border: 1px solid #00ff41; color: #00ff41; font-family: 'Courier New', monospace; font-weight: bold; font-size: 16px; text-decoration: none !important; border-radius: 6px; transition: all 0.3s ease; box-shadow: 0 0 5px rgba(0, 255, 65, 0.2); }
-    .page-link:hover { background: rgba(0, 255, 65, 0.2); box-shadow: 0 0 15px rgba(0, 255, 65, 0.6); transform: translateY(-3px); color: #fff; cursor: pointer; }
-    .page-link.active { background: #00ff41; color: #000; box-shadow: 0 0 20px rgba(0, 255, 65, 0.8); border-color: #00ff41; pointer-events: none; }
-    .page-link.prev, .page-link.next { padding: 0 20px; text-transform: uppercase; letter-spacing: 1px; }
-    .page-link span { margin: 0 5px; font-size: 1.2em; line-height: 0; position: relative; top: -1px; }
-    @media screen and (max-width: 480px) { .pagination-container { gap: 5px; } .page-link { height: 35px; min-width: 35px; font-size: 14px; padding: 0 10px; } }
 </style>
 
 <script>
